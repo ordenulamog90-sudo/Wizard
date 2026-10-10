@@ -70,24 +70,29 @@
       animation: elementPodiumGlow 2s infinite ease-in-out;
     }
 
-    /* Element-Muster für Podeste */
+    /* Element-Muster für Podeste & Formen */
     .pattern-fire {
-      background-image: repeating-linear-gradient(45deg, rgba(239, 68, 68, 0.25) 0, rgba(239, 68, 68, 0.25) 10px, transparent 10px, transparent 20px);
+      background-image: repeating-linear-gradient(45deg, rgba(239, 68, 68, 0.3) 0, rgba(239, 68, 68, 0.3) 8px, transparent 8px, transparent 16px);
+      clip-path: polygon(0% 10%, 10% 0%, 20% 8%, 30% 0%, 40% 8%, 50% 0%, 60% 8%, 70% 0%, 80% 8%, 90% 0%, 100% 10%, 100% 100%, 0% 100%);
     }
     .pattern-water {
-      background-image: radial-gradient(circle, rgba(2, 132, 199, 0.3) 10%, transparent 10%);
-      background-size: 16px 16px;
+      background-image: radial-gradient(circle, rgba(2, 132, 199, 0.35) 12%, transparent 12%);
+      background-size: 14px 14px;
+      border-radius: 2rem 2rem 1rem 1rem;
     }
     .pattern-diamond {
-      background-image: linear-gradient(135deg, rgba(16, 185, 129, 0.25) 25%, transparent 25%), linear-gradient(225deg, rgba(16, 185, 129, 0.25) 25%, transparent 25%);
-      background-size: 12px 12px;
+      background-image: linear-gradient(135deg, rgba(16, 185, 129, 0.3) 25%, transparent 25%), linear-gradient(225deg, rgba(16, 185, 129, 0.3) 25%, transparent 25%);
+      background-size: 10px 10px;
+      clip-path: polygon(15% 0%, 85% 0%, 100% 15%, 100% 100%, 0% 100%, 0% 15%);
     }
     .pattern-wind {
-      background-image: repeating-linear-gradient(0deg, rgba(245, 158, 11, 0.2) 0, rgba(245, 158, 11, 0.2) 6px, transparent 6px, transparent 12px);
+      background-image: repeating-linear-gradient(0deg, rgba(245, 158, 11, 0.25) 0, rgba(245, 158, 11, 0.25) 5px, transparent 5px, transparent 10px);
+      border-radius: 1.5rem 1.5rem 2rem 2rem;
     }
     .pattern-arkan {
-      background-image: radial-gradient(circle, rgba(168, 85, 247, 0.3) 20%, transparent 20%);
-      background-size: 14px 14px;
+      background-image: radial-gradient(circle, rgba(168, 85, 247, 0.35) 20%, transparent 20%);
+      background-size: 12px 12px;
+      border-radius: 1rem 1rem 1.5rem 1.5rem;
     }
 
     /* Wuchtige TCG Impact-Slam Animation */
@@ -225,11 +230,11 @@
     };
 
     const SUITS = {
-      yellow: { key: 'yellow', name: 'Gelb', title: 'WIND', bg: 'from-amber-950 via-yellow-950 to-slate-950', border: 'border-amber-400', art: CardArt.banner, primaryColor: '#f59e0b', glowColor: 'rgba(245, 158, 11, 0.6)', patternClass: 'pattern-wind', crownName: 'Wind-Reif' },
-      red: { key: 'red', name: 'Rot', title: 'FEUER', bg: 'from-red-950 via-rose-950 to-slate-950', border: 'border-red-500', art: CardArt.axe, primaryColor: '#ef4444', glowColor: 'rgba(239, 68, 68, 0.6)', patternClass: 'pattern-fire', crownName: 'Flammenkrone' },
-      green: { key: 'green', name: 'Grün', title: 'DIAMANTEN', bg: 'from-emerald-950 via-green-950 to-slate-950', border: 'border-emerald-400', art: CardArt.bow, primaryColor: '#10b981', glowColor: 'rgba(16, 185, 129, 0.6)', patternClass: 'pattern-diamond', crownName: 'Diamantkrone' },
-      blue: { key: 'blue', name: 'Blau', title: 'WASSER', bg: 'from-blue-950 via-sky-950 to-slate-950', border: 'border-blue-400', art: CardArt.dagger, primaryColor: '#0284c7', glowColor: 'rgba(2, 132, 199, 0.6)', patternClass: 'pattern-water', crownName: 'Gezeiten-Krone' },
-      wizard: { key: 'wizard', name: 'Zauberer', title: 'ARKAN', bg: 'from-purple-950 via-indigo-950 to-slate-950', border: 'border-purple-400', art: CardArt.wizard, primaryColor: '#a855f7', glowColor: 'rgba(168, 85, 247, 0.6)', patternClass: 'pattern-arkan', crownName: 'Arkan-Diadem' }
+      yellow: { key: 'yellow', name: 'Gelb', title: 'WIND', bg: 'from-amber-950 via-yellow-950 to-slate-950', border: 'border-amber-400', art: CardArt.banner, primaryColor: '#f59e0b', glowColor: 'rgba(245, 158, 11, 0.6)', patternClass: 'pattern-wind', crownIcon: '⚡' },
+      red: { key: 'red', name: 'Rot', title: 'FEUER', bg: 'from-red-950 via-rose-950 to-slate-950', border: 'border-red-500', art: CardArt.axe, primaryColor: '#ef4444', glowColor: 'rgba(239, 68, 68, 0.6)', patternClass: 'pattern-fire', crownIcon: '🔥' },
+      green: { key: 'green', name: 'Grün', title: 'DIAMANTEN', bg: 'from-emerald-950 via-green-950 to-slate-950', border: 'border-emerald-400', art: CardArt.bow, primaryColor: '#10b981', glowColor: 'rgba(16, 185, 129, 0.6)', patternClass: 'pattern-diamond', crownIcon: '💎' },
+      blue: { key: 'blue', name: 'Blau', title: 'WASSER', bg: 'from-blue-950 via-sky-950 to-slate-950', border: 'border-blue-400', art: CardArt.dagger, primaryColor: '#0284c7', glowColor: 'rgba(2, 132, 199, 0.6)', patternClass: 'pattern-water', crownIcon: '💧' },
+      wizard: { key: 'wizard', name: 'Zauberer', title: 'ARKAN', bg: 'from-purple-950 via-indigo-950 to-slate-950', border: 'border-purple-400', art: CardArt.wizard, primaryColor: '#a855f7', glowColor: 'rgba(168, 85, 247, 0.6)', patternClass: 'pattern-arkan', crownIcon: '🔮' }
     };
 
     const renderTcgElementAnimation = (card) => {
@@ -711,25 +716,18 @@
         }, 750);
       };
 
-      // 100% EXAKTE ZAUBERER- & NARR-REGELN
       const evaluateTrick = (cardsOnTable) => {
         let winningCardObj = cardsOnTable[0];
 
-        // 1. Der erste gespielte Zauberer gewinnt absolut immer sofort
         const firstWizard = cardsOnTable.find(c => c.card.type === 'wizard');
         if (firstWizard) {
           winningCardObj = firstWizard;
         } else {
-          // Prüfen, ob NUR Narren auf dem Tisch liegen
           const allJesters = cardsOnTable.every(c => c.card.type === 'jester');
           if (allJesters) {
-            // Wenn alle Narren sind, gewinnt der allererste gespielte Narr (cardsOnTable[0])
             winningCardObj = cardsOnTable[0];
           } else {
-            // Die aufliegende Trumpfkarte bestimmt die Trumpffarbe
             const trumpSuit = (trumpCard && trumpCard.type === 'number') ? trumpCard.suit : null;
-
-            // Ermittle die Leitfarbe (die Farbe der allerersten ausgespielten Karte, überspringt evtl. Narren am Anfang)
             const leadCardObj = cardsOnTable.find(c => c.card.type === 'number');
             const leadSuit = leadCardObj ? leadCardObj.card.suit : null;
 
@@ -745,7 +743,7 @@
                 } else if (leadSuit && card.suit === leadSuit) {
                   currentRank = 1000 + card.value;
                 } else {
-                  currentRank = -1; // Fehlfarbe kann niemals gewinnen
+                  currentRank = -1;
                 }
 
                 if (currentRank > bestRank) {
@@ -753,7 +751,6 @@
                   winningCardObj = c;
                 }
               }
-              // Narren (jester) werden bei Zahlenvergleichen komplett ignoriert und können niemals gewinnen, wenn Zahlen/Zauberer im Spiel sind
             });
           }
         }
@@ -951,7 +948,7 @@
               </div>
 
               <span className="text-[9px] text-center text-slate-300 font-bold block mt-2 drop-shadow bg-slate-950/70 py-1 rounded-full backdrop-blur-md border border-sky-500/30">
-                MYTHOS CARD GAME V9.8 (STRICT JESTER & TRICK LOGIC)
+                MYTHOS CARD GAME V9.9 (ELEMENT CROWN & SHAPED PODIUM)
               </span>
             </div>
           </div>
@@ -1386,31 +1383,31 @@
                 <div className="my-auto flex flex-col items-center w-full">
                   <div className="relative flex flex-col items-center mb-3">
                     
-                    {/* ELEMENT-KRONEN-RAHMEN UM DAS PROFILBILD */}
+                    {/* DIE ANGEPASSTE KRONE IM OBEREN DRITTEL DES PROFILBILDES */}
                     <div className="relative z-20 flex flex-col items-center">
-                      <div className="absolute -top-6 text-xl animate-bounce drop-shadow" style={{ filter: `drop-shadow(0 0 8px ${suitTheme.primaryColor})` }}>
-                        {winnerSuitKey === 'red' ? '🔥' : winnerSuitKey === 'green' ? '💎' : winnerSuitKey === 'blue' ? '💧' : winnerSuitKey === 'yellow' ? '⚡' : '🔮'}
+                      <div className="absolute -top-5 text-2xl animate-bounce drop-shadow z-30" style={{ filter: `drop-shadow(0 0 10px ${suitTheme.primaryColor})` }}>
+                        {suitTheme.crownIcon}
                       </div>
                       
-                      <div className="w-24 h-24 rounded-full border-4 p-1 flex items-center justify-center shadow-2xl bg-slate-900 relative" style={{ borderColor: suitTheme.primaryColor, boxShadow: `0 0 30px ${suitTheme.glowColor}` }}>
+                      <div className="w-24 h-24 rounded-full border-4 p-1 flex items-center justify-center shadow-2xl bg-slate-900 relative overflow-visible" style={{ borderColor: suitTheme.primaryColor, boxShadow: `0 0 30px ${suitTheme.glowColor}` }}>
+                        <div className="absolute top-0 inset-x-0 h-8 bg-gradient-to-b from-amber-400/30 to-transparent rounded-t-full pointer-events-none z-10 border-t border-amber-300/60"></div>
                         <div className="w-full h-full rounded-full overflow-hidden flex items-center justify-center">
                           {renderAvatarIcon(winnerAvatar, "w-full h-full")}
                         </div>
                       </div>
                     </div>
                     
-                    {/* DAS GEMUSTERTE ELEMENT-PODEST */}
+                    {/* DAS GEFORMTE & GEMUSTERTE ELEMENT-PODEST */}
                     <div 
-                      className={`w-38 h-20 border-2 rounded-t-2xl mt-[-14px] flex flex-col items-center justify-center element-podium-active z-10 ${suitTheme.patternClass}`}
+                      className={`w-40 h-20 border-2 mt-[-14px] flex flex-col items-center justify-center element-podium-active z-10 ${suitTheme.patternClass}`}
                       style={{ 
-                        background: `linear-gradient(to bottom, ${suitTheme.primaryColor}99, #050811)`, 
+                        background: `linear-gradient(to bottom, ${suitTheme.primaryColor}aa, #030712)`, 
                         borderColor: suitTheme.primaryColor,
                         '--glow-color': suitTheme.glowColor 
                       }}
                     >
                       <span className="text-xs font-black text-white uppercase tracking-wider drop-shadow">{winner.name}</span>
                       <span className="text-sm font-black text-amber-300 drop-shadow">{winner.score} Ptn</span>
-                      <span className="text-[10px] font-extrabold uppercase tracking-widest px-2 py-0.5 rounded bg-black/60 mt-0.5" style={{ color: suitTheme.primaryColor }}>{suitTheme.crownName}</span>
                     </div>
                   </div>
 
