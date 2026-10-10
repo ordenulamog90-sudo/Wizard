@@ -422,8 +422,6 @@
 
       const [animatingCardId, setAnimatingCardId] = useState(null);
       const [animatingCardObj, setAnimatingCardObj] = useState(null);
-
-      // Animation für das Einsammeln der Karten zum Gewinner
       const [collectingWinnerId, setCollectingWinnerId] = useState(null);
 
       const isEvaluatingRef = useRef(false);
@@ -678,35 +676,58 @@
         }, 750);
       };
 
+      // KORRIGIERTE & PRÄZISE ZAUBERER-REGEL AUSWERTUNG
       const evaluateTrick = (cardsOnTable) => {
         let winningCardObj = cardsOnTable[0];
+
+        // 1. Regel: Der erste Zauberer gewinnt immer sofort
         const firstWizard = cardsOnTable.find(c => c.card.type === 'wizard');
         if (firstWizard) {
           winningCardObj = firstWizard;
         } else {
-          const leadCardObj = cardsOnTable.find(c => c.card.type === 'number');
+          // Keine Zauberer im Stich -> Ermittle Leitfarbe & Trumpffarbe
+          const leadCardObj = cardsOnTable.find(c => c.card.type === 'number' || c.card.type === 'jester');
           const leadSuit = leadCardObj ? leadCardObj.card.suit : null;
           const trumpSuit = (trumpCard && trumpCard.type === 'number') ? trumpCard.suit : null;
-          let highestRank = -1;
+
+          let bestRank = -1;
 
           cardsOnTable.forEach(c => {
             const card = c.card;
             if (card.type === 'number') {
-              let rank = 0;
-              if (trumpSuit && card.suit === trumpSuit) rank = 200 + card.value;
-              else if (leadSuit && card.suit === leadSuit) rank = 100 + card.value;
-              else rank = card.value;
-              if (rank > highestRank) { highestRank = rank; winningCardObj = c; }
+              let currentRank = -1;
+
+              // 2. Regel: Trumpffarbe sticht alles außer Zauberer
+              if (trumpSuit && card.suit === trumpSuit) {
+                currentRank = 1000 + card.value; // Trumpf hat höchste Priorität
+              } 
+              // 3. Regel: Leitfarbe (Ausspiel-Farbe) sticht Fehlfarben
+              else if (leadSuit && card.suit === leadSuit) {
+                currentRank = 500 + card.value;  // Leitfarbe hat mittlere Priorität
+              } 
+              // 4. Regel: Andere Fehlfarben können niemals stechen (Wert bleibt niedrig)
+              else {
+                currentRank = card.value;
+              }
+
+              if (currentRank > bestRank) {
+                bestRank = currentRank;
+                winningCardObj = c;
+              }
+            } else if (card.type === 'jester' && bestRank === -1) {
+              // Narr zählt als 0, gewinnt nur wenn bisher nur Narren da waren
+              if (winningCardObj.card.type === 'jester') {
+                // Behalte den allerersten gespielten Narren
+              }
             }
           });
         }
 
         const winnerId = winningCardObj.playerId;
 
-        // 1. Lass die Karten zum Gewinner schweben
+        // Karten schweben zum Gewinner
         setCollectingWinnerId(winnerId);
 
-        // 2. Nach der schwebenden Animation (800ms) wird der Stich offiziell gutgeschrieben
         setTimeout(() => {
           setPlayers(prev => {
             const updated = prev.map(p => p.id === winnerId ? { ...p, tricks: p.tricks + 1 } : p);
@@ -897,7 +918,7 @@
               </div>
 
               <span className="text-[9px] text-center text-slate-300 font-bold block mt-2 drop-shadow bg-slate-950/70 py-1 rounded-full backdrop-blur-md border border-sky-500/30">
-                MYTHOS CARD GAME V8.9
+                MYTHOS CARD GAME V9.0 (RULES FIXED)
               </span>
             </div>
           </div>
@@ -1196,12 +1217,12 @@
             </div>
             <div className="space-y-3 text-xs text-slate-300 leading-relaxed">
               <div className="bg-slate-900 p-3 rounded-xl border border-slate-800">
-                <h3 className="font-bold text-sky-300 mb-1">1. Interaktive Timer</h3>
-                <p>Du hast 20 Sekunden Zeit für deinen Zug. Spielst du nicht rechtzeitig, wird die erste Karte deiner Hand gespielt.</p>
+                <h3 className="font-bold text-sky-300 mb-1">1. Trumpf & Leitfarbe</h3>
+                <p>Die aufgedeckte Karte bestimmt den Trumpf. Die ausgespielte Farbe gibt die Leitfarbe vor, die bedient werden muss.</p>
               </div>
               <div className="bg-slate-900 p-3 rounded-xl border border-slate-800">
-                <h3 className="font-bold text-sky-300 mb-1">2. Die Aufgedeckte Trumpffarbe</h3>
-                <p>Die aufgedeckte Karte bestimmt die Trumpffarbe der Runde. Diese Farbe sticht alle anderen Farben aus.</p>
+                <h3 className="font-bold text-sky-300 mb-1">2. Zauberer & Narren</h3>
+                <p>Der erste gespielte Zauberer gewinnt den Stich immer. Narren verlieren in jedem Fall.</p>
               </div>
             </div>
             <button onClick={() => setScreen('menu')} className="mt-4 w-full py-3 mythic-btn-primary text-white font-bold rounded-xl">Zurück zum Menü</button>
