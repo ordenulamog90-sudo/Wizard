@@ -162,20 +162,17 @@
     }
 
     function App() {
-      const [screen, setScreen] = useState('menu'); // 'menu', 'game_setup', 'profile', 'multiplayer', 'rules', 'game'
+      const [screen, setScreen] = useState('menu');
       
-      // Spielerprofil (Speicherung in localStorage vorbereitet)
       const [profile, setProfile] = useState(() => {
         const saved = localStorage.getItem('wizard_profile');
         return saved ? JSON.parse(saved) : { name: 'Erzmagier', level: 1, xp: 0, gamesPlayed: 0, wins: 0 };
       });
 
-      // Match-Einstellungen
       const [playerCount, setPlayerCount] = useState(4);
       const [maxRounds, setMaxRounds] = useState(15);
       const [difficulty, setDifficulty] = useState('Normal');
 
-      // Spielzustand
       const [round, setRound] = useState(1);
       const [phase, setPhase] = useState('bidding');
       const [players, setPlayers] = useState([]);
@@ -320,7 +317,6 @@
               startRound(round + 1, players);
             } else {
               alert("Spiel beendet! Danke fürs Spielen.");
-              // Profil XP aktualisieren
               const updatedProfile = { ...profile, gamesPlayed: profile.gamesPlayed + 1, xp: profile.xp + 50 };
               setProfile(updatedProfile);
               localStorage.setItem('wizard_profile', JSON.stringify(updatedProfile));
@@ -370,71 +366,73 @@
                 </button>
               </div>
 
-              <span className="text-[10px] text-center text-slate-600 block mt-2">Wizard Digital v2.0 • Mythic Portal</span>
+              <span className="text-[10px] text-center text-slate-600 block mt-2">Wizard Digital v2.1 • Fixed Layout</span>
             </div>
           </div>
         );
       }
 
-      // ---------------- 2. SPIEL EINSTELLUNGEN (OFFLINE SETUP) ----------------
+      // ---------------- 2. EINZELSPIEL EINSTELLUNGEN (LAYOUT REPARIERT) ----------------
       if (screen === 'game_setup') {
         return (
-          <div className="flex flex-col h-full max-w-md mx-auto p-4 justify-between bg-slate-950 overflow-y-auto">
-            <div className="flex justify-between items-center mb-2">
-              <h2 className="text-xl font-black text-sky-300 flex items-center gap-2"><span>⚔️</span> Einzelspiel</h2>
-              <button onClick={() => setScreen('menu')} className="text-xs bg-slate-900 border border-slate-800 text-sky-300 px-3 py-1.5 rounded-lg font-bold">Zurück</button>
-            </div>
-
-            <div className="mythic-card p-4 rounded-2xl flex flex-col gap-4 my-auto">
-              <div>
-                <label className="text-xs font-bold text-sky-200 block mb-2">Gegner / Spieleranzahl:</label>
-                <div className="grid grid-cols-4 gap-2">
-                  {[3, 4, 5, 6].map(num => (
-                    <button
-                      key={num}
-                      onClick={() => setPlayerCount(num)}
-                      className={`py-3 rounded-xl font-extrabold text-sm crystal-btn ${playerCount === num ? 'crystal-active text-white' : 'bg-slate-900 text-slate-400'}`}
-                    >
-                      {num}
-                    </button>
-                  ))}
-                </div>
+          <div className="flex flex-col h-full max-w-md mx-auto p-4 bg-slate-950 overflow-y-auto justify-between">
+            <div>
+              <div className="flex justify-between items-center mb-4">
+                <h2 className="text-xl font-black text-sky-300 flex items-center gap-2"><span>⚔️</span> Einzelspiel</h2>
+                <button onClick={() => setScreen('menu')} className="text-xs bg-slate-900 border border-slate-800 text-sky-300 px-3 py-1.5 rounded-lg font-bold">Zurück</button>
               </div>
 
-              <div>
-                <label className="text-xs font-bold text-sky-200 block mb-2">Rundenanzahl:</label>
-                <div className="grid grid-cols-3 gap-2">
-                  {[5, 10, 15].map(num => (
-                    <button
-                      key={num}
-                      onClick={() => setMaxRounds(num)}
-                      className={`py-2.5 rounded-xl font-bold text-xs crystal-btn ${maxRounds === num ? 'crystal-active text-white' : 'bg-slate-900 text-slate-400'}`}
-                    >
-                      {num} Runden
-                    </button>
-                  ))}
+              <div className="mythic-card p-4 rounded-2xl flex flex-col gap-4 mb-4">
+                <div>
+                  <label className="text-xs font-bold text-sky-200 block mb-2">Gegner / Spieleranzahl:</label>
+                  <div className="grid grid-cols-4 gap-2">
+                    {[3, 4, 5, 6].map(num => (
+                      <button
+                        key={num}
+                        onClick={() => setPlayerCount(num)}
+                        className={`py-2.5 rounded-xl font-extrabold text-sm crystal-btn ${playerCount === num ? 'crystal-active text-white' : 'bg-slate-900 text-slate-400'}`}
+                      >
+                        {num}
+                      </button>
+                    ))}
+                  </div>
                 </div>
-              </div>
 
-              <div>
-                <label className="text-xs font-bold text-sky-200 block mb-2">KI-Schwierigkeit:</label>
-                <div className="grid grid-cols-3 gap-2">
-                  {['Leicht', 'Normal', 'Magisch'].map(diff => (
-                    <button
-                      key={diff}
-                      onClick={() => setDifficulty(diff)}
-                      className={`py-2.5 rounded-xl font-bold text-xs crystal-btn ${difficulty === diff ? 'crystal-active text-white' : 'bg-slate-900 text-slate-400'}`}
-                    >
-                      {diff}
-                    </button>
-                  ))}
+                <div>
+                  <label className="text-xs font-bold text-sky-200 block mb-2">Rundenanzahl:</label>
+                  <div className="grid grid-cols-3 gap-2">
+                    {[5, 10, 15].map(num => (
+                      <button
+                        key={num}
+                        onClick={() => setMaxRounds(num)}
+                        className={`py-2.5 rounded-xl font-bold text-xs crystal-btn ${maxRounds === num ? 'crystal-active text-white' : 'bg-slate-900 text-slate-400'}`}
+                      >
+                        {num} Runden
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div>
+                  <label className="text-xs font-bold text-sky-200 block mb-2">KI-Schwierigkeit:</label>
+                  <div className="grid grid-cols-3 gap-2">
+                    {['Leicht', 'Normal', 'Magisch'].map(diff => (
+                      <button
+                        key={diff}
+                        onClick={() => setDifficulty(diff)}
+                        className={`py-2.5 rounded-xl font-bold text-xs crystal-btn ${difficulty === diff ? 'crystal-active text-white' : 'bg-slate-900 text-slate-400'}`}
+                      >
+                        {diff}
+                      </button>
+                    ))}
+                  </div>
                 </div>
               </div>
             </div>
 
             <button
               onClick={startNewGame}
-              className="w-full py-4 rounded-2xl mythic-btn-primary text-white font-black text-lg active:scale-95 transition-transform"
+              className="w-full py-3.5 rounded-2xl mythic-btn-primary text-white font-black text-lg active:scale-95 transition-transform mt-2 mb-2 shrink-0"
             >
               Duell beginnen
             </button>
@@ -472,7 +470,7 @@
         );
       }
 
-      // ---------------- 4. ONLINE-LOBBY VORBEREITUNG ----------------
+      // ---------------- 4. ONLINE-LOBBY ----------------
       if (screen === 'multiplayer') {
         return (
           <div className="flex flex-col h-full max-w-md mx-auto p-4 justify-between bg-slate-950 overflow-y-auto">
