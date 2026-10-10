@@ -97,6 +97,16 @@
       return { valid: true, error: '' };
     };
 
+    // FISHER-YATES SHUFFLE ALGORITHMUS FÜR ECHTES ZUFÄLLIGES MISCHEN
+    const shuffleArray = (array) => {
+      const shuffled = [...array];
+      for (let i = shuffled.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+      }
+      return shuffled;
+    };
+
     const CardArt = {
       wizard: (
         <svg viewBox="0 0 100 120" className="w-full h-full drop-shadow-md">
@@ -247,7 +257,12 @@
       const [trumpCard, setTrumpCard] = useState(null);
       const [playedCards, setPlayedCards] = useState([]);
       const [turn, setTurn] = useState(0);
-      const [isEvaluating, setIsEvaluating] = useState(false); // NEU: Sperrt Züge während der Auswertung
+
+      // SPERR-FLAGS
+      const isEvaluatingRef = useRef(false);
+      const isProcessingClickRef = useRef(false);
+      const stateRef = useRef({});
+      stateRef.current = { screen, phase, turn, players, playedCards, trumpCard, round, maxRounds };
 
       // TIMER STATES
       const [showDiceModal, setShowDiceModal] = useState(false);
@@ -259,7 +274,6 @@
 
       const [biddingTimer, setBiddingTimer] = useState(10);
       const [turnTimer, setTurnTimer] = useState(20);
-      const [kiTimer, setKiTimer] = useState(5);
 
       const [roundSummary, setRoundSummary] = useState(null);
       const [summaryTimer, setSummaryTimer] = useState(10);
@@ -318,10 +332,10 @@
         return () => clearInterval(interval);
       }, [screen, phase, showDiceModal, roundSummary, victoryData]);
 
-      // Timer 4a: ZUG-TIMER FÜR MENSCHLICHEN SPIELER (20s)
+      // Timer 4: ZUG-TIMER FÜR MENSCHLICHEN SPIELER (20s)
       useEffect(() => {
         let interval = null;
-        if (screen === 'game' && phase === 'playing' && turn === 0 && !isEvaluating && playedCards.length < players.length && !showDiceModal && !roundSummary && !victoryData) {
+        if (screen === 'game' && phase === 'playing' && turn === 0 && !isEvaluatingRef.current && playedCards.length < players.length && !showDiceModal && !roundSummary && !victoryData) {
           interval = setInterval(() => {
             setTurnTimer(prev => {
               if (prev <= 1) {
@@ -337,44 +351,21 @@
           setTurnTimer(20);
         }
         return () => clearInterval(interval);
-      }, [screen, phase, turn, isEvaluating, playedCards, players, showDiceModal, roundSummary, victoryData]);
+      }, [screen, phase, turn, playedCards, players, showDiceModal, roundSummary, victoryData]);
 
-      // Timer 4b: UNSICHTBARER 5S-FALLBACK-TIMER FÜR DIE KI
+      // PROAKTIVER KI-HEARTBEAT
       useEffect(() => {
-        let interval = null;
-        if (screen === 'game' && phase === 'playing' && turn !== 0 && !isEvaluating && playedCards.length < players.length && !showDiceModal && !roundSummary && !victoryData) {
-          setKiTimer(5);
-          interval = setInterval(() => {
-            setKiTimer(prev => {
-              if (prev <= 1) {
-                const currentKi = players[turn];
-                if (currentKi && currentKi.hand.length > 0) {
-                  const randomIndex = Math.floor(Math.random() * currentKi.hand.length);
-                  playCard(turn, randomIndex);
-                }
-                return 5;
-              }
-              return prev - 1;
-            });
-          }, 1000);
-        } else {
-          setKiTimer(5);
-        }
-        return () => clearInterval(interval);
-      }, [screen, phase, turn, isEvaluating, playedCards, players, showDiceModal, roundSummary, victoryData]);
-
-      // KI SCHNELLES AUTOMATISCHES SPIELEN (~0.8s)
-      useEffect(() => {
-        if (screen === 'game' && phase === 'playing' && turn !== 0 && !isEvaluating && playedCards.length < players.length && !showDiceModal && !roundSummary && !victoryData) {
-          const kiTimerTimeout = setTimeout(() => {
-            const ki = players[turn];
-            if (ki && ki.hand.length > 0) {
-              playCard(turn, 0);
+        const interval = setInterval(() => {
+          const { screen: s, phase: p, turn: t, players: pl, playedCards: pc } = stateRef.current;
+          if (s === 'game' && p === 'playing' && t !== 0 && !isEvaluatingRef.current && !isProcessingClickRef.current && pc.length < pl.length) {
+            const currentKi = pl[t];
+            if (currentKi && currentKi.hand.length > 0) {
+              playCard(t, 0);
             }
-          }, 800);
-          return () => clearTimeout(kiTimerTimeout);
-        }
-      }, [screen, phase, turn, isEvaluating, playedCards, players, showDiceModal, roundSummary, victoryData]);
+          }
+        }, 600);
+        return () => clearInterval(interval);
+      }, []);
 
       // Timer 5: Rundenabrechnung Countdown (10s)
       useEffect(() => {
@@ -479,20 +470,26 @@
         setPhase('bidding');
         setPlayedCards([]);
         setTurn(startingPlayerIdx);
-        setIsEvaluating(false);
+        isEvaluatingRef.current = false;
+        isProcessingClickRef.current = false;
         setBiddingTimer(10);
         setTurnTimer(20);
-        setKiTimer(5);
 
-        let deck = [];
+        // KARTENDECKE ERSTELLEN
+        let rawDeck = [];
         const suits = ['yellow', 'red', 'green', 'blue'];
-        suits.forEach(s => {
-          for(let v = 1; v <= 13; v++) deck.push({ type: 'number', value: v, suit: s });
-        });
-        for(let i=0; i<4; i++) deck.push({ type: 'wizard' });
-        for(let i=0; i<4; i++) deck.push({ type: 'jester' });
+        const roundSeed = Date.now();
 
-        deck = deck.sort(() => Math.random() - 0.5);
+        suits.forEach(s => {
+          for(let v = 1; v <= 13; v++) {
+            rawDeck.push({ type: 'number', value: v, suit: s, id: `${s}_${v}_${roundSeed}_${Math.random()}` });
+          }
+        });
+        for(let i=0; i<4; i++) rawDeck.push({ type: 'wizard', id: `w_${i}_${roundSeed}_${Math.random()}` });
+        for(let i=0; i<4; i++) rawDeck.push({ type: 'jester', id: `j_${i}_${roundSeed}_${Math.random()}` });
+
+        // FISHER-YATES SHUFFLE FÜR ECHTE UND DYNAMISCHE DURCHMISCHUNG
+        let deck = shuffleArray(rawDeck);
 
         const newPlayers = currentPlayers.map(p => {
           const hand = deck.splice(0, rNum);
@@ -519,33 +516,44 @@
         setPlayers(prev => prev.map(p => p.isHuman ? { ...p, bid: bidVal } : p));
         setPhase('playing');
         setTurnTimer(20);
-        setKiTimer(5);
       };
 
       const playCard = (playerIdx, cardIdx) => {
-        if (isEvaluating) return; // Züge sperren während Stich-Auswertung
+        if (isEvaluatingRef.current || isProcessingClickRef.current) return;
 
-        const p = players[playerIdx];
+        const currentPlayers = stateRef.current.players;
+        const currentPlayed = stateRef.current.playedCards;
+        const p = currentPlayers[playerIdx];
+
         if (!p || !p.hand[cardIdx]) return;
 
-        const card = p.hand[cardIdx];
+        const selectedCard = p.hand[cardIdx];
+
+        const alreadyPlayed = currentPlayed.some(pc => pc.card.id && pc.card.id === selectedCard.id);
+        if (alreadyPlayed) return;
+
+        isProcessingClickRef.current = true;
+
         const newHand = p.hand.filter((_, i) => i !== cardIdx);
-        const newPlayed = [...playedCards, { playerId: p.id, card }];
+        const newPlayed = [...currentPlayed, { playerId: p.id, card: selectedCard }];
 
         setPlayedCards(newPlayed);
         setPlayers(prev => prev.map(pl => pl.id === p.id ? { ...pl, hand: newHand } : pl));
 
-        if (newPlayed.length === players.length) {
-          setIsEvaluating(true); // Sperre aktivieren
-          setTimeout(() => evaluateTrick(newPlayed, newHand), 1200);
+        if (newPlayed.length === currentPlayers.length) {
+          isEvaluatingRef.current = true;
+          setTimeout(() => evaluateTrick(newPlayed), 1200);
         } else {
-          setTurn((playerIdx + 1) % players.length);
+          setTurn((playerIdx + 1) % currentPlayers.length);
           setTurnTimer(20);
-          setKiTimer(5);
         }
+
+        setTimeout(() => {
+          isProcessingClickRef.current = false;
+        }, 400);
       };
 
-      const evaluateTrick = (cardsOnTable, lastPlayerHand) => {
+      const evaluateTrick = (cardsOnTable) => {
         let winningCardObj = cardsOnTable[0];
 
         const firstWizard = cardsOnTable.find(c => c.card.type === 'wizard');
@@ -580,20 +588,23 @@
 
         const winnerId = winningCardObj.playerId;
 
-        const updatedPlayers = players.map(p => p.id === winnerId ? { ...p, tricks: p.tricks + 1 } : p);
-        setPlayers(updatedPlayers);
-        setPlayedCards([]);
-        setIsEvaluating(false); // Sperre wieder aufheben
+        setPlayers(prev => {
+          const updated = prev.map(p => p.id === winnerId ? { ...p, tricks: p.tricks + 1 } : p);
+          
+          setPlayedCards([]);
+          isEvaluatingRef.current = false;
+          isProcessingClickRef.current = false;
 
-        // Prüfung ob Hand leer ist
-        const human = updatedPlayers[0];
-        if (human.hand.length === 0) {
-          setTimeout(() => handleRoundEnd(updatedPlayers), 400);
-        } else {
-          setTurn(winnerId);
-          setTurnTimer(20);
-          setKiTimer(5);
-        }
+          const human = updated[0];
+          if (human.hand.length === 0) {
+            setTimeout(() => handleRoundEnd(updated), 400);
+          } else {
+            setTurn(winnerId);
+            setTurnTimer(20);
+          }
+
+          return updated;
+        });
       };
 
       const handleRoundEnd = (currentPlayers) => {
@@ -706,7 +717,7 @@
                 </button>
               </div>
 
-              <span className="text-[10px] text-center text-slate-600 block mt-2">Mythos Card Game v4.1 • Fix Card Lock & Evaluation Lock</span>
+              <span className="text-[10px] text-center text-slate-600 block mt-2">Mythos Card Game v4.4 • Fisher-Yates Deck Shuffle Engine</span>
             </div>
           </div>
         );
@@ -1071,7 +1082,7 @@
           <div className="flex justify-between items-center mb-1 bg-slate-900/80 p-2 rounded-xl border border-slate-800">
             <span className="text-xs font-bold text-sky-400">Runde {round} / {maxRounds}</span>
             
-            {phase === 'playing' && turn === 0 && !isEvaluating && !showDiceModal && !roundSummary && !victoryData && (
+            {phase === 'playing' && turn === 0 && !isEvaluatingRef.current && !showDiceModal && !roundSummary && !victoryData && (
               <span className="text-[11px] font-extrabold text-amber-400 bg-amber-950/80 px-2.5 py-0.5 rounded-full border border-amber-500/40 animate-pulse">
                 ⏳ Dein Zug: {turnTimer}s
               </span>
@@ -1148,10 +1159,10 @@
             <div className="flex gap-1.5 overflow-x-auto pb-1 justify-center">
               {humanPlayer.hand && humanPlayer.hand.map((card, i) => (
                 <CardFace 
-                  key={i} 
+                  key={card.id || i} 
                   card={card} 
                   size="md" 
-                  disabled={phase !== 'playing' || turn !== 0 || isEvaluating}
+                  disabled={phase !== 'playing' || turn !== 0 || isEvaluatingRef.current}
                   onClick={() => playCard(0, i)} 
                 />
               ))}
