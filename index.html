@@ -691,7 +691,7 @@
         }, 750);
       };
 
-      // 100% PRÄZISE ZAUBERER-LOGIK: AUFLIEGENDER TRUMPF HAT IMMER VORRANG
+      // 100% KORREKTE ZAUBERER-LOGIK: LEITFARBE & TRUMPF STRENG GEPRÜFT
       const evaluateTrick = (cardsOnTable) => {
         let winningCardObj = cardsOnTable[0];
 
@@ -700,7 +700,7 @@
         if (firstWizard) {
           winningCardObj = firstWizard;
         } else {
-          // Die aufliegende Trumpfkarte in der Mitte bestimmt IMMER die absolute Trumpffarbe der Runde!
+          // Die aufliegende Trumpfkarte in der Mitte bestimmt die Trumpffarbe
           const trumpSuit = (trumpCard && trumpCard.type === 'number') ? trumpCard.suit : null;
 
           // Ermittle die Leitfarbe (die Farbe der allerersten ausgespielten Karte)
@@ -714,17 +714,17 @@
             if (card.type === 'number') {
               let currentRank = -1;
 
-              // 2. Trumpffarbe hat IMMER Vorrang und schlägt jede andere Farbe
+              // 2. Trumpffarbe hat absoluten Vorrang
               if (trumpSuit && card.suit === trumpSuit) {
                 currentRank = 2000 + card.value;
               } 
-              // 3. Leitfarbe sticht normale Fehlfarben
+              // 3. Leitfarbe sticht alle anderen Farben (außer Trumpf)
               else if (leadSuit && card.suit === leadSuit) {
                 currentRank = 1000 + card.value;
               } 
-              // 4. Fehlfarben können niemals stechen
+              // 4. Fehlfarben (weder Trumpf noch Leitfarbe) können NIEMALS gewinnen und erhalten Rang -1
               else {
-                currentRank = card.value;
+                currentRank = -1;
               }
 
               if (currentRank > bestRank) {
@@ -732,6 +732,7 @@
                 winningCardObj = c;
               }
             } else if (card.type === 'jester') {
+              // Narren haben keinen Zahlenwert und können nur gewinnen, wenn gar nichts anderes da ist
               if (winningCardObj.card.type === 'jester' && bestRank === -1) {
                 // Erster Narr bleibt
               }
@@ -932,7 +933,7 @@
               </div>
 
               <span className="text-[9px] text-center text-slate-300 font-bold block mt-2 drop-shadow bg-slate-950/70 py-1 rounded-full backdrop-blur-md border border-sky-500/30">
-                MYTHOS CARD GAME V9.5 (ELEMENT VICTORY PODIUM)
+                MYTHOS CARD GAME V9.6 (STRICT TRICK EVALUATION)
               </span>
             </div>
           </div>
@@ -1231,8 +1232,8 @@
             </div>
             <div className="space-y-3 text-xs text-slate-300 leading-relaxed">
               <div className="bg-slate-900 p-3 rounded-xl border border-slate-800">
-                <h3 className="font-bold text-sky-300 mb-1">1. Trumpf & Vorrang</h3>
-                <p>Die aufliegende Trumpfkarte in der Mitte hat immer absoluten Vorrang und sticht jede andere Farbe!</p>
+                <h3 className="font-bold text-sky-300 mb-1">1. Trumpf & Leitfarbe</h3>
+                <p>Die aufliegende Trumpfkarte hat immer absoluten Vorrang. Die zuerst ausgespielte Karte gibt die Leitfarbe vor. Fehlfarben stechen niemals!</p>
               </div>
               <div className="bg-slate-900 p-3 rounded-xl border border-slate-800">
                 <h3 className="font-bold text-sky-300 mb-1">2. Zauberer & Narren</h3>
