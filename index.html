@@ -112,4 +112,509 @@
       yellow: { name: 'Gelb', title: 'DIE STANDARTE', bg: 'from-amber-950 via-yellow-950 to-slate-950', border: 'border-amber-400', art: CardArt.banner },
       red: { name: 'Rot', title: 'DIE AXT', bg: 'from-red-950 via-rose-950 to-slate-950', border: 'border-red-500', art: CardArt.axe },
       green: { name: 'Grün', title: 'DER BOGEN', bg: 'from-emerald-950 via-green-950 to-slate-950', border: 'border-emerald-400', art: CardArt.bow },
-      blue: { name
+      blue: { name: 'Blau', title: 'DER DOLCH', bg: 'from-blue-950 via-sky-950 to-slate-950', border: 'border-blue-400', art: CardArt.dagger }
+    };
+
+    const AI_NAMES = ['Merlin', 'Morgana', 'Gandalf', 'Circe', 'Albus'];
+
+    function CardBack({ size = "md" }) {
+      const dim = size === "sm" ? "w-12 h-20" : size === "lg" ? "w-28 h-40" : "w-20 h-32";
+      return (
+        <div className={`${dim} rounded-xl border-2 border-sky-400/60 overflow-hidden shadow-2xl relative bg-slate-950`}>
+          <img src="./1791625015038.jpg" alt="Kartenrücken" className="w-full h-full object-cover" />
+        </div>
+      );
+    }
+
+    function CardFace({ card, size = "md", onClick, disabled }) {
+      const dim = size === "sm" ? "w-12 h-20" : size === "lg" ? "w-28 h-40" : "w-20 h-32";
+      if (!card) return null;
+
+      const isWizard = card.type === 'wizard';
+      const isJester = card.type === 'jester';
+      const suitInfo = SUITS[card.suit] || {};
+
+      const cornerText = isWizard ? 'Z' : isJester ? 'N' : card.value;
+      const titleText = isWizard ? 'ZAUBERER' : isJester ? 'NARR' : suitInfo.title;
+
+      const artComponent = isWizard ? CardArt.wizard : isJester ? CardArt.jester : suitInfo.art;
+
+      const bgStyle = isWizard
+        ? 'from-purple-950 via-indigo-950 to-slate-950 border-amber-300'
+        : isJester
+        ? 'from-slate-900 via-zinc-900 to-slate-950 border-slate-400'
+        : `${suitInfo.bg} ${suitInfo.border}`;
+
+      return (
+        <div 
+          onClick={!disabled ? onClick : undefined}
+          className={`${dim} rounded-xl bg-gradient-to-b ${bgStyle} border-2 p-1 flex flex-col justify-between items-center relative shadow-2xl cursor-pointer active:scale-95 transition-transform overflow-hidden`}
+        >
+          <div className="w-full flex justify-between font-black text-amber-300 text-xs drop-shadow z-10">
+            <span>{cornerText}</span>
+            <span>{cornerText}</span>
+          </div>
+
+          <div className="card-art-box w-full flex-1 my-0.5 rounded-lg p-0.5 flex flex-col items-center justify-center relative overflow-hidden">
+            <div className="w-full h-full flex items-center justify-center">
+              {artComponent}
+            </div>
+            <span className="absolute bottom-0.5 text-[6px] font-bold text-amber-200 tracking-tighter uppercase drop-shadow bg-black/60 px-1 rounded">
+              {titleText}
+            </span>
+          </div>
+
+          <div className="w-full flex justify-between font-black text-amber-300 text-xs drop-shadow rotate-180 z-10">
+            <span>{cornerText}</span>
+            <span>{cornerText}</span>
+          </div>
+        </div>
+      );
+    }
+
+    function App() {
+      const [screen, setScreen] = useState('menu');
+      
+      const [profile, setProfile] = useState(() => {
+        const saved = localStorage.getItem('wizard_profile');
+        return saved ? JSON.parse(saved) : { name: 'Erzmagier', level: 1, xp: 0, gamesPlayed: 0, wins: 0 };
+      });
+
+      const [playerCount, setPlayerCount] = useState(4);
+      const [maxRounds, setMaxRounds] = useState(15);
+      const [difficulty, setDifficulty] = useState('Normal');
+
+      const [round, setRound] = useState(1);
+      const [phase, setPhase] = useState('bidding');
+      const [players, setPlayers] = useState([]);
+      const [trumpCard, setTrumpCard] = useState(null);
+      const [playedCards, setPlayedCards] = useState([]);
+      const [turn, setTurn] = useState(0);
+
+      const startNewGame = () => {
+        const initialPlayers = [
+          { id: 0, name: profile.name, isHuman: true, bid: null, tricks: 0, score: 0, hand: [] }
+        ];
+        for (let i = 1; i < playerCount; i++) {
+          initialPlayers.push({
+            id: i,
+            name: `${AI_NAMES[i-1]} (KI)`,
+            isHuman: false,
+            bid: null,
+            tricks: 0,
+            score: 0,
+            hand: []
+          });
+        }
+        setPlayers(initialPlayers);
+        setScreen('game');
+        startRound(1, initialPlayers);
+      };
+
+      const startRound = (rNum, currentPlayers) => {
+        setRound(rNum);
+        setPhase('bidding');
+        setPlayedCards([]);
+        setTurn(0);
+
+        let deck = [];
+        const suits = ['yellow', 'red', 'green', 'blue'];
+        suits.forEach(s => {
+          for(let v = 1; v <= 13; v++) deck.push({ type: 'number', value: v, suit: s });
+        });
+        for(let i=0; i<4; i++) deck.push({ type: 'wizard' });
+        for(let i=0; i<4; i++) deck.push({ type: 'jester' });
+
+        deck = deck.sort(() => Math.random() - 0.5);
+
+        const newPlayers = currentPlayers.map(p => {
+          const hand = deck.splice(0, rNum);
+          return { ...p, hand, bid: null, tricks: 0 };
+        });
+
+        const trump = deck.length > 0 ? deck[0] : null;
+
+        newPlayers.forEach(p => {
+          if (!p.isHuman) {
+            let kiBid = 0;
+            p.hand.forEach(c => {
+              if (c.type === 'wizard' || (c.type === 'number' && c.value > 10)) kiBid++;
+            });
+            p.bid = Math.min(kiBid, rNum);
+          }
+        });
+
+        setTrumpCard(trump);
+        setPlayers(newPlayers);
+      };
+
+      const handleHumanBid = (bidVal) => {
+        setPlayers(prev => prev.map(p => p.isHuman ? { ...p, bid: bidVal } : p));
+        setPhase('playing');
+      };
+
+      const playCard = (playerIdx, cardIdx) => {
+        const p = players[playerIdx];
+        const card = p.hand[cardIdx];
+
+        const newHand = p.hand.filter((_, i) => i !== cardIdx);
+        const newPlayed = [...playedCards, { playerId: p.id, card }];
+
+        setPlayedCards(newPlayed);
+        setPlayers(prev => prev.map(pl => pl.id === p.id ? { ...pl, hand: newHand } : pl));
+
+        if (newPlayed.length === players.length) {
+          setTimeout(() => evaluateTrick(newPlayed), 1500);
+        } else {
+          setTurn((playerIdx + 1) % players.length);
+        }
+      };
+
+      useEffect(() => {
+        if (screen === 'game' && phase === 'playing' && turn !== 0 && playedCards.length < players.length) {
+          const timer = setTimeout(() => {
+            const ki = players[turn];
+            if (ki && ki.hand.length > 0) {
+              playCard(turn, 0);
+            }
+          }, 800);
+          return () => clearTimeout(timer);
+        }
+      }, [screen, phase, turn, playedCards]);
+
+      const evaluateTrick = (cardsOnTable) => {
+        let winningCardObj = cardsOnTable[0];
+
+        const firstWizard = cardsOnTable.find(c => c.card.type === 'wizard');
+        if (firstWizard) {
+          winningCardObj = firstWizard;
+        } else {
+          const leadCardObj = cardsOnTable.find(c => c.card.type === 'number');
+          const leadSuit = leadCardObj ? leadCardObj.card.suit : null;
+          const trumpSuit = (trumpCard && trumpCard.type === 'number') ? trumpCard.suit : null;
+
+          let highestRank = -1;
+
+          cardsOnTable.forEach(c => {
+            const card = c.card;
+            if (card.type === 'number') {
+              let rank = 0;
+              if (trumpSuit && card.suit === trumpSuit) {
+                rank = 200 + card.value;
+              } else if (leadSuit && card.suit === leadSuit) {
+                rank = 100 + card.value;
+              } else {
+                rank = card.value;
+              }
+
+              if (rank > highestRank) {
+                highestRank = rank;
+                winningCardObj = c;
+              }
+            }
+          });
+        }
+
+        const winnerId = winningCardObj.playerId;
+
+        setPlayers(prev => prev.map(p => p.id === winnerId ? { ...p, tricks: p.tricks + 1 } : p));
+        setPlayedCards([]);
+
+        const human = players[0];
+        if (human.hand.length === 0) {
+          setTimeout(() => {
+            if (round < maxRounds) {
+              alert(`Runde ${round} beendet! Weiter zu Runde ${round + 1}.`);
+              startRound(round + 1, players);
+            } else {
+              alert("Spiel beendet! Danke fürs Spielen.");
+              const updatedProfile = { ...profile, gamesPlayed: profile.gamesPlayed + 1, xp: profile.xp + 50 };
+              setProfile(updatedProfile);
+              localStorage.setItem('wizard_profile', JSON.stringify(updatedProfile));
+              setScreen('menu');
+            }
+          }, 500);
+        } else {
+          setTurn(winnerId);
+        }
+      };
+
+      // ---------------- 1. HAUPTMENÜ ----------------
+      if (screen === 'menu') {
+        return (
+          <div className="flex flex-col landscape:flex-row h-full max-w-4xl mx-auto bg-slate-950 justify-between overflow-y-auto">
+            <div className="w-full landscape:w-1/2 aspect-video landscape:aspect-auto landscape:h-full relative overflow-hidden border-b landscape:border-b-0 landscape:border-r border-sky-500/30 shadow-2xl shrink-0 flex items-center justify-center">
+              <img src="./1791625015038.jpg" alt="Mythos Header" className="w-full h-full object-cover" />
+            </div>
+
+            <div className="p-5 flex-1 flex flex-col justify-center gap-3">
+              <button
+                onClick={() => setScreen('game_setup')}
+                className="w-full py-4 rounded-2xl mythic-btn-primary text-white font-black text-lg active:scale-95 transition-transform flex items-center justify-center gap-2"
+              >
+                <span>⚔️</span> Spiel starten
+              </button>
+
+              <button
+                onClick={() => setScreen('multiplayer')}
+                className="w-full py-3.5 rounded-2xl mythic-btn-menu text-sky-200 font-bold text-base active:scale-95 transition-transform flex items-center justify-center gap-2"
+              >
+                <span>🌐</span> Online-Lobby
+              </button>
+
+              <div className="flex gap-2">
+                <button
+                  onClick={() => setScreen('profile')}
+                  className="flex-1 py-3 rounded-2xl mythic-btn-menu text-sky-300 font-bold text-sm active:scale-95 transition-transform flex items-center justify-center gap-1"
+                >
+                  <span>👤</span> Profil & Stats
+                </button>
+                <button
+                  onClick={() => setScreen('rules')}
+                  className="flex-1 py-3 rounded-2xl mythic-btn-menu text-sky-300 font-bold text-sm active:scale-95 transition-transform flex items-center justify-center gap-1"
+                >
+                  <span>📜</span> Regeln
+                </button>
+              </div>
+
+              <span className="text-[10px] text-center text-slate-600 block mt-2">Wizard Digital v2.3 • Cinzel Edition</span>
+            </div>
+          </div>
+        );
+      }
+
+      // ---------------- 2. EINZELSPIEL EINSTELLUNGEN ----------------
+      if (screen === 'game_setup') {
+        return (
+          <div className="flex flex-col landscape:flex-row h-full max-w-4xl mx-auto bg-slate-950 justify-between overflow-y-auto">
+            <div className="w-full landscape:w-1/2 aspect-video landscape:aspect-auto landscape:h-full relative overflow-hidden border-b landscape:border-b-0 landscape:border-r border-sky-500/30 shadow-2xl shrink-0 flex items-center justify-center">
+              <img src="./1791625015038.jpg" alt="Mythos Header" className="w-full h-full object-cover" />
+            </div>
+
+            <div className="p-4 flex-1 flex flex-col justify-between gap-3 overflow-y-auto">
+              <div>
+                <div className="flex justify-between items-center mb-3">
+                  <h2 className="text-lg font-black text-sky-300 flex items-center gap-2"><span>⚔️</span> Einzelspiel</h2>
+                  <button onClick={() => setScreen('menu')} className="text-xs bg-slate-900 border border-slate-800 text-sky-300 px-3 py-1.5 rounded-lg font-bold">Zurück</button>
+                </div>
+
+                <div className="mythic-card p-3 rounded-2xl flex flex-col gap-3">
+                  <div>
+                    <label className="text-[11px] font-bold text-sky-200 block mb-1">Gegner / Spieleranzahl:</label>
+                    <div className="grid grid-cols-4 gap-2">
+                      {[3, 4, 5, 6].map(num => (
+                        <button
+                          key={num}
+                          onClick={() => setPlayerCount(num)}
+                          className={`py-2 rounded-xl font-extrabold text-sm crystal-btn ${playerCount === num ? 'crystal-active text-white' : 'bg-slate-900 text-slate-400'}`}
+                        >
+                          {num}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="text-[11px] font-bold text-sky-200 block mb-1">Rundenanzahl:</label>
+                    <div className="grid grid-cols-3 gap-2">
+                      {[5, 10, 15].map(num => (
+                        <button
+                          key={num}
+                          onClick={() => setMaxRounds(num)}
+                          className={`py-2 rounded-xl font-bold text-xs crystal-btn ${maxRounds === num ? 'crystal-active text-white' : 'bg-slate-900 text-slate-400'}`}
+                        >
+                          {num} R.
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="text-[11px] font-bold text-sky-200 block mb-1">KI-Schwierigkeit:</label>
+                    <div className="grid grid-cols-3 gap-2">
+                      {['Leicht', 'Normal', 'Magisch'].map(diff => (
+                        <button
+                          key={diff}
+                          onClick={() => setDifficulty(diff)}
+                          className={`py-2 rounded-xl font-bold text-xs crystal-btn ${difficulty === diff ? 'crystal-active text-white' : 'bg-slate-900 text-slate-400'}`}
+                        >
+                          {diff}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <button
+                onClick={startNewGame}
+                className="w-full py-3 rounded-xl mythic-btn-primary text-white font-black text-base active:scale-95 transition-transform mt-2 mb-1 shrink-0"
+              >
+                Duell beginnen
+              </button>
+            </div>
+          </div>
+        );
+      }
+
+      // ---------------- 3. PROFIL & STATISTIKEN ----------------
+      if (screen === 'profile') {
+        return (
+          <div className="flex flex-col h-full max-w-md mx-auto p-4 justify-between bg-slate-950 overflow-y-auto">
+            <div className="flex justify-between items-center mb-2">
+              <h2 className="text-xl font-black text-sky-300">Spielerprofil</h2>
+              <button onClick={() => setScreen('menu')} className="text-xs bg-slate-900 border border-slate-800 text-sky-300 px-3 py-1.5 rounded-lg font-bold">Zurück</button>
+            </div>
+
+            <div className="mythic-card p-5 rounded-2xl flex flex-col gap-4 my-auto items-center text-center">
+              <div className="w-20 h-20 rounded-full border-2 border-sky-400 bg-slate-900 flex items-center justify-center text-3xl shadow-xl">
+                🧙‍♂️
+              </div>
+              <div>
+                <h3 className="text-xl font-black text-sky-200">{profile.name}</h3>
+                <span className="text-xs font-bold text-amber-400">Level {profile.level} • Novize</span>
+              </div>
+
+              <div className="w-full bg-slate-900 border border-slate-800 p-3 rounded-xl text-left space-y-2 text-xs">
+                <div className="flex justify-between"><span className="text-slate-400">Gespielte Matches:</span><span className="font-bold text-sky-300">{profile.gamesPlayed}</span></div>
+                <div className="flex justify-between"><span className="text-slate-400">Siege:</span><span className="font-bold text-emerald-400">{profile.wins}</span></div>
+                <div className="flex justify-between"><span className="text-slate-400">Gesammelte XP:</span><span className="font-bold text-amber-400">{profile.xp} XP</span></div>
+              </div>
+            </div>
+
+            <button onClick={() => setScreen('menu')} className="w-full py-3 mythic-btn-primary text-white font-bold rounded-xl">Zurück zum Menü</button>
+          </div>
+        );
+      }
+
+      // ---------------- 4. ONLINE-LOBBY ----------------
+      if (screen === 'multiplayer') {
+        return (
+          <div className="flex flex-col h-full max-w-md mx-auto p-4 justify-between bg-slate-950 overflow-y-auto">
+            <div className="flex justify-between items-center mb-2">
+              <h2 className="text-xl font-black text-sky-300">Online-Lobby</h2>
+              <button onClick={() => setScreen('menu')} className="text-xs bg-slate-900 border border-slate-800 text-sky-300 px-3 py-1.5 rounded-lg font-bold">Zurück</button>
+            </div>
+
+            <div className="mythic-card p-5 rounded-2xl text-center space-y-4 my-auto">
+              <div className="text-4xl">🔮</div>
+              <h3 className="font-bold text-sky-200">Multiplayer-Schnittstelle</h3>
+              <p className="text-xs text-slate-400 leading-relaxed">Hier wirst du dich bald mit Freunden verbinden oder offene Räume suchen können!</p>
+            </div>
+
+            <button onClick={() => setScreen('menu')} className="w-full py-3 mythic-btn-primary text-white font-bold rounded-xl">Zurück zum Menü</button>
+          </div>
+        );
+      }
+
+      // ---------------- 5. REGELN ----------------
+      if (screen === 'rules') {
+        return (
+          <div className="flex flex-col h-full max-w-md mx-auto p-4 justify-between bg-slate-950 overflow-y-auto">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-xl font-bold text-sky-400">Spielregeln</h2>
+              <button onClick={() => setScreen('menu')} className="text-xs bg-slate-800 text-sky-300 px-3 py-1.5 rounded-lg font-bold">Zurück</button>
+            </div>
+            <div className="space-y-3 text-xs text-slate-300 leading-relaxed">
+              <div className="bg-slate-900 p-3 rounded-xl border border-slate-800">
+                <h3 className="font-bold text-sky-300 mb-1">1. Vorhersage & Stich-Ansage</h3>
+                <p>In jeder Runde sagst du voraus, wie viele Stiche du mit deinen Handkarten erzielen wirst.</p>
+              </div>
+              <div className="bg-slate-900 p-3 rounded-xl border border-slate-800">
+                <h3 className="font-bold text-sky-300 mb-1">2. Die Zauberer (Z)</h3>
+                <p>Der Zauberer gewinnt immer den Stich, egal welche Farbe oder Zahl gespielt wurde.</p>
+              </div>
+              <div className="bg-slate-900 p-3 rounded-xl border border-slate-800">
+                <h3 className="font-bold text-sky-300 mb-1">3. Die Narren (N)</h3>
+                <p>Der Narr verliert immer den Stich. Er hat den Wert Null und kann keinen Stich gewinnen.</p>
+              </div>
+              <div className="bg-slate-900 p-3 rounded-xl border border-slate-800">
+                <h3 className="font-bold text-sky-300 mb-1">4. Bedienen & Trumpf</h3>
+                <p>Die zuerst ausgespielte Farbe muss bedient werden. Hast du diese Farbe nicht, darfst du Trumpf oder eine beliebige andere Karte legen.</p>
+              </div>
+            </div>
+            <button onClick={() => setScreen('menu')} className="mt-4 w-full py-3 mythic-btn-primary text-white font-bold rounded-xl">Zurück zum Menü</button>
+          </div>
+        );
+      }
+
+      // ---------------- 6. SPIELFELD ----------------
+      const humanPlayer = players[0] || {};
+
+      return (
+        <div className="flex flex-col h-full max-w-md mx-auto p-2 justify-between bg-slate-950">
+          <div className="flex justify-between items-center mb-1 bg-slate-900/80 p-2 rounded-xl border border-slate-800">
+            <span className="text-xs font-bold text-sky-400">Runde {round} / {maxRounds}</span>
+            <button onClick={() => setScreen('menu')} className="text-[10px] bg-slate-800 text-sky-300 px-2 py-1 rounded font-bold">Menü</button>
+          </div>
+
+          <div className="grid grid-cols-3 gap-1">
+            {players.filter(p => !p.isHuman).map(p => (
+              <div key={p.id} className={`p-1.5 rounded-lg border text-center text-xs ${turn === p.id ? 'border-sky-400 bg-slate-800' : 'border-slate-800 bg-slate-900/60'}`}>
+                <div className="font-bold text-sky-300 truncate">{p.name}</div>
+                <div className="text-[10px] text-slate-300">Ansage: {p.bid !== null ? p.bid : '?'} | Stiche: {p.tricks}</div>
+              </div>
+            ))}
+          </div>
+
+          <div className="flex-1 my-2 rounded-2xl bg-slate-900/50 border border-slate-800 p-2 flex flex-col justify-between items-center relative">
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] font-bold text-sky-400 uppercase">Trumpf:</span>
+              {trumpCard ? <CardFace card={trumpCard} size="sm" disabled /> : <CardBack size="sm" />}
+            </div>
+
+            <div className="grid grid-cols-2 gap-2 my-auto">
+              {playedCards.map((pc, i) => (
+                <div key={i} className="flex flex-col items-center">
+                  <span className="text-[9px] text-sky-300 mb-0.5">{players[pc.playerId]?.name}</span>
+                  <CardFace card={pc.card} size="sm" disabled />
+                </div>
+              ))}
+            </div>
+
+            {phase === 'bidding' && (
+              <div className="w-full bg-slate-900/95 border border-sky-500/50 p-3 rounded-2xl flex flex-col items-center gap-2 shadow-2xl backdrop-blur-md z-20">
+                <span className="text-xs font-bold text-sky-300">Deine Stich-Ansage für Runde {round}:</span>
+                <div className="flex gap-2 flex-wrap justify-center">
+                  {Array.from({ length: round + 1 }, (_, i) => (
+                    <button
+                      key={i}
+                      onClick={() => handleHumanBid(i)}
+                      className="w-10 h-10 rounded-full bg-gradient-to-b from-sky-500 to-sky-700 text-white font-black text-base shadow-lg border border-sky-300 active:scale-90 transition-transform"
+                    >
+                      {i}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+
+          <div className="bg-slate-900 p-2 rounded-2xl border border-slate-800 shadow-xl">
+            <div className="flex justify-between items-center mb-1 px-1">
+              <span className="text-xs font-bold text-slate-300">Deine Hand:</span>
+              <span className="text-xs font-bold text-sky-400">
+                Ansage: {humanPlayer.bid !== null ? humanPlayer.bid : '-'} | Stiche: {humanPlayer.tricks}
+              </span>
+            </div>
+
+            <div className="flex gap-1.5 overflow-x-auto pb-1 justify-center">
+              {humanPlayer.hand && humanPlayer.hand.map((card, i) => (
+                <CardFace 
+                  key={i} 
+                  card={card} 
+                  size="md" 
+                  disabled={phase !== 'playing' || turn !== 0}
+                  onClick={() => playCard(0, i)} 
+                />
+              ))}
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+  </script>
+</body>
+</html>
