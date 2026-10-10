@@ -74,7 +74,7 @@
   <div id="root" class="h-full w-full"></div>
 
   <script type="text/babel">
-    const { useState, useEffect } = React;
+    const { useState, useEffect, useRef } = React;
 
     const BANNED_WORDS = [
       'arsch', 'idiot', 'scheisse', 'scheiße', 'wichser', 'hurensohn', 'spast', 'depp',
@@ -247,6 +247,7 @@
       const [trumpCard, setTrumpCard] = useState(null);
       const [playedCards, setPlayedCards] = useState([]);
       const [turn, setTurn] = useState(0);
+      const [isEvaluating, setIsEvaluating] = useState(false); // NEU: Sperrt Züge während der Auswertung
 
       // TIMER STATES
       const [showDiceModal, setShowDiceModal] = useState(false);
@@ -257,8 +258,8 @@
       const [resultTimer, setResultTimer] = useState(10);
 
       const [biddingTimer, setBiddingTimer] = useState(10);
-      const [turnTimer, setTurnTimer] = useState(20); // 20 SEKUNDEN FÜR MENSCHLICHEN SPIELER
-      const [kiTimer, setKiTimer] = useState(5);      // Unsichtbarer 5s-Fallback-Timer für KI
+      const [turnTimer, setTurnTimer] = useState(20);
+      const [kiTimer, setKiTimer] = useState(5);
 
       const [roundSummary, setRoundSummary] = useState(null);
       const [summaryTimer, setSummaryTimer] = useState(10);
@@ -317,14 +318,13 @@
         return () => clearInterval(interval);
       }, [screen, phase, showDiceModal, roundSummary, victoryData]);
 
-      // Timer 4a: ZUG-TIMER FÜR DEN MENSCHLICHEN SPIELER (20s - sichtbar)
+      // Timer 4a: ZUG-TIMER FÜR MENSCHLICHEN SPIELER (20s)
       useEffect(() => {
         let interval = null;
-        if (screen === 'game' && phase === 'playing' && turn === 0 && playedCards.length < players.length && !showDiceModal && !roundSummary && !victoryData) {
+        if (screen === 'game' && phase === 'playing' && turn === 0 && !isEvaluating && playedCards.length < players.length && !showDiceModal && !roundSummary && !victoryData) {
           interval = setInterval(() => {
             setTurnTimer(prev => {
               if (prev <= 1) {
-                // Bei 0s Inaktivität: Automatisch die 1. Karte spielen
                 if (players[0]?.hand?.length > 0) {
                   playCard(0, 0);
                 }
@@ -337,12 +337,12 @@
           setTurnTimer(20);
         }
         return () => clearInterval(interval);
-      }, [screen, phase, turn, playedCards, players, showDiceModal, roundSummary, victoryData]);
+      }, [screen, phase, turn, isEvaluating, playedCards, players, showDiceModal, roundSummary, victoryData]);
 
-      // Timer 4b: UNSICHTBARER 5S-FALLBACK-TIMER FÜR DIE KI (falls KI hängen sollte)
+      // Timer 4b: UNSICHTBARER 5S-FALLBACK-TIMER FÜR DIE KI
       useEffect(() => {
         let interval = null;
-        if (screen === 'game' && phase === 'playing' && turn !== 0 && playedCards.length < players.length && !showDiceModal && !roundSummary && !victoryData) {
+        if (screen === 'game' && phase === 'playing' && turn !== 0 && !isEvaluating && playedCards.length < players.length && !showDiceModal && !roundSummary && !victoryData) {
           setKiTimer(5);
           interval = setInterval(() => {
             setKiTimer(prev => {
@@ -361,11 +361,11 @@
           setKiTimer(5);
         }
         return () => clearInterval(interval);
-      }, [screen, phase, turn, playedCards, players, showDiceModal, roundSummary, victoryData]);
+      }, [screen, phase, turn, isEvaluating, playedCards, players, showDiceModal, roundSummary, victoryData]);
 
       // KI SCHNELLES AUTOMATISCHES SPIELEN (~0.8s)
       useEffect(() => {
-        if (screen === 'game' && phase === 'playing' && turn !== 0 && playedCards.length < players.length && !showDiceModal && !roundSummary && !victoryData) {
+        if (screen === 'game' && phase === 'playing' && turn !== 0 && !isEvaluating && playedCards.length < players.length && !showDiceModal && !roundSummary && !victoryData) {
           const kiTimerTimeout = setTimeout(() => {
             const ki = players[turn];
             if (ki && ki.hand.length > 0) {
@@ -374,7 +374,7 @@
           }, 800);
           return () => clearTimeout(kiTimerTimeout);
         }
-      }, [screen, phase, turn, playedCards, players, showDiceModal, roundSummary, victoryData]);
+      }, [screen, phase, turn, isEvaluating, playedCards, players, showDiceModal, roundSummary, victoryData]);
 
       // Timer 5: Rundenabrechnung Countdown (10s)
       useEffect(() => {
@@ -479,6 +479,7 @@
         setPhase('bidding');
         setPlayedCards([]);
         setTurn(startingPlayerIdx);
+        setIsEvaluating(false);
         setBiddingTimer(10);
         setTurnTimer(20);
         setKiTimer(5);
@@ -522,9 +523,12 @@
       };
 
       const playCard = (playerIdx, cardIdx) => {
-        const p = players[playerIdx];
-        const card = p.hand[cardIdx];
+        if (isEvaluating) return; // Züge sperren während Stich-Auswertung
 
+        const p = players[playerIdx];
+        if (!p || !p.hand[cardIdx]) return;
+
+        const card = p.hand[cardIdx];
         const newHand = p.hand.filter((_, i) => i !== cardIdx);
         const newPlayed = [...playedCards, { playerId: p.id, card }];
 
@@ -532,7 +536,8 @@
         setPlayers(prev => prev.map(pl => pl.id === p.id ? { ...pl, hand: newHand } : pl));
 
         if (newPlayed.length === players.length) {
-          setTimeout(() => evaluateTrick(newPlayed), 1500);
+          setIsEvaluating(true); // Sperre aktivieren
+          setTimeout(() => evaluateTrick(newPlayed, newHand), 1200);
         } else {
           setTurn((playerIdx + 1) % players.length);
           setTurnTimer(20);
@@ -540,7 +545,7 @@
         }
       };
 
-      const evaluateTrick = (cardsOnTable) => {
+      const evaluateTrick = (cardsOnTable, lastPlayerHand) => {
         let winningCardObj = cardsOnTable[0];
 
         const firstWizard = cardsOnTable.find(c => c.card.type === 'wizard');
@@ -578,10 +583,12 @@
         const updatedPlayers = players.map(p => p.id === winnerId ? { ...p, tricks: p.tricks + 1 } : p);
         setPlayers(updatedPlayers);
         setPlayedCards([]);
+        setIsEvaluating(false); // Sperre wieder aufheben
 
+        // Prüfung ob Hand leer ist
         const human = updatedPlayers[0];
         if (human.hand.length === 0) {
-          setTimeout(() => handleRoundEnd(updatedPlayers), 500);
+          setTimeout(() => handleRoundEnd(updatedPlayers), 400);
         } else {
           setTurn(winnerId);
           setTurnTimer(20);
@@ -699,7 +706,7 @@
                 </button>
               </div>
 
-              <span className="text-[10px] text-center text-slate-600 block mt-2">Mythos Card Game v4.0 • 20s Player Timer</span>
+              <span className="text-[10px] text-center text-slate-600 block mt-2">Mythos Card Game v4.1 • Fix Card Lock & Evaluation Lock</span>
             </div>
           </div>
         );
@@ -1064,7 +1071,7 @@
           <div className="flex justify-between items-center mb-1 bg-slate-900/80 p-2 rounded-xl border border-slate-800">
             <span className="text-xs font-bold text-sky-400">Runde {round} / {maxRounds}</span>
             
-            {phase === 'playing' && turn === 0 && !showDiceModal && !roundSummary && !victoryData && (
+            {phase === 'playing' && turn === 0 && !isEvaluating && !showDiceModal && !roundSummary && !victoryData && (
               <span className="text-[11px] font-extrabold text-amber-400 bg-amber-950/80 px-2.5 py-0.5 rounded-full border border-amber-500/40 animate-pulse">
                 ⏳ Dein Zug: {turnTimer}s
               </span>
@@ -1144,7 +1151,7 @@
                   key={i} 
                   card={card} 
                   size="md" 
-                  disabled={phase !== 'playing' || turn !== 0}
+                  disabled={phase !== 'playing' || turn !== 0 || isEvaluating}
                   onClick={() => playCard(0, i)} 
                 />
               ))}
