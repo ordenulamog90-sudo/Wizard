@@ -72,9 +72,9 @@
 
     /* Wuchtige TCG Impact-Slam Animation */
     @keyframes tcglikeSlam {
-      0% { transform: translateY(160px) scale(1.6) rotate(-15deg); opacity: 0; filter: brightness(2.5) contrast(1.5); }
-      40% { opacity: 1; transform: translateY(-14px) scale(1.25) rotate(4deg); }
-      70% { transform: translateY(6px) scale(0.9) rotate(-2deg); }
+      0% { transform: translateY(180px) scale(1.7) rotate(-15deg); opacity: 0; filter: brightness(2.5) contrast(1.5); }
+      35% { opacity: 1; transform: translateY(-16px) scale(1.2) rotate(4deg); }
+      70% { transform: translateY(6px) scale(0.92) rotate(-2deg); }
       100% { transform: translateY(0) scale(1) rotate(0deg); opacity: 1; filter: brightness(1); }
     }
     .animate-tcglike-slam {
@@ -82,16 +82,16 @@
       z-index: 30;
     }
 
-    /* Echte TCG Element-Grafik-Explosionen */
-    @keyframes tcgVfxExplosion {
-      0% { transform: scale(0.2) rotate(0deg); opacity: 0; }
-      50% { transform: scale(1.5) rotate(180deg); opacity: 1; filter: drop-shadow(0 0 25px currentColor); }
-      100% { transform: scale(2.2) rotate(360deg); opacity: 0; }
+    /* Epische TCG Element-Grafik-VFX */
+    @keyframes elementVfxBurst {
+      0% { transform: scale(0.3) rotate(0deg); opacity: 0; }
+      40% { transform: scale(1.4) rotate(120deg); opacity: 1; filter: drop-shadow(0 0 35px currentColor); }
+      100% { transform: scale(2.3) rotate(240deg); opacity: 0; }
     }
-    .tcg-vfx-element {
+    .tcg-element-vfx {
       position: absolute;
       pointer-events: none;
-      animation: tcgVfxExplosion 0.7s cubic-bezier(0.1, 0.9, 0.2, 1) forwards;
+      animation: elementVfxBurst 0.75s cubic-bezier(0.1, 0.9, 0.2, 1) forwards;
       z-index: 40;
     }
   </style>
@@ -195,67 +195,75 @@
       blue: { key: 'blue', name: 'Blau', title: 'WASSER', bg: 'from-blue-950 via-sky-950 to-slate-950', border: 'border-blue-400', art: CardArt.dagger }
     };
 
-    const renderTcgVisualEffect = (card) => {
+    // NEUE, HOCHWERTIGE TCG ELEMENT-GRAFIK-ANIMATIONEN (Exakt auf die Elemente abgestimmt)
+    const renderTcgElementAnimation = (card) => {
       if (card.type === 'wizard') {
+        // Arkan-Magie: Rotierende Zauberkreise & Pentagramm-Runen
         return (
-          <div className="tcg-vfx-element text-purple-400 flex items-center justify-center">
-            <svg className="w-28 h-28" viewBox="0 0 100 100" fill="none" stroke="currentColor" strokeWidth="3">
-              <circle cx="50" cy="50" r="42" strokeDasharray="8 4" className="animate-spin" />
-              <polygon points="50,10 63,37 92,42 71,63 76,92 50,78 24,92 29,63 8,42 37,37" fill="currentColor" fillOpacity="0.3" />
-              <circle cx="50" cy="50" r="20" stroke="currentColor" strokeWidth="2" className="animate-ping" />
+          <div className="tcg-element-vfx text-purple-400 flex items-center justify-center">
+            <svg className="w-36 h-36" viewBox="0 0 100 100" fill="none" stroke="currentColor" strokeWidth="2.5">
+              <circle cx="50" cy="50" r="44" strokeDasharray="6 4" className="animate-spin" style={{ animationDuration: '6s' }} />
+              <polygon points="50,6 62,38 95,45 70,68 76,98 50,82 24,98 30,68 5,45 38,38" fill="#a855f7" fillOpacity="0.25" />
+              <circle cx="50" cy="50" r="22" stroke="#fde047" strokeWidth="2" className="animate-ping" style={{ animationDuration: '1.5s' }} />
             </svg>
           </div>
         );
       }
       if (card.type === 'jester') {
+        // Chaos / Narr: Verspielte wirbelnde Portale
         return (
-          <div className="tcg-vfx-element text-pink-500 flex items-center justify-center">
-            <svg className="w-28 h-28" viewBox="0 0 100 100" fill="none" stroke="currentColor" strokeWidth="4">
-              <path d="M 10 50 Q 50 10 90 50 Q 50 90 10 50 Z" className="animate-spin" />
-              <circle cx="50" cy="50" r="25" fill="currentColor" fillOpacity="0.4" className="animate-ping" />
+          <div className="tcg-element-vfx text-pink-500 flex items-center justify-center">
+            <svg className="w-36 h-36" viewBox="0 0 100 100" fill="none" stroke="currentColor" strokeWidth="3">
+              <path d="M 15 50 Q 50 10 85 50 Q 50 90 15 50 Z" fill="#ec4899" fillOpacity="0.3" className="animate-spin" style={{ animationDuration: '4s' }} />
+              <circle cx="50" cy="50" r="28" fill="#f43f5e" fillOpacity="0.4" className="animate-ping" />
             </svg>
           </div>
         );
       }
       if (card.suit === 'green') {
+        // Diamanten / Erde: Ausbrechende Kristall-Facetten & grüne Edelstein-Matrix
         return (
-          <div className="tcg-vfx-element text-emerald-400 flex items-center justify-center">
-            <svg className="w-32 h-32" viewBox="0 0 100 100" fill="none" stroke="currentColor" strokeWidth="3">
-              <polygon points="50,10 70,35 60,80 40,80 30,35" fill="#34d399" fillOpacity="0.5" className="animate-pulse" />
-              <line x1="50" y1="10" x2="50" y2="90" stroke="#6ee7b7" strokeWidth="2" />
-              <line x1="20" y1="50" x2="80" y2="50" stroke="#6ee7b7" strokeWidth="2" />
-              <circle cx="50" cy="50" r="35" stroke="#10b981" strokeDasharray="6 6" className="animate-spin" />
+          <div className="tcg-element-vfx text-emerald-400 flex items-center justify-center">
+            <svg className="w-36 h-36" viewBox="0 0 100 100" fill="none" stroke="currentColor" strokeWidth="3">
+              <polygon points="50,8 75,32 65,85 35,85 25,32" fill="#34d399" fillOpacity="0.4" className="animate-pulse" />
+              <line x1="50" y1="8" x2="50" y2="85" stroke="#a7f3d0" strokeWidth="2" />
+              <line x1="25" y1="32" x2="75" y2="32" stroke="#a7f3d0" strokeWidth="2" />
+              <circle cx="50" cy="50" r="40" stroke="#059669" strokeDasharray="8 8" className="animate-spin" style={{ animationDuration: '5s' }} />
             </svg>
           </div>
         );
       }
       if (card.suit === 'red') {
+        // Feuer: Lodernder Feuerball, Explosions-Schockwellen & lodernde Flammenzungen
         return (
-          <div className="tcg-vfx-element text-red-500 flex items-center justify-center">
-            <svg className="w-32 h-32" viewBox="0 0 100 100" fill="none" stroke="currentColor" strokeWidth="3">
-              <circle cx="50" cy="50" r="40" fill="#ef4444" fillOpacity="0.4" className="animate-ping" />
-              <path d="M 50 5 Q 60 30 75 40 Q 90 50 75 65 Q 60 80 50 95 Q 40 80 25 65 Q 10 50 25 40 Q 40 30 50 5 Z" fill="#dc2626" fillOpacity="0.6" className="animate-pulse" />
+          <div className="tcg-element-vfx text-red-500 flex items-center justify-center">
+            <svg className="w-36 h-36" viewBox="0 0 100 100" fill="none" stroke="currentColor" strokeWidth="3">
+              <circle cx="50" cy="50" r="42" fill="#ef4444" fillOpacity="0.5" className="animate-ping" style={{ animationDuration: '1.2s' }} />
+              <path d="M 50 2 Q 62 28 80 38 Q 98 50 80 68 Q 62 78 50 98 Q 38 78 20 68 Q 2 50 20 38 Q 38 28 50 2 Z" fill="#dc2626" fillOpacity="0.65" className="animate-pulse" />
+              <circle cx="50" cy="50" r="25" fill="#f59e0b" fillOpacity="0.8" />
             </svg>
           </div>
         );
       }
       if (card.suit === 'blue') {
+        // Wasser: Tidal-Wave Strudel, rotierende Hydro-Ringe & Wasserschwall
         return (
-          <div className="tcg-vfx-element text-sky-400 flex items-center justify-center">
-            <svg className="w-32 h-32" viewBox="0 0 100 100" fill="none" stroke="currentColor" strokeWidth="3">
-              <circle cx="50" cy="50" r="42" stroke="#38bdf8" strokeWidth="4" className="animate-ping" />
-              <ellipse cx="50" cy="50" rx="35" ry="20" fill="#0284c7" fillOpacity="0.5" className="animate-pulse" />
-              <path d="M 20 50 Q 50 20 80 50 Q 50 80 20 50 Z" stroke="#bae6fd" strokeWidth="3" className="animate-spin" />
+          <div className="tcg-element-vfx text-sky-400 flex items-center justify-center">
+            <svg className="w-36 h-36" viewBox="0 0 100 100" fill="none" stroke="currentColor" strokeWidth="3">
+              <circle cx="50" cy="50" r="44" stroke="#38bdf8" strokeWidth="4" className="animate-ping" style={{ animationDuration: '1.4s' }} />
+              <ellipse cx="50" cy="50" rx="38" ry="22" fill="#0284c7" fillOpacity="0.5" className="animate-pulse" />
+              <path d="M 15 50 Q 50 15 85 50 Q 50 85 15 50 Z" stroke="#bae6fd" strokeWidth="3.5" className="animate-spin" style={{ animationDuration: '3.5s' }} />
             </svg>
           </div>
         );
       }
       if (card.suit === 'yellow') {
+        // Wind: Reißender Tornado-Wirbel, Sturmböen & goldene Windklingen
         return (
-          <div className="tcg-vfx-element text-amber-300 flex items-center justify-center">
-            <svg className="w-32 h-32" viewBox="0 0 100 100" fill="none" stroke="currentColor" strokeWidth="3">
-              <path d="M 20 30 Q 50 10 80 30 Q 50 50 20 70 Q 50 90 80 70" stroke="#f59e0b" strokeWidth="4" className="animate-spin" />
-              <circle cx="50" cy="50" r="30" fill="#fde047" fillOpacity="0.3" className="animate-ping" />
+          <div className="tcg-element-vfx text-amber-300 flex items-center justify-center">
+            <svg className="w-36 h-36" viewBox="0 0 100 100" fill="none" stroke="currentColor" strokeWidth="3.5">
+              <path d="M 15 30 Q 50 8 85 30 Q 50 52 15 70 Q 50 92 85 70" stroke="#f59e0b" strokeWidth="4" className="animate-spin" style={{ animationDuration: '2.5s' }} />
+              <circle cx="50" cy="50" r="32" fill="#fde047" fillOpacity="0.35" className="animate-ping" style={{ animationDuration: '1.6s' }} />
             </svg>
           </div>
         );
@@ -403,7 +411,6 @@
       const [playedCards, setPlayedCards] = useState([]);
       const [turn, setTurn] = useState(0);
 
-      // Animation State
       const [animatingCardId, setAnimatingCardId] = useState(null);
       const [animatingCardObj, setAnimatingCardObj] = useState(null);
 
@@ -639,7 +646,6 @@
         setAnimatingCardId(selectedCard.id);
         setAnimatingCardObj(selectedCard);
 
-        // Aktualisiere zuerst die Hand des Spielers
         setPlayers(prev => prev.map(pl => pl.id === p.id ? { ...pl, hand: newHand } : pl));
 
         setTimeout(() => {
@@ -738,7 +744,6 @@
           const activeSuit = profile.activeSuit || 'red';
           let earnedXp = isHumanWinner ? 150 : 50;
 
-          // 1. Element-Fortschritt
           const currentSuitData = profile.elementLevels[activeSuit] || { level: 1, xp: 0 };
           let newSuitXp = currentSuitData.xp + earnedXp;
           let newSuitLevel = currentSuitData.level;
@@ -757,7 +762,6 @@
             [activeSuit]: { level: newSuitLevel, xp: newSuitXp }
           };
 
-          // 2. Globales Level
           let globalLevel = profile.level || 1;
           let globalXp = (profile.xp || 0) + earnedXp;
 
@@ -873,7 +877,7 @@
               </div>
 
               <span className="text-[9px] text-center text-slate-300 font-bold block mt-2 drop-shadow bg-slate-950/70 py-1 rounded-full backdrop-blur-md border border-sky-500/30">
-                MYTHOS CARD GAME V8.6
+                MYTHOS CARD GAME V8.7
               </span>
             </div>
           </div>
@@ -984,7 +988,6 @@
               <button onClick={() => setScreen('menu')} className="text-xs bg-slate-900 border border-slate-800 text-sky-300 px-3 py-1.5 rounded-lg font-bold">Zurück</button>
             </div>
 
-            {/* AVATAR AUSWAHL MODAL */}
             {showAvatarModal && (
               <div className="absolute inset-0 bg-slate-950/95 backdrop-blur-md z-50 flex flex-col p-4 overflow-y-auto">
                 <div className="flex justify-between items-center mb-3 border-b border-sky-500/30 pb-2">
@@ -1117,7 +1120,6 @@
                 </div>
               </div>
 
-              {/* OFFLINE STATS */}
               <div className="w-full bg-slate-900/90 border border-slate-800 p-3 rounded-xl text-left space-y-1.5 text-xs shadow-inner">
                 <div className="font-extrabold text-sky-300 border-b border-slate-800 pb-1 flex justify-between items-center">
                   <span className="flex items-center gap-1.5">⚔️ Offline-Duelle (KI)</span>
@@ -1128,7 +1130,6 @@
                 <div className="flex justify-between"><span className="text-slate-400">Niederlagen:</span><span className="font-bold text-red-400">{offLosses}</span></div>
               </div>
 
-              {/* ONLINE STATS */}
               <div className="w-full bg-purple-950/30 border border-purple-500/20 p-3 rounded-xl text-left space-y-1.5 text-xs shadow-inner">
                 <div className="font-extrabold text-purple-300 border-b border-purple-500/20 pb-1 flex justify-between items-center">
                   <span className="flex items-center gap-1.5">🌐 Online-Duelle</span>
@@ -1366,7 +1367,6 @@
               {trumpCard ? <CardFace card={trumpCard} size="sm" disabled /> : <CardBack size="sm" />}
             </div>
 
-            {/* SAUBERES GRID-LAYOUT FÜR GESPIELTE KARTEN */}
             <div className="w-full flex-1 flex items-center justify-center p-2 relative">
               <div className="grid grid-cols-2 gap-4 items-center justify-items-center">
                 {playedCards.map((pc, i) => (
@@ -1377,11 +1377,11 @@
                 ))}
               </div>
 
-              {/* TCG-ANIMATIONS-OVERLAY */}
+              {/* EPISCHE TCG ELEMENT-ANIMATION BEIM AUSPIELEN */}
               {animatingCardId && animatingCardObj && (
-                <div className="absolute inset-0 flex flex-col items-center justify-center z-40 bg-black/50 backdrop-blur-[2px]">
+                <div className="absolute inset-0 flex flex-col items-center justify-center z-40 bg-black/55 backdrop-blur-[2px]">
                   <div className="relative flex flex-col items-center">
-                    {renderTcgVisualEffect(animatingCardObj)}
+                    {renderTcgElementAnimation(animatingCardObj)}
                     <CardFace card={animatingCardObj} size="md" disabled className="animate-tcglike-slam mt-2" />
                   </div>
                 </div>
