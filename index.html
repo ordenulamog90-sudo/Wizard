@@ -226,10 +226,10 @@
     };
 
     const SUITS = {
-      yellow: { name: 'Gelb', title: 'DIE STANDARTE', bg: 'from-amber-950 via-yellow-950 to-slate-950', border: 'border-amber-400', art: CardArt.banner },
-      red: { name: 'Rot', title: 'DIE AXT', bg: 'from-red-950 via-rose-950 to-slate-950', border: 'border-red-500', art: CardArt.axe },
-      green: { name: 'Grün', title: 'DER BOGEN', bg: 'from-emerald-950 via-green-950 to-slate-950', border: 'border-emerald-400', art: CardArt.bow },
-      blue: { name: 'Blau', title: 'DER DOLCH', bg: 'from-blue-950 via-sky-950 to-slate-950', border: 'border-blue-400', art: CardArt.dagger }
+      yellow: { key: 'yellow', name: 'Gelb', title: 'DIE STANDARTE', bg: 'from-amber-950 via-yellow-950 to-slate-950', border: 'border-amber-400', art: CardArt.banner },
+      red: { key: 'red', name: 'Rot', title: 'DIE AXT', bg: 'from-red-950 via-rose-950 to-slate-950', border: 'border-red-500', art: CardArt.axe },
+      green: { key: 'green', name: 'Grün', title: 'DER BOGEN', bg: 'from-emerald-950 via-green-950 to-slate-950', border: 'border-emerald-400', art: CardArt.bow },
+      blue: { key: 'blue', name: 'Blau', title: 'DER DOLCH', bg: 'from-blue-950 via-sky-950 to-slate-950', border: 'border-blue-400', art: CardArt.dagger }
     };
 
     const FAMOUS_WIZARDS = [
@@ -238,10 +238,7 @@
       'Voldemort', 'Jaina', 'Jafar', 'Prospero', 'Veigar', 'Rincewind', 'Glinda',
       'Moiraine', 'Willow', 'Dumbledore', 'Saruman'
     ];
-    
-    const AVATARS = ['🧙‍♂️', '🧝‍♀️', '🧙‍♀️', '🧝‍♂️', '🔮', '👑', '⚡', '🌙', '📜'];
 
-    // KARTENRÜCKEN 
     function CardBack({ size = "md" }) {
       const dim = size === "sm" ? "w-12 h-20" : size === "lg" ? "w-28 h-40" : "w-20 h-32";
       return (
@@ -261,7 +258,6 @@
 
       const cornerText = isWizard ? 'Z' : isJester ? 'N' : card.value;
       const titleText = isWizard ? 'ZAUBERER' : isJester ? 'NARR' : suitInfo.title;
-
       const artComponent = isWizard ? CardArt.wizard : isJester ? CardArt.jester : suitInfo.art;
 
       const bgStyle = isWizard
@@ -300,6 +296,7 @@
     function App() {
       const [screen, setScreen] = useState('menu');
       const [showExitConfirm, setShowExitConfirm] = useState(false);
+      const [showAvatarModal, setShowAvatarModal] = useState(false);
       
       const [profile, setProfile] = useState(() => {
         const saved = localStorage.getItem('wizard_profile');
@@ -307,7 +304,14 @@
           name: 'Erzmagier', 
           level: 1, 
           xp: 150, 
-          avatar: '🧙‍♂️',
+          activeSuit: 'red', // Aktiv gewählte Element-Kategorie
+          selectedAvatar: { type: 'jester', suit: 'red', label: 'Narr (Rot)' }, // Aktives Profilbild
+          elementLevels: {
+            red: { level: 1, xp: 100 },
+            blue: { level: 1, xp: 0 },
+            green: { level: 1, xp: 0 },
+            yellow: { level: 1, xp: 0 }
+          },
           offlinePlayed: 3,
           offlineWins: 0,
           onlinePlayed: 0,
@@ -318,10 +322,9 @@
         return {
           ...defaultProf,
           ...parsed,
-          offlinePlayed: parsed.offlinePlayed ?? parsed.gamesPlayed ?? 3,
-          offlineWins: parsed.offlineWins ?? parsed.wins ?? 0,
-          onlinePlayed: parsed.onlinePlayed ?? 0,
-          onlineWins: parsed.onlineWins ?? 0
+          elementLevels: parsed.elementLevels || defaultProf.elementLevels,
+          selectedAvatar: parsed.selectedAvatar || defaultProf.selectedAvatar,
+          activeSuit: parsed.activeSuit || defaultProf.activeSuit
         };
       });
 
@@ -353,13 +356,11 @@
       const [playedCards, setPlayedCards] = useState([]);
       const [turn, setTurn] = useState(0);
 
-      // SPERR-FLAGS
       const isEvaluatingRef = useRef(false);
       const isProcessingClickRef = useRef(false);
       const stateRef = useRef({});
       stateRef.current = { screen, phase, turn, players, playedCards, trumpCard, round, maxRounds };
 
-      // TIMER STATES
       const [showDiceModal, setShowDiceModal] = useState(false);
       const [isDiceRolling, setIsDiceRolling] = useState(false);
       const [diceRolls, setDiceRolls] = useState(null);
@@ -376,69 +377,42 @@
       const [victoryData, setVictoryData] = useState(null);
       const [victoryTimer, setVictoryTimer] = useState(20);
 
-      // Timer 1: Auto-Würfeln (20s)
       useEffect(() => {
         let interval = null;
         if (showDiceModal && !diceRolls && !isDiceRolling) {
           interval = setInterval(() => {
-            setDiceTimer(prev => {
-              if (prev <= 1) {
-                handleUserRollDice();
-                return 0;
-              }
-              return prev - 1;
-            });
+            setDiceTimer(prev => { if (prev <= 1) { handleUserRollDice(); return 0; } return prev - 1; });
           }, 1000);
         }
         return () => clearInterval(interval);
       }, [showDiceModal, diceRolls, isDiceRolling]);
 
-      // Timer 2: Auto-Weiter nach Würfeln (10s)
       useEffect(() => {
         let interval = null;
         if (showDiceModal && diceRolls && !isDiceRolling) {
           interval = setInterval(() => {
-            setResultTimer(prev => {
-              if (prev <= 1) {
-                startRoundAfterDice();
-                return 0;
-              }
-              return prev - 1;
-            });
+            setResultTimer(prev => { if (prev <= 1) { startRoundAfterDice(); return 0; } return prev - 1; });
           }, 1000);
         }
         return () => clearInterval(interval);
       }, [showDiceModal, diceRolls, isDiceRolling]);
 
-      // Timer 3: Stich-Ansage Timer (20s)
       useEffect(() => {
         let interval = null;
         if (screen === 'game' && phase === 'bidding' && !showDiceModal && !roundSummary && !victoryData && !showExitConfirm) {
           interval = setInterval(() => {
-            setBiddingTimer(prev => {
-              if (prev <= 1) {
-                handleHumanBid(0);
-                return 20;
-              }
-              return prev - 1;
-            });
+            setBiddingTimer(prev => { if (prev <= 1) { handleHumanBid(0); return 20; } return prev - 1; });
           }, 1000);
         }
         return () => clearInterval(interval);
       }, [screen, phase, showDiceModal, roundSummary, victoryData, showExitConfirm]);
 
-      // Timer 4: ZUG-TIMER FÜR MENSCHLICHEN SPIELER (20s)
       useEffect(() => {
         let interval = null;
         if (screen === 'game' && phase === 'playing' && turn === 0 && !isEvaluatingRef.current && playedCards.length < players.length && !showDiceModal && !roundSummary && !victoryData && !showExitConfirm) {
           interval = setInterval(() => {
             setTurnTimer(prev => {
-              if (prev <= 1) {
-                if (players[0]?.hand?.length > 0) {
-                  playCard(0, 0);
-                }
-                return 20;
-              }
+              if (prev <= 1) { if (players[0]?.hand?.length > 0) { playCard(0, 0); } return 20; }
               return prev - 1;
             });
           }, 1000);
@@ -448,49 +422,32 @@
         return () => clearInterval(interval);
       }, [screen, phase, turn, playedCards, players, showDiceModal, roundSummary, victoryData, showExitConfirm]);
 
-      // PROAKTIVER KI-HEARTBEAT
       useEffect(() => {
         const interval = setInterval(() => {
           const { screen: s, phase: p, turn: t, players: pl, playedCards: pc } = stateRef.current;
           if (s === 'game' && p === 'playing' && t !== 0 && !isEvaluatingRef.current && !isProcessingClickRef.current && pc.length < pl.length && !showExitConfirm) {
             const currentKi = pl[t];
-            if (currentKi && currentKi.hand.length > 0) {
-              playCard(t, 0);
-            }
+            if (currentKi && currentKi.hand.length > 0) { playCard(t, 0); }
           }
         }, 800);
         return () => clearInterval(interval);
       }, [showExitConfirm]);
 
-      // Timer 5: Rundenabrechnung Countdown (10s)
       useEffect(() => {
         let interval = null;
         if (roundSummary && !showExitConfirm) {
           interval = setInterval(() => {
-            setSummaryTimer(prev => {
-              if (prev <= 1) {
-                proceedToNextRound();
-                return 0;
-              }
-              return prev - 1;
-            });
+            setSummaryTimer(prev => { if (prev <= 1) { proceedToNextRound(); return 0; } return prev - 1; });
           }, 1000);
         }
         return () => clearInterval(interval);
       }, [roundSummary, showExitConfirm]);
 
-      // Timer 6: Siegerehrung (20s)
       useEffect(() => {
         let interval = null;
         if (victoryData && !showExitConfirm) {
           interval = setInterval(() => {
-            setVictoryTimer(prev => {
-              if (prev <= 1) {
-                finishGameAndGoMenu();
-                return 0;
-              }
-              return prev - 1;
-            });
+            setVictoryTimer(prev => { if (prev <= 1) { finishGameAndGoMenu(); return 0; } return prev - 1; });
           }, 1000);
         }
         return () => clearInterval(interval);
@@ -498,17 +455,26 @@
 
       const startNewGame = () => {
         const shuffledNames = shuffleArray(FAMOUS_WIZARDS);
-        const shuffledAvatars = shuffleArray(AVATARS);
+        const randomAvatars = ['🧙‍♂️', '🔮', '⚡', '🌙'];
 
         const initialPlayers = [
-          { id: 0, name: profile.name, avatar: profile.avatar || '🧙‍♂️', isHuman: true, bid: null, tricks: 0, score: 0, hand: [] }
+          { 
+            id: 0, 
+            name: profile.name, 
+            avatarObj: profile.selectedAvatar, 
+            isHuman: true, 
+            bid: null, 
+            tricks: 0, 
+            score: 0, 
+            hand: [] 
+          }
         ];
 
         for (let i = 1; i < playerCount; i++) {
           initialPlayers.push({
             id: i,
             name: `${shuffledNames[i - 1]} (KI)`,
-            avatar: shuffledAvatars[i % shuffledAvatars.length],
+            avatarEmoji: randomAvatars[i % randomAvatars.length],
             isHuman: false,
             bid: null,
             tricks: 0,
@@ -530,21 +496,12 @@
 
       const handleUserRollDice = () => {
         if (isDiceRolling || diceRolls) return;
-
         setIsDiceRolling(true);
-
         setTimeout(() => {
           const rolls = players.map(() => getCryptoRandomDice());
-          
           let maxRoll = -1;
           let winnerIdx = 0;
-          rolls.forEach((val, idx) => {
-            if (val > maxRoll) {
-              maxRoll = val;
-              winnerIdx = idx;
-            }
-          });
-
+          rolls.forEach((val, idx) => { if (val > maxRoll) { maxRoll = val; winnerIdx = idx; } });
           setDiceRolls(rolls);
           setDiceWinner(winnerIdx);
           setIsDiceRolling(false);
@@ -554,11 +511,8 @@
 
       const handleDiceOverlayClick = (e) => {
         e.stopPropagation();
-        if (!diceRolls && !isDiceRolling) {
-          handleUserRollDice();
-        } else if (diceRolls && !isDiceRolling) {
-          startRoundAfterDice();
-        }
+        if (!diceRolls && !isDiceRolling) { handleUserRollDice(); } 
+        else if (diceRolls && !isDiceRolling) { startRoundAfterDice(); }
       };
 
       const startRoundAfterDice = () => {
@@ -600,9 +554,7 @@
         newPlayers.forEach(p => {
           if (!p.isHuman) {
             let kiBid = 0;
-            p.hand.forEach(c => {
-              if (c.type === 'wizard' || (c.type === 'number' && c.value > 10)) kiBid++;
-            });
+            p.hand.forEach(c => { if (c.type === 'wizard' || (c.type === 'number' && c.value > 10)) kiBid++; });
             p.bid = Math.min(kiBid, rNum);
           }
         });
@@ -619,20 +571,16 @@
 
       const playCard = (playerIdx, cardIdx) => {
         if (isEvaluatingRef.current || isProcessingClickRef.current) return;
-
         const currentPlayers = stateRef.current.players;
         const currentPlayed = stateRef.current.playedCards;
         const p = currentPlayers[playerIdx];
-
         if (!p || !p.hand[cardIdx]) return;
 
         const selectedCard = p.hand[cardIdx];
-
         const alreadyPlayed = currentPlayed.some(pc => pc.card.id && pc.card.id === selectedCard.id);
         if (alreadyPlayed) return;
 
         isProcessingClickRef.current = true;
-
         const newHand = p.hand.filter((_, i) => i !== cardIdx);
         const newPlayed = [...currentPlayed, { playerId: p.id, card: selectedCard }];
 
@@ -647,14 +595,11 @@
           setTurnTimer(20);
         }
 
-        setTimeout(() => {
-          isProcessingClickRef.current = false;
-        }, 400);
+        setTimeout(() => { isProcessingClickRef.current = false; }, 400);
       };
 
       const evaluateTrick = (cardsOnTable) => {
         let winningCardObj = cardsOnTable[0];
-
         const firstWizard = cardsOnTable.find(c => c.card.type === 'wizard');
         if (firstWizard) {
           winningCardObj = firstWizard;
@@ -662,25 +607,16 @@
           const leadCardObj = cardsOnTable.find(c => c.card.type === 'number');
           const leadSuit = leadCardObj ? leadCardObj.card.suit : null;
           const trumpSuit = (trumpCard && trumpCard.type === 'number') ? trumpCard.suit : null;
-
           let highestRank = -1;
 
           cardsOnTable.forEach(c => {
             const card = c.card;
             if (card.type === 'number') {
               let rank = 0;
-              if (trumpSuit && card.suit === trumpSuit) {
-                rank = 200 + card.value;
-              } else if (leadSuit && card.suit === leadSuit) {
-                rank = 100 + card.value;
-              } else {
-                rank = card.value;
-              }
-
-              if (rank > highestRank) {
-                highestRank = rank;
-                winningCardObj = c;
-              }
+              if (trumpSuit && card.suit === trumpSuit) rank = 200 + card.value;
+              else if (leadSuit && card.suit === leadSuit) rank = 100 + card.value;
+              else rank = card.value;
+              if (rank > highestRank) { highestRank = rank; winningCardObj = c; }
             }
           });
         }
@@ -689,7 +625,6 @@
 
         setPlayers(prev => {
           const updated = prev.map(p => p.id === winnerId ? { ...p, tricks: p.tricks + 1 } : p);
-          
           setPlayedCards([]);
           isEvaluatingRef.current = false;
           isProcessingClickRef.current = false;
@@ -701,7 +636,6 @@
             setTurn(winnerId);
             setTurnTimer(20);
           }
-
           return updated;
         });
       };
@@ -712,41 +646,19 @@
 
         const calculated = currentPlayers.map(p => {
           const diff = Math.abs(p.bid - p.tricks);
-          let pointsGained = 0;
-
-          if (diff === 0) {
-            pointsGained = 20 + (p.tricks * 10);
-          } else {
-            pointsGained = -(diff * 10);
-          }
-
-          if (diff < minDiff) {
-            minDiff = diff;
-            bestGuessers = [p.id];
-          } else if (diff === minDiff) {
-            bestGuessers.push(p.id);
-          }
-
-          return {
-            ...p,
-            score: p.score + pointsGained,
-            pointsGained
-          };
+          let pointsGained = (diff === 0) ? (20 + (p.tricks * 10)) : -(diff * 10);
+          if (diff < minDiff) { minDiff = diff; bestGuessers = [p.id]; }
+          else if (diff === minDiff) { bestGuessers.push(p.id); }
+          return { ...p, score: p.score + pointsGained, pointsGained };
         });
 
         const nextRoundStarter = bestGuessers[Math.floor(Math.random() * bestGuessers.length)];
-
-        setRoundSummary({
-          round: currentRoundNum,
-          calculatedPlayers: calculated,
-          nextStarterId: nextRoundStarter
-        });
+        setRoundSummary({ round: currentRoundNum, calculatedPlayers: calculated, nextStarterId: nextRoundStarter });
         setSummaryTimer(10);
       };
 
       const proceedToNextRound = () => {
         if (!roundSummary) return;
-
         const updated = roundSummary.calculatedPlayers;
         const nextStarter = roundSummary.nextStarterId;
         const nextR = roundSummary.round + 1;
@@ -762,11 +674,26 @@
           setVictoryTimer(20);
 
           const isHumanWinner = sortedFinal[0].isHuman;
+          const activeSuit = profile.activeSuit || 'red';
+          const currentSuitData = profile.elementLevels[activeSuit] || { level: 1, xp: 0 };
+          
+          let newXp = currentSuitData.xp + (isHumanWinner ? 150 : 50);
+          let newLevel = currentSuitData.level;
+          if (newXp >= newLevel * 100) {
+            newLevel += 1;
+          }
+
+          const updatedElementLevels = {
+            ...profile.elementLevels,
+            [activeSuit]: { level: newLevel, xp: newXp }
+          };
+
           const updatedProfile = { 
             ...profile, 
             offlinePlayed: (profile.offlinePlayed || 0) + 1, 
             offlineWins: isHumanWinner ? (profile.offlineWins || 0) + 1 : (profile.offlineWins || 0),
-            xp: profile.xp + (isHumanWinner ? 150 : 50) 
+            xp: profile.xp + (isHumanWinner ? 150 : 50),
+            elementLevels: updatedElementLevels
           };
           setProfile(updatedProfile);
           localStorage.setItem('wizard_profile', JSON.stringify(updatedProfile));
@@ -779,20 +706,63 @@
         setScreen('menu');
       };
 
-      // ---------------- 1. HAUPTMENÜ (MIT NEUEM HOCHFORMAT-BILD) ----------------
+      // Hilfsfunktion zum Rendern des Avatars (egal ob Start-Narr oder freigeschaltete Karte)
+      const renderAvatarIcon = (avatarObj, sizeClass = "w-16 h-16 text-2xl") => {
+        if (!avatarObj) return <div className={`${sizeClass} rounded-full bg-slate-900 border border-sky-400 flex items-center justify-center`}>🃏</div>;
+        
+        const suitInfo = SUITS[avatarObj.suit] || SUITS.red;
+
+        if (avatarObj.type === 'jester') {
+          return (
+            <div className={`${sizeClass} rounded-full bg-slate-900 border-2 ${suitInfo.border} flex items-center justify-center shadow-xl relative overflow-hidden p-1`}>
+              <div className="w-full h-full flex items-center justify-center scale-75">
+                {CardArt.jester}
+              </div>
+            </div>
+          );
+        } else if (avatarObj.type === 'wizard') {
+          return (
+            <div className={`${sizeClass} rounded-full bg-purple-950 border-2 border-amber-300 flex items-center justify-center shadow-xl relative overflow-hidden p-1`}>
+              <div className="w-full h-full flex items-center justify-center scale-75">
+                {CardArt.wizard}
+              </div>
+            </div>
+          );
+        } else {
+          // Zahlenkarte 1-13
+          return (
+            <div className={`${sizeClass} rounded-full bg-gradient-to-b ${suitInfo.bg} border-2 ${suitInfo.border} flex flex-col items-center justify-center shadow-xl relative overflow-hidden p-0.5`}>
+              <span className="text-[9px] font-black text-amber-300 leading-none">{avatarObj.value}</span>
+              <div className="w-5 h-5 flex items-center justify-center my-auto scale-90">
+                {suitInfo.art}
+              </div>
+            </div>
+          );
+        }
+      };
+
+      // Generiert alle freischaltbaren Avatare für ein Element (Narr = Stufe 1, 1-13 = Stufe 2-14, Zauberer = Stufe 15)
+      const getAvailableAvatarsForSuit = (suitKey, currentLevel) => {
+        const list = [];
+        // Stufe 1: Narr
+        list.push({ type: 'jester', suit: suitKey, label: 'Narr', unlocked: currentLevel >= 1 });
+        // Stufen 2 bis 14: Karten 1 bis 13
+        for (let v = 1; v <= 13; v++) {
+          list.push({ type: 'number', value: v, suit: suitKey, label: `Karte ${v}`, unlocked: currentLevel >= (v + 1) });
+        }
+        // Stufe 15: Zauberer
+        list.push({ type: 'wizard', suit: suitKey, label: 'Zauberer', unlocked: currentLevel >= 15 });
+        return list;
+      };
+
+      // ---------------- 1. HAUPTMENÜ ----------------
       if (screen === 'menu') {
         return (
           <div className="relative w-full h-full bg-slate-950 flex items-center justify-center p-4 overflow-hidden">
-            {/* HOCHFORMAT-HINTERGRUNDBILD VOLLFLÄCHIG */}
             <div className="absolute inset-0 z-0 flex items-center justify-center">
-              <img 
-                src="./1791640481183.jpg" 
-                alt="Mythos Background" 
-                className="w-full h-full object-cover drop-shadow-2xl" 
-              />
+              <img src="./1791640481183.jpg" alt="Mythos Background" className="w-full h-full object-cover drop-shadow-2xl" />
             </div>
 
-            {/* MITTIGES MENÜ ZENTRIERT ÜBER DEM BILD */}
             <div className="relative z-10 w-full max-w-sm flex flex-col gap-3 my-auto">
               <button
                 onClick={() => setScreen('game_setup')}
@@ -824,7 +794,7 @@
               </div>
 
               <span className="text-[9px] text-center text-slate-300 font-bold block mt-2 drop-shadow bg-slate-950/70 py-1 rounded-full backdrop-blur-md border border-sky-500/30">
-                MYTHOS CARD GAME V6.4
+                MYTHOS CARD GAME V7.0 • AVATAR PROGRESSION
               </span>
             </div>
           </div>
@@ -903,17 +873,17 @@
         );
       }
 
-      // ---------------- 3. PROFIL & STATISTIKEN ----------------
+      // ---------------- 3. PROFIL & STATISTIKEN & AVATAR-AUSWAHL ----------------
       if (screen === 'profile') {
         const offPlayed = profile.offlinePlayed || 0;
         const offWins = profile.offlineWins || 0;
         const offLosses = Math.max(0, offPlayed - offWins);
         const offWinrate = offPlayed > 0 ? Math.round((offWins / offPlayed) * 100) : 0;
 
-        const onPlayed = profile.onlinePlayed || 0;
-        const onWins = profile.onlineWins || 0;
-        const onLosses = Math.max(0, onPlayed - onWins);
-        const onWinrate = onPlayed > 0 ? Math.round((onWins / onPlayed) * 100) : 0;
+        const activeSuitKey = profile.activeSuit || 'red';
+        const currentElementData = profile.elementLevels?.[activeSuitKey] || { level: 1, xp: 0 };
+        const xpNeededForNextLevel = currentElementData.level * 100;
+        const xpProgressPercent = Math.min(100, Math.round((currentElementData.xp / xpNeededForNextLevel) * 100));
 
         return (
           <div className="flex flex-col h-full max-w-md mx-auto p-4 justify-between bg-slate-950 overflow-y-auto">
@@ -922,9 +892,89 @@
               <button onClick={() => setScreen('menu')} className="text-xs bg-slate-900 border border-slate-800 text-sky-300 px-3 py-1.5 rounded-lg font-bold">Zurück</button>
             </div>
 
+            {/* AVATAR AUSWAHL MODAL */}
+            {showAvatarModal && (
+              <div className="absolute inset-0 bg-slate-950/95 backdrop-blur-md z-50 flex flex-col p-4 overflow-y-auto">
+                <div className="flex justify-between items-center mb-3 border-b border-sky-500/30 pb-2">
+                  <h3 className="font-black text-sky-300 text-sm">Avatar & Element wählen</h3>
+                  <button onClick={() => setShowAvatarModal(false)} className="text-xs bg-slate-800 text-sky-300 px-3 py-1 rounded-lg font-bold">Fertig</button>
+                </div>
+
+                <div className="space-y-4 pb-4">
+                  <div className="text-[11px] text-slate-400">
+                    Wähle dein aktives Element. Jedes gewonnene Spiel levelt dein gewähltes Element auf, wodurch neue Avatare (Narr ➔ Karten 1-13 ➔ Zauberer) freigeschaltet werden!
+                  </div>
+
+                  {/* Elemente Tabs */}
+                  <div className="grid grid-cols-4 gap-1.5">
+                    {Object.values(SUITS).map(s => {
+                      const isSelected = profile.activeSuit === s.key;
+                      const lvl = profile.elementLevels?.[s.key]?.level || 1;
+                      return (
+                        <button
+                          key={s.key}
+                          onClick={() => {
+                            const updated = { ...profile, activeSuit: s.key };
+                            setProfile(updated);
+                            localStorage.setItem('wizard_profile', JSON.stringify(updated));
+                          }}
+                          className={`p-2 rounded-xl border flex flex-col items-center gap-1 text-[10px] font-bold transition-all ${isSelected ? 'border-sky-400 bg-sky-950 text-sky-200 shadow-lg' : 'border-slate-800 bg-slate-900 text-slate-400'}`}
+                        >
+                          <span className="truncate">{s.name}</span>
+                          <span className="text-amber-400">Lvl {lvl}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  {/* Freigeschaltete Avatare des aktiven Elements */}
+                  <div className="bg-slate-900/80 border border-slate-800 p-3 rounded-2xl space-y-2">
+                    <div className="text-xs font-bold text-sky-300 flex justify-between items-center">
+                      <span>Pfad für: {SUITS[activeSuitKey].title}</span>
+                      <span className="text-[10px] text-amber-300">Level {currentElementData.level}</span>
+                    </div>
+
+                    <div className="grid grid-cols-4 gap-2 max-h-64 overflow-y-auto p-1">
+                      {getAvailableAvatarsForSuit(activeSuitKey, currentElementData.level).map((av, idx) => {
+                        const isCurrentActive = profile.selectedAvatar?.type === av.type && profile.selectedAvatar?.suit === av.suit && profile.selectedAvatar?.value === av.value;
+                        return (
+                          <div 
+                            key={idx}
+                            onClick={() => {
+                              if (av.unlocked) {
+                                const updated = { ...profile, selectedAvatar: av };
+                                setProfile(updated);
+                                localStorage.setItem('wizard_profile', JSON.stringify(updated));
+                              }
+                            }}
+                            className={`p-2 rounded-xl border flex flex-col items-center justify-center gap-1 relative transition-all ${av.unlocked ? 'cursor-pointer hover:border-sky-400' : 'opacity-40 cursor-not-allowed'} ${isCurrentActive ? 'border-amber-400 bg-amber-950/40 shadow-lg' : 'border-slate-800 bg-slate-950'}`}
+                          >
+                            <div className="scale-75 origin-center">
+                              {renderAvatarIcon(av, "w-14 h-14 text-lg")}
+                            </div>
+                            <span className="text-[9px] font-bold text-slate-300 text-center truncate w-full">{av.label}</span>
+                            {!av.unlocked && (
+                              <span className="absolute inset-0 bg-black/60 rounded-xl flex items-center justify-center text-xs font-black text-amber-400">
+                                🔒
+                              </span>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
             <div className="mythic-card p-4 rounded-2xl flex flex-col gap-3 my-auto items-center text-center shadow-2xl">
-              <div className="w-16 h-16 rounded-full border-2 border-sky-400 bg-slate-900 flex items-center justify-center text-3xl shadow-xl">
-                {profile.avatar || '🧙‍♂️'}
+              <div className="relative">
+                <div onClick={() => setShowAvatarModal(true)} className="cursor-pointer group">
+                  {renderAvatarIcon(profile.selectedAvatar, "w-20 h-20 text-3xl")}
+                  <div className="absolute inset-0 rounded-full bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity text-xs font-bold text-sky-200">
+                    Ändern
+                  </div>
+                </div>
               </div>
 
               <div className="w-full flex flex-col items-center">
@@ -950,23 +1000,31 @@
                     />
                     {nameError && <span className="text-[10px] text-red-400 font-bold">{nameError}</span>}
                     <div className="flex gap-2">
-                      <button 
-                        onClick={handleSaveName}
-                        className="flex-1 py-1.5 mythic-btn-primary text-white text-xs font-bold rounded-lg"
-                      >
-                        Speichern
-                      </button>
-                      <button 
-                        onClick={() => { setIsEditingName(false); setNameError(''); }}
-                        className="flex-1 py-1.5 bg-slate-800 text-slate-300 text-xs font-bold rounded-lg"
-                      >
-                        Abbrechen
-                      </button>
+                      <button onClick={handleSaveName} className="flex-1 py-1.5 mythic-btn-primary text-white text-xs font-bold rounded-lg">Speichern</button>
+                      <button onClick={() => { setIsEditingName(false); setNameError(''); }} className="flex-1 py-1.5 bg-slate-800 text-slate-300 text-xs font-bold rounded-lg">Abbrechen</button>
                     </div>
                   </div>
                 )}
-                <span className="text-xs font-bold text-amber-400 mt-0.5">Level {profile.level} • {profile.xp || 0} XP</span>
+                <span className="text-xs font-bold text-amber-400 mt-0.5">Aktives Element: {SUITS[activeSuitKey].name} (Lvl {currentElementData.level})</span>
+                
+                {/* XP Fortschrittsleiste */}
+                <div className="w-full bg-slate-900 border border-slate-800 p-2 rounded-xl mt-2 text-left space-y-1">
+                  <div className="flex justify-between text-[10px] text-slate-400 font-bold">
+                    <span>Element-XP</span>
+                    <span className="text-amber-400">{currentElementData.xp} / {xpNeededForNextLevel} XP</span>
+                  </div>
+                  <div className="w-full h-2 bg-slate-950 rounded-full overflow-hidden border border-slate-800">
+                    <div className="h-full bg-gradient-to-r from-amber-500 to-sky-400 transition-all duration-500" style={{ width: `${xpProgressPercent}%` }}></div>
+                  </div>
+                </div>
               </div>
+
+              <button 
+                onClick={() => setShowAvatarModal(true)}
+                className="w-full py-2 bg-sky-950/80 hover:bg-sky-900 border border-sky-500/40 text-sky-200 font-bold text-xs rounded-xl shadow transition-all flex items-center justify-center gap-2"
+              >
+                <span>🎨</span> Avatare & Elemente verwalten
+              </button>
 
               <div className="w-full bg-slate-900/90 border border-slate-800 p-3 rounded-xl text-left space-y-1.5 text-xs shadow-inner">
                 <div className="font-extrabold text-sky-300 border-b border-slate-800 pb-1 flex justify-between items-center">
@@ -976,16 +1034,6 @@
                 <div className="flex justify-between"><span className="text-slate-400">Gespielte Matches:</span><span className="font-bold text-sky-200">{offPlayed}</span></div>
                 <div className="flex justify-between"><span className="text-slate-400">Siege:</span><span className="font-bold text-emerald-400">{offWins}</span></div>
                 <div className="flex justify-between"><span className="text-slate-400">Niederlagen:</span><span className="font-bold text-red-400">{offLosses}</span></div>
-              </div>
-
-              <div className="w-full bg-purple-950/30 border border-purple-500/20 p-3 rounded-xl text-left space-y-1.5 text-xs shadow-inner">
-                <div className="font-extrabold text-purple-300 border-b border-purple-500/20 pb-1 flex justify-between items-center">
-                  <span className="flex items-center gap-1.5">🌐 Online-Duelle</span>
-                  <span className="text-[10px] text-purple-400 font-normal">Siegquote: {onWinrate}%</span>
-                </div>
-                <div className="flex justify-between"><span className="text-slate-400">Gespielte Matches:</span><span className="font-bold text-purple-200">{onPlayed}</span></div>
-                <div className="flex justify-between"><span className="text-slate-400">Siege:</span><span className="font-bold text-emerald-400">{onWins}</span></div>
-                <div className="flex justify-between"><span className="text-slate-400">Niederlagen:</span><span className="font-bold text-red-400">{onLosses}</span></div>
               </div>
             </div>
 
@@ -1039,7 +1087,6 @@
 
       // ---------------- 6. SPIELFELD ----------------
       const humanPlayer = players[0] || {};
-      const activePlayerObj = players[turn] || {};
       const isHumanTurn = (turn === 0);
 
       return (
@@ -1056,18 +1103,8 @@
                 </div>
 
                 <div className="flex gap-2 w-full pt-2">
-                  <button
-                    onClick={finishGameAndGoMenu}
-                    className="flex-1 py-3 bg-red-950/80 hover:bg-red-900 border border-red-500/50 text-red-200 font-black text-xs rounded-xl active:scale-95 transition-transform shadow-lg"
-                  >
-                    Ja, beenden
-                  </button>
-                  <button
-                    onClick={() => setShowExitConfirm(false)}
-                    className="flex-1 py-3 mythic-btn-primary text-white font-black text-xs rounded-xl active:scale-95 transition-transform shadow-lg"
-                  >
-                    Nein, weiter
-                  </button>
+                  <button onClick={finishGameAndGoMenu} className="flex-1 py-3 bg-red-950/80 hover:bg-red-900 border border-red-500/50 text-red-200 font-black text-xs rounded-xl active:scale-95 transition-transform shadow-lg">Ja, beenden</button>
+                  <button onClick={() => setShowExitConfirm(false)} className="flex-1 py-3 mythic-btn-primary text-white font-black text-xs rounded-xl active:scale-95 transition-transform shadow-lg">Nein, weiter</button>
                 </div>
               </div>
             </div>
@@ -1075,30 +1112,21 @@
 
           {/* INTERAKTIVES WÜRFEL MODAL */}
           {showDiceModal && !showExitConfirm && (
-            <div 
-              onClick={handleDiceOverlayClick}
-              className="absolute inset-0 bg-slate-950/95 backdrop-blur-md z-50 flex flex-col items-center justify-center p-4 text-center cursor-pointer select-none overflow-y-auto"
-            >
+            <div onClick={handleDiceOverlayClick} className="absolute inset-0 bg-slate-950/95 backdrop-blur-md z-50 flex flex-col items-center justify-center p-4 text-center cursor-pointer select-none overflow-y-auto">
               <div className="w-full max-w-xs flex flex-col items-center gap-3 my-auto">
                 <div>
                   <h2 className="text-xl font-black text-sky-300">Duell-Eröffnung</h2>
                   <p className="text-xs text-slate-400 mt-0.5">Wer schlägt das erste Kapitel auf?</p>
                 </div>
 
-                <div
-                  className={`w-24 h-24 rounded-3xl bg-gradient-to-b from-sky-500 to-sky-800 border-2 border-sky-300 shadow-2xl flex items-center justify-center text-5xl my-1 transition-transform ${isDiceRolling ? 'animate-dice-active' : 'shadow-sky-500/30'}`}
-                >
+                <div className={`w-24 h-24 rounded-3xl bg-gradient-to-b from-sky-500 to-sky-800 border-2 border-sky-300 shadow-2xl flex items-center justify-center text-5xl my-1 transition-transform ${isDiceRolling ? 'animate-dice-active' : 'shadow-sky-500/30'}`}>
                   {isDiceRolling ? '🎲' : diceRolls ? `🎲 ${diceRolls[0]}` : '🎲'}
                 </div>
 
                 {!diceRolls && !isDiceRolling && (
                   <div className="flex flex-col items-center gap-1">
-                    <span className="text-xs font-black text-amber-400 animate-pulse">
-                      👉 Tippe auf den Bildschirm zum Würfeln!
-                    </span>
-                    <span className="text-[11px] text-sky-400 font-extrabold bg-sky-950 px-3 py-1 rounded-full border border-sky-500/30">
-                      ⏱️ Auto-Würfeln in {diceTimer}s
-                    </span>
+                    <span className="text-xs font-black text-amber-400 animate-pulse">👉 Tippe auf den Bildschirm zum Würfeln!</span>
+                    <span className="text-[11px] text-sky-400 font-extrabold bg-sky-950 px-3 py-1 rounded-full border border-sky-500/30">⏱️ Auto-Würfeln in {diceTimer}s</span>
                   </div>
                 )}
 
@@ -1119,18 +1147,11 @@
                     </div>
 
                     <div className="pt-2 flex flex-col items-center gap-1 border-t border-slate-800 mt-2">
-                      <button
-                        onClick={(e) => { e.stopPropagation(); startRoundAfterDice(); }}
-                        className="w-full py-3 mythic-btn-primary text-white font-black text-xs rounded-xl shadow-2xl active:scale-95 transition-transform flex items-center justify-center gap-2"
-                      >
+                      <button onClick={(e) => { e.stopPropagation(); startRoundAfterDice(); }} className="w-full py-3 mythic-btn-primary text-white font-black text-xs rounded-xl shadow-2xl active:scale-95 transition-transform flex items-center justify-center gap-2">
                         <span>Weiter zum Spiel ⚔️</span>
-                        <span className="bg-sky-950/80 border border-sky-400/60 px-2 py-0.5 rounded-md text-[11px] font-bold text-amber-300">
-                          ⏱️ {resultTimer}s
-                        </span>
+                        <span className="bg-sky-950/80 border border-sky-400/60 px-2 py-0.5 rounded-md text-[11px] font-bold text-amber-300">⏱️ {resultTimer}s</span>
                       </button>
-                      <span className="text-[10px] text-slate-400 font-bold">
-                        Automatisch weiter in {resultTimer} Sekunden
-                      </span>
+                      <span className="text-[10px] text-slate-400 font-bold">Automatisch weiter in {resultTimer} Sekunden</span>
                     </div>
                   </div>
                 )}
@@ -1140,13 +1161,9 @@
 
           {/* RUNDENABRECHNUNG POPUP */}
           {roundSummary && !showExitConfirm && (
-            <div 
-              onClick={proceedToNextRound}
-              className="absolute inset-0 bg-slate-950/95 backdrop-blur-md z-50 flex flex-col items-center justify-center p-4 cursor-pointer select-none overflow-y-auto"
-            >
+            <div onClick={proceedToNextRound} className="absolute inset-0 bg-slate-950/95 backdrop-blur-md z-50 flex flex-col items-center justify-center p-4 cursor-pointer select-none overflow-y-auto">
               <div className="w-full max-w-xs flex flex-col items-center gap-3 my-auto">
                 <h2 className="text-xl font-black text-sky-300">Ergebnis Runde {roundSummary.round}</h2>
-                
                 <div className="w-full space-y-2">
                   {roundSummary.calculatedPlayers.map(p => (
                     <div key={p.id} className="bg-slate-900 border border-slate-800 p-3 rounded-xl flex justify-between items-center text-xs">
@@ -1164,23 +1181,13 @@
                   ))}
 
                   <div className="bg-sky-950/80 border border-sky-400/50 p-3 rounded-2xl text-center text-xs text-sky-200 mt-3 font-bold space-y-2.5 shadow-2xl">
-                    <div>
-                      👑 {roundSummary.calculatedPlayers.find(p => p.id === roundSummary.nextStarterId)?.name} beginnt Runde {roundSummary.round + 1}!
-                    </div>
-
+                    <div>👑 {roundSummary.calculatedPlayers.find(p => p.id === roundSummary.nextStarterId)?.name} beginnt Runde {roundSummary.round + 1}!</div>
                     <div className="pt-2 border-t border-sky-500/30 flex flex-col items-center gap-1">
-                      <button 
-                        onClick={(e) => { e.stopPropagation(); proceedToNextRound(); }}
-                        className="w-full py-2.5 mythic-btn-primary text-white font-black text-xs rounded-xl shadow-xl active:scale-95 transition-transform flex items-center justify-center gap-2"
-                      >
+                      <button onClick={(e) => { e.stopPropagation(); proceedToNextRound(); }} className="w-full py-2.5 mythic-btn-primary text-white font-black text-xs rounded-xl shadow-xl active:scale-95 transition-transform flex items-center justify-center gap-2">
                         <span>Nächste Runde starten ⚔️</span>
-                        <span className="bg-sky-950/90 border border-sky-400/60 px-2 py-0.5 rounded-md text-[11px] font-bold text-amber-300">
-                          ⏱️ {summaryTimer}s
-                        </span>
+                        <span className="bg-sky-950/90 border border-sky-400/60 px-2 py-0.5 rounded-md text-[11px] font-bold text-amber-300">⏱️ {summaryTimer}s</span>
                       </button>
-                      <span className="text-[10px] text-slate-400 font-bold">
-                        Automatisch weiter in {summaryTimer} Sekunden
-                      </span>
+                      <span className="text-[10px] text-slate-400 font-bold">Automatisch weiter in {summaryTimer} Sekunden</span>
                     </div>
                   </div>
                 </div>
@@ -1190,10 +1197,7 @@
 
           {/* MAGISCHES SIEGER-PODEST AM SPIELENDE */}
           {victoryData && !showExitConfirm && (
-            <div 
-              onClick={finishGameAndGoMenu}
-              className="absolute inset-0 bg-slate-950/95 backdrop-blur-md z-50 flex flex-col items-center justify-between p-4 cursor-pointer select-none overflow-y-auto"
-            >
+            <div onClick={finishGameAndGoMenu} className="absolute inset-0 bg-slate-950/95 backdrop-blur-md z-50 flex flex-col items-center justify-between p-4 cursor-pointer select-none overflow-y-auto">
               <div className="text-center mt-2">
                 <h2 className="text-2xl font-black text-amber-300 drop-shadow">👑 SIEGEREHRUNG 👑</h2>
                 <p className="text-xs text-sky-300 font-bold mt-0.5">Das große Turniergefecht ist zu Ende!</p>
@@ -1202,8 +1206,8 @@
               <div className="my-auto flex flex-col items-center w-full">
                 <div className="relative flex flex-col items-center mb-3">
                   <div className="text-5xl mb-1 drop-shadow-lg animate-bounce">👑</div>
-                  <div className="w-20 h-20 rounded-full border-4 border-amber-400 bg-slate-900 flex items-center justify-center text-4xl shadow-2xl z-10">
-                    {victoryData[0]?.avatar || '🧙‍♂️'}
+                  <div className="w-20 h-20 rounded-full border-4 border-amber-400 bg-slate-900 flex items-center justify-center text-4xl shadow-2xl z-10 overflow-hidden">
+                    {renderAvatarIcon(victoryData[0]?.avatarObj || profile.selectedAvatar, "w-full h-full")}
                   </div>
                   <div className="w-36 h-20 bg-gradient-to-b from-amber-500 via-amber-600 to-amber-900 border-2 border-amber-300 rounded-t-2xl mt-[-10px] flex flex-col items-center justify-center podium-active">
                     <span className="text-xs font-black text-amber-100 uppercase tracking-wider">{victoryData[0]?.name}</span>
@@ -1218,7 +1222,9 @@
                     <div key={p.id} className={`p-2 rounded-xl flex justify-between items-center ${idx === 0 ? 'bg-amber-950/60 border border-amber-500/50 text-amber-200' : 'bg-slate-950/60 text-slate-300'}`}>
                       <div className="flex items-center gap-2">
                         <span className="font-black text-xs text-sky-400 w-4">#{idx + 1}</span>
-                        <span className="text-base">{p.avatar}</span>
+                        <div className="w-6 h-6 rounded-full overflow-hidden flex items-center justify-center">
+                          {renderAvatarIcon(p.avatarObj || profile.selectedAvatar, "w-full h-full")}
+                        </div>
                         <span className="font-bold truncate">{p.name}</span>
                       </div>
                       <span className="font-black text-amber-400">{p.score} Ptn</span>
@@ -1228,15 +1234,8 @@
               </div>
 
               <div className="w-full flex flex-col items-center gap-1 mb-2">
-                <button 
-                  onClick={finishGameAndGoMenu} 
-                  className="w-full py-3.5 mythic-btn-primary text-white font-black text-sm rounded-2xl shadow-2xl active:scale-95 transition-transform"
-                >
-                  Zurück zum Hauptmenü 🏰
-                </button>
-                <span className="text-[11px] text-sky-400 font-extrabold bg-sky-950 px-3 py-1 rounded-full border border-sky-500/30">
-                  ⏱️ Schließt in {victoryTimer}s
-                </span>
+                <button onClick={finishGameAndGoMenu} className="w-full py-3.5 mythic-btn-primary text-white font-black text-sm rounded-2xl shadow-2xl active:scale-95 transition-transform">Zurück zum Hauptmenü 🏰</button>
+                <span className="text-[11px] text-sky-400 font-extrabold bg-sky-950 px-3 py-1 rounded-full border border-sky-500/30">⏱️ Schließt in {victoryTimer}s</span>
               </div>
             </div>
           )}
@@ -1244,33 +1243,19 @@
           {/* TOP BAR MIT ZUG-TIMER */}
           <div className="flex justify-between items-center mb-1 bg-slate-900/80 p-2 rounded-xl border border-slate-800">
             <span className="text-xs font-bold text-sky-400">Runde {round} / {maxRounds}</span>
-            
             {phase === 'playing' && isHumanTurn && !isEvaluatingRef.current && !showDiceModal && !roundSummary && !victoryData && !showExitConfirm && (
-              <span className="text-[11px] font-extrabold text-amber-400 bg-amber-950/80 px-2.5 py-0.5 rounded-full border border-amber-500/40 animate-pulse">
-                ⏳ Dein Zug: {turnTimer}s
-              </span>
+              <span className="text-[11px] font-extrabold text-amber-400 bg-amber-950/80 px-2.5 py-0.5 rounded-full border border-amber-500/40 animate-pulse">⏳ Dein Zug: {turnTimer}s</span>
             )}
-
-            <button 
-              onClick={() => setShowExitConfirm(true)} 
-              className="text-[10px] bg-slate-800 hover:bg-slate-700 active:scale-95 text-sky-300 border border-sky-500/30 px-2.5 py-1 rounded-lg font-bold transition-all shadow"
-            >
-              Menü
-            </button>
+            <button onClick={() => setShowExitConfirm(true)} className="text-[10px] bg-slate-800 hover:bg-slate-700 active:scale-95 text-sky-300 border border-sky-500/30 px-2.5 py-1 rounded-lg font-bold transition-all shadow">Menü</button>
           </div>
 
-          {/* KI GEGNER MIT PUNKTESTAND UND ABLAUF-PFEIL */}
+          {/* KI GEGNER MIT PUNKTESTAND */}
           <div className="grid grid-cols-3 gap-1">
             {players.filter(p => !p.isHuman).map(p => {
               const isCurrentTurn = (turn === p.id);
               return (
-                <div 
-                  key={p.id} 
-                  className={`p-1.5 rounded-lg border text-center text-xs transition-all ${isCurrentTurn ? 'border-sky-400 bg-slate-800 shadow-lg shadow-sky-500/20' : 'border-slate-800 bg-slate-900/60'}`}
-                >
-                  <div className={`font-bold truncate ${isCurrentTurn ? 'text-sky-300' : 'text-slate-300'}`}>
-                    {isCurrentTurn ? `▶ ${p.name}` : p.name}
-                  </div>
+                <div key={p.id} className={`p-1.5 rounded-lg border text-center text-xs transition-all ${isCurrentTurn ? 'border-sky-400 bg-slate-800 shadow-lg shadow-sky-500/20' : 'border-slate-800 bg-slate-900/60'}`}>
+                  <div className={`font-bold truncate ${isCurrentTurn ? 'text-sky-300' : 'text-slate-300'}`}>{isCurrentTurn ? `▶ ${p.name}` : p.name}</div>
                   <div className="text-[10px] font-bold text-amber-400">{p.score} Ptn</div>
                   <div className="text-[9px] text-slate-300">Ansage: {p.bid !== null ? p.bid : '?'} | Stiche: {p.tricks}</div>
                 </div>
@@ -1278,7 +1263,7 @@
             })}
           </div>
 
-          {/* MITTE / SPIELFELD MIT ANIMIERTEN FLIEGENDEN KARTEN */}
+          {/* MITTE / SPIELFELD */}
           <div className="flex-1 my-2 rounded-2xl bg-slate-900/50 border border-slate-800 p-2 flex flex-col justify-between items-center relative overflow-hidden">
             <div className="flex items-center gap-2">
               <span className="text-[10px] font-bold text-sky-400 uppercase">Trumpf:</span>
@@ -1289,65 +1274,42 @@
               {playedCards.map((pc, i) => (
                 <div key={i} className="flex flex-col items-center">
                   <span className="text-[9px] text-sky-300 mb-0.5">{players[pc.playerId]?.name}</span>
-                  <CardFace 
-                    card={pc.card} 
-                    size="sm" 
-                    disabled 
-                    className={pc.playerId === 0 ? 'animate-fly-player-special' : 'animate-fly-ai-special'}
-                  />
+                  <CardFace card={pc.card} size="sm" disabled className={pc.playerId === 0 ? 'animate-fly-player-special' : 'animate-fly-ai-special'} />
                 </div>
               ))}
             </div>
 
-            {/* STICH ANSAGE MODAL MIT 20S TIMER */}
+            {/* STICH ANSAGE MODAL */}
             {phase === 'bidding' && !showDiceModal && !roundSummary && !victoryData && !showExitConfirm && (
               <div className="w-full bg-slate-900/95 border border-sky-500/50 p-3 rounded-2xl flex flex-col items-center gap-2 shadow-2xl backdrop-blur-md z-20">
                 <div className="flex justify-between items-center w-full px-1">
                   <span className="text-xs font-bold text-sky-300">Deine Stich-Ansage für Runde {round}:</span>
-                  <span className="text-[10px] font-extrabold text-amber-400 bg-amber-950 px-2 py-0.5 rounded-full border border-amber-500/30">
-                    ⏱️ Noch {biddingTimer}s
-                  </span>
+                  <span className="text-[10px] font-extrabold text-amber-400 bg-amber-950 px-2 py-0.5 rounded-full border border-sky-500/30">⏱️ Noch {biddingTimer}s</span>
                 </div>
                 <div className="flex gap-2 flex-wrap justify-center">
                   {Array.from({ length: round + 1 }, (_, i) => (
-                    <button
-                      key={i}
-                      onClick={() => handleHumanBid(i)}
-                      className="w-10 h-10 rounded-full bg-gradient-to-b from-sky-500 to-sky-700 text-white font-black text-base shadow-lg border border-sky-300 active:scale-90 transition-transform"
-                    >
-                      {i}
-                    </button>
+                    <button key={i} onClick={() => handleHumanBid(i)} className="w-10 h-10 rounded-full bg-gradient-to-b from-sky-500 to-sky-700 text-white font-black text-base shadow-lg border border-sky-300 active:scale-90 transition-transform">{i}</button>
                   ))}
                 </div>
               </div>
             )}
           </div>
 
-          {/* SPIELER HAND & GESAMTPUNKTE MIT BLAUER HERVORHEBUNG WENN DU DRAN BIST */}
+          {/* SPIELER HAND */}
           <div className={`p-2 rounded-2xl border transition-all ${isHumanTurn && phase === 'playing' ? 'border-sky-400 bg-slate-800/90 shadow-xl shadow-sky-500/20 ring-1 ring-sky-400/50' : 'border-slate-800 bg-slate-900'}`}>
             <div className="flex justify-between items-center mb-1 px-1">
               <div className="flex items-center gap-2">
                 <span className={`text-xs font-bold ${isHumanTurn && phase === 'playing' ? 'text-sky-300 animate-pulse' : 'text-slate-300'}`}>
                   {isHumanTurn && phase === 'playing' ? '▶ DEINE HAND:' : 'DEINE HAND:'}
                 </span>
-                <span className="text-xs font-extrabold text-amber-400 bg-amber-950/60 px-2 py-0.5 rounded-md border border-amber-500/30">
-                  {humanPlayer.score || 0} Ptn
-                </span>
+                <span className="text-xs font-extrabold text-amber-400 bg-amber-950/60 px-2 py-0.5 rounded-md border border-amber-500/30">{humanPlayer.score || 0} Ptn</span>
               </div>
-              <span className="text-xs font-bold text-sky-400">
-                Ansage: {humanPlayer.bid !== null ? humanPlayer.bid : '-'} | Stiche: {humanPlayer.tricks}
-              </span>
+              <span className="text-xs font-bold text-sky-400">Ansage: {humanPlayer.bid !== null ? humanPlayer.bid : '-'} | Stiche: {humanPlayer.tricks}</span>
             </div>
 
             <div className="flex gap-1.5 overflow-x-auto pb-1 justify-center">
               {humanPlayer.hand && humanPlayer.hand.map((card, i) => (
-                <CardFace 
-                  key={card.id || i} 
-                  card={card} 
-                  size="md" 
-                  disabled={phase !== 'playing' || turn !== 0 || isEvaluatingRef.current || showExitConfirm}
-                  onClick={() => playCard(0, i)} 
-                />
+                <CardFace key={card.id || i} card={card} size="md" disabled={phase !== 'playing' || turn !== 0 || isEvaluatingRef.current || showExitConfirm} onClick={() => playCard(0, i)} />
               ))}
             </div>
           </div>
