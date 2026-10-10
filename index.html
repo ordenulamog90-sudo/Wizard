@@ -257,7 +257,7 @@
       const [resultTimer, setResultTimer] = useState(10);
 
       const [biddingTimer, setBiddingTimer] = useState(10);
-      const [turnTimer, setTurnTimer] = useState(10);
+      const [turnTimer, setTurnTimer] = useState(15); // 15 SEKUNDEN ZUG-TIMER FÜR ALLE
 
       const [roundSummary, setRoundSummary] = useState(null);
       const [summaryTimer, setSummaryTimer] = useState(10);
@@ -306,7 +306,7 @@
           interval = setInterval(() => {
             setBiddingTimer(prev => {
               if (prev <= 1) {
-                handleHumanBid(0); // Auto-Ansage 0 nach 10s
+                handleHumanBid(0);
                 return 10;
               }
               return prev - 1;
@@ -316,26 +316,40 @@
         return () => clearInterval(interval);
       }, [screen, phase, showDiceModal, roundSummary, victoryData]);
 
-      // Timer 4: Spieler Zug-Timer beim Ausspielen (10s)
+      // Timer 4: ALLGEMEINER ZUG-TIMER (15s) FÜR SPIELER & KI
       useEffect(() => {
         let interval = null;
-        if (screen === 'game' && phase === 'playing' && turn === 0 && playedCards.length < players.length && !showDiceModal && !roundSummary && !victoryData) {
+        if (screen === 'game' && phase === 'playing' && playedCards.length < players.length && !showDiceModal && !roundSummary && !victoryData) {
           interval = setInterval(() => {
             setTurnTimer(prev => {
               if (prev <= 1) {
-                // Auto-Ausspielen der 1. Karte nach 10s
-                if (players[0]?.hand?.length > 0) {
-                  playCard(0, 0);
+                // Auto-Ausspielen der 1. Karte bei Timer-Ablauf
+                const activePlayer = players[turn];
+                if (activePlayer && activePlayer.hand.length > 0) {
+                  playCard(turn, 0);
                 }
-                return 10;
+                return 15;
               }
               return prev - 1;
             });
           }, 1000);
         } else {
-          setTurnTimer(10);
+          setTurnTimer(15);
         }
         return () => clearInterval(interval);
+      }, [screen, phase, turn, playedCards, players, showDiceModal, roundSummary, victoryData]);
+
+      // KI SCHNELLES AUTOMATISCHES SPIELEN (~0.8s)
+      useEffect(() => {
+        if (screen === 'game' && phase === 'playing' && turn !== 0 && playedCards.length < players.length && !showDiceModal && !roundSummary && !victoryData) {
+          const kiTimer = setTimeout(() => {
+            const ki = players[turn];
+            if (ki && ki.hand.length > 0) {
+              playCard(turn, 0);
+            }
+          }, 800);
+          return () => clearTimeout(kiTimer);
+        }
       }, [screen, phase, turn, playedCards, players, showDiceModal, roundSummary, victoryData]);
 
       // Timer 5: Auto-Weiter bei Rundenabrechnung (10s)
@@ -442,7 +456,7 @@
         setPlayedCards([]);
         setTurn(startingPlayerIdx);
         setBiddingTimer(10);
-        setTurnTimer(10);
+        setTurnTimer(15);
 
         let deck = [];
         const suits = ['yellow', 'red', 'green', 'blue'];
@@ -478,7 +492,7 @@
       const handleHumanBid = (bidVal) => {
         setPlayers(prev => prev.map(p => p.isHuman ? { ...p, bid: bidVal } : p));
         setPhase('playing');
-        setTurnTimer(10);
+        setTurnTimer(15);
       };
 
       const playCard = (playerIdx, cardIdx) => {
@@ -495,21 +509,9 @@
           setTimeout(() => evaluateTrick(newPlayed), 1500);
         } else {
           setTurn((playerIdx + 1) % players.length);
-          setTurnTimer(10);
+          setTurnTimer(15);
         }
       };
-
-      useEffect(() => {
-        if (screen === 'game' && phase === 'playing' && turn !== 0 && playedCards.length < players.length && !showDiceModal && !roundSummary && !victoryData) {
-          const timer = setTimeout(() => {
-            const ki = players[turn];
-            if (ki && ki.hand.length > 0) {
-              playCard(turn, 0);
-            }
-          }, 800);
-          return () => clearTimeout(timer);
-        }
-      }, [screen, phase, turn, playedCards, showDiceModal, roundSummary, victoryData]);
 
       const evaluateTrick = (cardsOnTable) => {
         let winningCardObj = cardsOnTable[0];
@@ -555,7 +557,7 @@
           setTimeout(() => handleRoundEnd(updatedPlayers), 500);
         } else {
           setTurn(winnerId);
-          setTurnTimer(10);
+          setTurnTimer(15);
         }
       };
 
@@ -669,7 +671,7 @@
                 </button>
               </div>
 
-              <span className="text-[10px] text-center text-slate-600 block mt-2">Mythos Card Game v3.6 • Full Timers</span>
+              <span className="text-[10px] text-center text-slate-600 block mt-2">Mythos Card Game v3.7 • 15s Universal Turn Timer</span>
             </div>
           </div>
         );
@@ -844,8 +846,8 @@
             </div>
             <div className="space-y-3 text-xs text-slate-300 leading-relaxed">
               <div className="bg-slate-900 p-3 rounded-xl border border-slate-800">
-                <h3 className="font-bold text-sky-300 mb-1">1. Interaktive Timer</h3>
-                <p>Alle Aktionen haben sichtbare 10-Sekunden-Timer (Stich-Ansage, Ausspielen & Ergebnisse). Reagierst du nicht rechtzeitig, wählt das Spiel automatisch für dich!</p>
+                <h3 className="font-bold text-sky-300 mb-1">1. Interaktive 15s Timer</h3>
+                <p>Jeder Zug (Spieler & KI) besitzt einen sichtbaren 15-Sekunden-Timer. Reagierst du nicht rechtzeitig, wird automatisch die 1. Karte deiner Hand gespielt.</p>
               </div>
               <div className="bg-slate-900 p-3 rounded-xl border border-slate-800">
                 <h3 className="font-bold text-sky-300 mb-1">2. Die Aufgedeckte Trumpffarbe</h3>
@@ -859,6 +861,7 @@
 
       // ---------------- 6. SPIELFELD ----------------
       const humanPlayer = players[0] || {};
+      const activePlayerObj = players[turn] || {};
 
       return (
         <div className="flex flex-col h-full max-w-md mx-auto p-2 justify-between bg-slate-950 relative overflow-hidden">
@@ -1025,13 +1028,13 @@
             </div>
           )}
 
-          {/* TOP BAR MIT ZUG-TIMER */}
+          {/* TOP BAR MIT ALLGEMEINEM ZUG-TIMER */}
           <div className="flex justify-between items-center mb-1 bg-slate-900/80 p-2 rounded-xl border border-slate-800">
             <span className="text-xs font-bold text-sky-400">Runde {round} / {maxRounds}</span>
             
-            {phase === 'playing' && turn === 0 && !showDiceModal && !roundSummary && !victoryData && (
+            {phase === 'playing' && !showDiceModal && !roundSummary && !victoryData && (
               <span className="text-[11px] font-extrabold text-amber-400 bg-amber-950/80 px-2.5 py-0.5 rounded-full border border-amber-500/40 animate-pulse">
-                ⏳ Zugzeit: {turnTimer}s
+                ⏳ {activePlayerObj.isHuman ? 'Dein Zug' : activePlayerObj.name}: {turnTimer}s
               </span>
             )}
 
