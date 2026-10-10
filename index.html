@@ -488,21 +488,97 @@
         ? 'from-slate-900 via-zinc-900 to-slate-950 border-slate-400'
         : `${suitInfo.bg} ${suitInfo.border}`;
 
+      const isBlueJester = isJester && card.suit === 'blue';
+      const isBlueOne = card.type === 'number' && card.suit === 'blue' && card.value === 1;
+      const isBlueTwo = card.type === 'number' && card.suit === 'blue' && card.value === 2;
+      const isBlueThree = card.type === 'number' && card.suit === 'blue' && card.value === 3;
+      const isBlueFour = card.type === 'number' && card.suit === 'blue' && card.value === 4;
+      const isBlueFive = card.type === 'number' && card.suit === 'blue' && card.value === 5;
+      const isBlueSix = card.type === 'number' && card.suit === 'blue' && card.value === 6;
+      const isBlueSeven = card.type === 'number' && card.suit === 'blue' && card.value === 7;
+      const isBlueEight = card.type === 'number' && card.suit === 'blue' && card.value === 8;
+      const isBlueNine = card.type === 'number' && card.suit === 'blue' && card.value === 9;
+
       return (
         <div 
           onClick={!disabled ? onClick : undefined}
           className={`${dim} rounded-xl bg-gradient-to-b ${bgStyle} border-2 p-1 flex flex-col justify-between items-center relative shadow-2xl cursor-pointer active:scale-95 transition-transform overflow-hidden ${className}`}
         >
+          {isBlueJester && (
+            <div className="absolute inset-0 z-0 overflow-hidden">
+              <img src="./1791660733716.jpg" alt="Blauer Narr" className="w-full h-full object-cover" />
+              <div className="absolute inset-0 bg-blue-950/15 backdrop-brightness-95"></div>
+            </div>
+          )}
+          {isBlueOne && (
+            <div className="absolute inset-0 z-0 overflow-hidden">
+              <img src="./1791660858583.jpg" alt="Blau 1" className="w-full h-full object-cover" />
+              <div className="absolute inset-0 bg-blue-950/15 backdrop-brightness-95"></div>
+            </div>
+          )}
+          {isBlueTwo && (
+            <div className="absolute inset-0 z-0 overflow-hidden">
+              <img src="./1791660928323.jpg" alt="Blau 2" className="w-full h-full object-cover" />
+              <div className="absolute inset-0 bg-blue-950/15 backdrop-brightness-95"></div>
+            </div>
+          )}
+          {isBlueThree && (
+            <div className="absolute inset-0 z-0 overflow-hidden">
+              <img src="./1791661070842.jpg" alt="Blau 3" className="w-full h-full object-cover" />
+              <div className="absolute inset-0 bg-blue-950/15 backdrop-brightness-95"></div>
+            </div>
+          )}
+          {isBlueFour && (
+            <div className="absolute inset-0 z-0 overflow-hidden">
+              <img src="./1791661097582.jpg" alt="Blau 4" className="w-full h-full object-cover" />
+              <div className="absolute inset-0 bg-blue-950/15 backdrop-brightness-95"></div>
+            </div>
+          )}
+          {isBlueFive && (
+            <div className="absolute inset-0 z-0 overflow-hidden">
+              <img src="./1791661133492.jpg" alt="Blau 5" className="w-full h-full object-cover" />
+              <div className="absolute inset-0 bg-blue-950/15 backdrop-brightness-95"></div>
+            </div>
+          )}
+          {isBlueSix && (
+            <div className="absolute inset-0 z-0 overflow-hidden">
+              <img src="./1791661210907.jpg" alt="Blau 6" className="w-full h-full object-cover" />
+              <div className="absolute inset-0 bg-blue-950/15 backdrop-brightness-95"></div>
+            </div>
+          )}
+          {isBlueSeven && (
+            <div className="absolute inset-0 z-0 overflow-hidden">
+              <img src="./1791661243460.jpg" alt="Blau 7" className="w-full h-full object-cover" />
+              <div className="absolute inset-0 bg-blue-950/15 backdrop-brightness-95"></div>
+            </div>
+          )}
+          {isBlueEight && (
+            <div className="absolute inset-0 z-0 overflow-hidden">
+              <img src="./1791661280244.jpg" alt="Blau 8" className="w-full h-full object-cover" />
+              <div className="absolute inset-0 bg-blue-950/15 backdrop-brightness-95"></div>
+            </div>
+          )}
+          {isBlueNine && (
+            <div className="absolute inset-0 z-0 overflow-hidden">
+              <img src="./1791661311268.jpg" alt="Blau 9" className="w-full h-full object-cover" />
+              <div className="absolute inset-0 bg-blue-950/15 backdrop-brightness-95"></div>
+            </div>
+          )}
+
           <div className="w-full flex justify-between font-black text-amber-300 text-xs drop-shadow z-10">
             <span>{cornerText}</span>
             <span>{cornerText}</span>
           </div>
 
-          <div className="card-art-box w-full flex-1 my-0.5 rounded-lg p-0.5 flex flex-col items-center justify-center relative overflow-hidden z-10">
-            <div className="w-full h-full flex items-center justify-center">
-              {artComponent}
+          {!isBlueJester && !isBlueOne && !isBlueTwo && !isBlueThree && !isBlueFour && !isBlueFive && !isBlueSix && !isBlueSeven && !isBlueEight && !isBlueNine ? (
+            <div className="card-art-box w-full flex-1 my-0.5 rounded-lg p-0.5 flex flex-col items-center justify-center relative overflow-hidden z-10">
+              <div className="w-full h-full flex items-center justify-center">
+                {artComponent}
+              </div>
             </div>
-          </div>
+          ) : (
+            <div className="flex-1 my-0.5 w-full flex items-center justify-center z-10"></div>
+          )}
 
           <div className="w-full flex justify-between font-black text-amber-300 text-xs drop-shadow rotate-180 z-10">
             <span>{cornerText}</span>
@@ -717,7 +793,7 @@
             randomAvatarObj = { 
               type: 'number', 
               value: randomVal, 
-              suit: randomSuit 
+              suit: (randomVal >= 1 && randomVal <= 9 && randomSuit === 'blue') ? 'blue' : randomSuit 
             };
           }
 
@@ -1013,6 +1089,87 @@
         if (!avatarObj) return <div className={`${sizeClass} rounded-full bg-slate-900 border border-sky-400 flex items-center justify-center`}>🃏</div>;
         
         const suitInfo = SUITS[avatarObj.suit] || SUITS.red;
+        const isBlueJester = avatarObj.type === 'jester' && avatarObj.suit === 'blue';
+        const isBlueOne = avatarObj.type === 'number' && avatarObj.suit === 'blue' && avatarObj.value === 1;
+        const isBlueTwo = avatarObj.type === 'number' && avatarObj.suit === 'blue' && avatarObj.value === 2;
+        const isBlueThree = avatarObj.type === 'number' && avatarObj.suit === 'blue' && avatarObj.value === 3;
+        const isBlueFour = avatarObj.type === 'number' && avatarObj.suit === 'blue' && avatarObj.value === 4;
+        const isBlueFive = avatarObj.type === 'number' && avatarObj.suit === 'blue' && avatarObj.value === 5;
+        const isBlueSix = avatarObj.type === 'number' && avatarObj.suit === 'blue' && avatarObj.value === 6;
+        const isBlueSeven = avatarObj.type === 'number' && avatarObj.suit === 'blue' && avatarObj.value === 7;
+        const isBlueEight = avatarObj.type === 'number' && avatarObj.suit === 'blue' && avatarObj.value === 8;
+        const isBlueNine = avatarObj.type === 'number' && avatarObj.suit === 'blue' && avatarObj.value === 9;
+
+        if (isBlueJester) {
+          return (
+            <div className={`${sizeClass} rounded-full bg-slate-900 border-2 border-blue-400 flex items-center justify-center shadow-xl relative overflow-hidden`}>
+              <img src="./1791660733716.jpg" alt="Blauer Narr" className="w-full h-full object-cover" />
+            </div>
+          );
+        }
+        if (isBlueOne) {
+          return (
+            <div className={`${sizeClass} rounded-full bg-slate-900 border-2 border-blue-400 flex items-center justify-center shadow-xl relative overflow-hidden`}>
+              <img src="./1791660858583.jpg" alt="Blau 1" className="w-full h-full object-cover" />
+            </div>
+          );
+        }
+        if (isBlueTwo) {
+          return (
+            <div className={`${sizeClass} rounded-full bg-slate-900 border-2 border-blue-400 flex items-center justify-center shadow-xl relative overflow-hidden`}>
+              <img src="./1791660928323.jpg" alt="Blau 2" className="w-full h-full object-cover" />
+            </div>
+          );
+        }
+        if (isBlueThree) {
+          return (
+            <div className={`${sizeClass} rounded-full bg-slate-900 border-2 border-blue-400 flex items-center justify-center shadow-xl relative overflow-hidden`}>
+              <img src="./1791661070842.jpg" alt="Blau 3" className="w-full h-full object-cover" />
+            </div>
+          );
+        }
+        if (isBlueFour) {
+          return (
+            <div className={`${sizeClass} rounded-full bg-slate-900 border-2 border-blue-400 flex items-center justify-center shadow-xl relative overflow-hidden`}>
+              <img src="./1791661097582.jpg" alt="Blau 4" className="w-full h-full object-cover" />
+            </div>
+          );
+        }
+        if (isBlueFive) {
+          return (
+            <div className={`${sizeClass} rounded-full bg-slate-900 border-2 border-blue-400 flex items-center justify-center shadow-xl relative overflow-hidden`}>
+              <img src="./1791661133492.jpg" alt="Blau 5" className="w-full h-full object-cover" />
+            </div>
+          );
+        }
+        if (isBlueSix) {
+          return (
+            <div className={`${sizeClass} rounded-full bg-slate-900 border-2 border-blue-400 flex items-center justify-center shadow-xl relative overflow-hidden`}>
+              <img src="./1791661210907.jpg" alt="Blau 6" className="w-full h-full object-cover" />
+            </div>
+          );
+        }
+        if (isBlueSeven) {
+          return (
+            <div className={`${sizeClass} rounded-full bg-slate-900 border-2 border-blue-400 flex items-center justify-center shadow-xl relative overflow-hidden`}>
+              <img src="./1791661243460.jpg" alt="Blau 7" className="w-full h-full object-cover" />
+            </div>
+          );
+        }
+        if (isBlueEight) {
+          return (
+            <div className={`${sizeClass} rounded-full bg-slate-900 border-2 border-blue-400 flex items-center justify-center shadow-xl relative overflow-hidden`}>
+              <img src="./1791661280244.jpg" alt="Blau 8" className="w-full h-full object-cover" />
+            </div>
+          );
+        }
+        if (isBlueNine) {
+          return (
+            <div className={`${sizeClass} rounded-full bg-slate-900 border-2 border-blue-400 flex items-center justify-center shadow-xl relative overflow-hidden`}>
+              <img src="./1791661311268.jpg" alt="Blau 9" className="w-full h-full object-cover" />
+            </div>
+          );
+        }
 
         if (avatarObj.type === 'jester') {
           return (
@@ -1098,7 +1255,7 @@
               </div>
 
               <span className="text-[9px] text-center text-slate-300 font-bold block mt-2 drop-shadow bg-slate-950/70 py-1 rounded-full backdrop-blur-md border border-sky-500/30">
-                MYTHOS CARD GAME V10.31 (CLEAN AVATARS)
+                MYTHOS CARD GAME V10.32 (AVATAR IMAGES RESTORED)
               </span>
             </div>
           </div>
