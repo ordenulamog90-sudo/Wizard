@@ -296,7 +296,26 @@
       
       const [profile, setProfile] = useState(() => {
         const saved = localStorage.getItem('wizard_profile');
-        return saved ? JSON.parse(saved) : { name: 'Erzmagier', level: 1, xp: 0, gamesPlayed: 0, wins: 0, avatar: '🧙‍♂️' };
+        const defaultProf = { 
+          name: 'Erzmagier', 
+          level: 1, 
+          xp: 150, 
+          avatar: '🧙‍♂️',
+          offlinePlayed: 3,
+          offlineWins: 0,
+          onlinePlayed: 0,
+          onlineWins: 0
+        };
+        if (!saved) return defaultProf;
+        const parsed = JSON.parse(saved);
+        return {
+          ...defaultProf,
+          ...parsed,
+          offlinePlayed: parsed.offlinePlayed ?? parsed.gamesPlayed ?? 3,
+          offlineWins: parsed.offlineWins ?? parsed.wins ?? 0,
+          onlinePlayed: parsed.onlinePlayed ?? 0,
+          onlineWins: parsed.onlineWins ?? 0
+        };
       });
 
       const [isEditingName, setIsEditingName] = useState(false);
@@ -734,8 +753,8 @@
           const isHumanWinner = sortedFinal[0].isHuman;
           const updatedProfile = { 
             ...profile, 
-            gamesPlayed: profile.gamesPlayed + 1, 
-            wins: isHumanWinner ? profile.wins + 1 : profile.wins,
+            offlinePlayed: (profile.offlinePlayed || 0) + 1, 
+            offlineWins: isHumanWinner ? (profile.offlineWins || 0) + 1 : (profile.offlineWins || 0),
             xp: profile.xp + (isHumanWinner ? 150 : 50) 
           };
           setProfile(updatedProfile);
@@ -787,7 +806,7 @@
                 </button>
               </div>
 
-              <span className="text-[10px] text-center text-slate-600 block mt-2">Mythos Card Game v5.7 • Game Exit Confirmation Modal</span>
+              <span className="text-[10px] text-center text-slate-600 block mt-2">Mythos Card Game v5.8 • Offline & Online Stats Separated</span>
             </div>
           </div>
         );
@@ -865,8 +884,18 @@
         );
       }
 
-      // ---------------- 3. PROFIL & STATISTIKEN ----------------
+      // ---------------- 3. PROFIL & STATISTIKEN (MIT OFFLINE & ONLINE GETRENNT) ----------------
       if (screen === 'profile') {
+        const offPlayed = profile.offlinePlayed || 0;
+        const offWins = profile.offlineWins || 0;
+        const offLosses = Math.max(0, offPlayed - offWins);
+        const offWinrate = offPlayed > 0 ? Math.round((offWins / offPlayed) * 100) : 0;
+
+        const onPlayed = profile.onlinePlayed || 0;
+        const onWins = profile.onlineWins || 0;
+        const onLosses = Math.max(0, onPlayed - onWins);
+        const onWinrate = onPlayed > 0 ? Math.round((onWins / onPlayed) * 100) : 0;
+
         return (
           <div className="flex flex-col h-full max-w-md mx-auto p-4 justify-between bg-slate-950 overflow-y-auto">
             <div className="flex justify-between items-center mb-2">
@@ -874,15 +903,16 @@
               <button onClick={() => setScreen('menu')} className="text-xs bg-slate-900 border border-slate-800 text-sky-300 px-3 py-1.5 rounded-lg font-bold">Zurück</button>
             </div>
 
-            <div className="mythic-card p-5 rounded-2xl flex flex-col gap-4 my-auto items-center text-center">
-              <div className="w-20 h-20 rounded-full border-2 border-sky-400 bg-slate-900 flex items-center justify-center text-4xl shadow-xl">
+            <div className="mythic-card p-4 rounded-2xl flex flex-col gap-3 my-auto items-center text-center shadow-2xl">
+              {/* AVATAR & NAME */}
+              <div className="w-16 h-16 rounded-full border-2 border-sky-400 bg-slate-900 flex items-center justify-center text-3xl shadow-xl">
                 {profile.avatar || '🧙‍♂️'}
               </div>
 
               <div className="w-full flex flex-col items-center">
                 {!isEditingName ? (
                   <div className="flex items-center gap-2">
-                    <h3 className="text-xl font-black text-sky-200">{profile.name}</h3>
+                    <h3 className="text-lg font-black text-sky-200">{profile.name}</h3>
                     <button 
                       onClick={() => { setIsEditingName(true); setNameInput(profile.name); setNameError(''); }}
                       className="text-xs text-sky-400 bg-slate-900 border border-sky-500/30 px-2 py-0.5 rounded-lg"
@@ -917,17 +947,33 @@
                     </div>
                   </div>
                 )}
-                <span className="text-xs font-bold text-amber-400 mt-1">Level {profile.level} • Novize</span>
+                <span className="text-xs font-bold text-amber-400 mt-0.5">Level {profile.level} • {profile.xp || 0} XP</span>
               </div>
 
-              <div className="w-full bg-slate-900 border border-slate-800 p-3 rounded-xl text-left space-y-2 text-xs">
-                <div className="flex justify-between"><span className="text-slate-400">Gespielte Matches:</span><span className="font-bold text-sky-300">{profile.gamesPlayed}</span></div>
-                <div className="flex justify-between"><span className="text-slate-400">Siege:</span><span className="font-bold text-emerald-400">{profile.wins}</span></div>
-                <div className="flex justify-between"><span className="text-slate-400">Gesammelte XP:</span><span className="font-bold text-amber-400">{profile.xp} XP</span></div>
+              {/* OFFLINE DUELLE STATS */}
+              <div className="w-full bg-slate-900/90 border border-slate-800 p-3 rounded-xl text-left space-y-1.5 text-xs shadow-inner">
+                <div className="font-extrabold text-sky-300 border-b border-slate-800 pb-1 flex justify-between items-center">
+                  <span className="flex items-center gap-1.5">⚔️ Offline-Duelle (KI)</span>
+                  <span className="text-[10px] text-slate-400 font-normal">Siegquote: {offWinrate}%</span>
+                </div>
+                <div className="flex justify-between"><span className="text-slate-400">Gespielte Matches:</span><span className="font-bold text-sky-200">{offPlayed}</span></div>
+                <div className="flex justify-between"><span className="text-slate-400">Siege:</span><span className="font-bold text-emerald-400">{offWins}</span></div>
+                <div className="flex justify-between"><span className="text-slate-400">Niederlagen:</span><span className="font-bold text-red-400">{offLosses}</span></div>
+              </div>
+
+              {/* ONLINE DUELLE STATS */}
+              <div className="w-full bg-purple-950/30 border border-purple-500/20 p-3 rounded-xl text-left space-y-1.5 text-xs shadow-inner">
+                <div className="font-extrabold text-purple-300 border-b border-purple-500/20 pb-1 flex justify-between items-center">
+                  <span className="flex items-center gap-1.5">🌐 Online-Duelle</span>
+                  <span className="text-[10px] text-purple-400 font-normal">Siegquote: {onWinrate}%</span>
+                </div>
+                <div className="flex justify-between"><span className="text-slate-400">Gespielte Matches:</span><span className="font-bold text-purple-200">{onPlayed}</span></div>
+                <div className="flex justify-between"><span className="text-slate-400">Siege:</span><span className="font-bold text-emerald-400">{onWins}</span></div>
+                <div className="flex justify-between"><span className="text-slate-400">Niederlagen:</span><span className="font-bold text-red-400">{onLosses}</span></div>
               </div>
             </div>
 
-            <button onClick={() => setScreen('menu')} className="w-full py-3 mythic-btn-primary text-white font-bold rounded-xl">Zurück zum Menü</button>
+            <button onClick={() => setScreen('menu')} className="w-full py-3 mythic-btn-primary text-white font-bold rounded-xl mt-2">Zurück zum Hauptmenü</button>
           </div>
         );
       }
