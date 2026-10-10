@@ -745,8 +745,10 @@
         }, 750);
       };
 
+      // BULLETPROOF TRUMP- & WIZARD EVALUATION ENGINE
       const evaluateTrick = (cardsOnTable) => {
         let winningCardObj = cardsOnTable[0];
+        const activeTrump = stateRef.current.trumpCard;
 
         const firstWizard = cardsOnTable.find(c => c.card.type === 'wizard');
         if (firstWizard) {
@@ -756,7 +758,10 @@
           if (allJesters) {
             winningCardObj = cardsOnTable[0];
           } else {
-            const trumpSuit = (trumpCard && trumpCard.type === 'number') ? trumpCard.suit : null;
+            // Absolute Trumpffarbe aus der offenliegenden Trumpfkarte extrahieren
+            const trumpSuit = (activeTrump && activeTrump.type === 'number') ? activeTrump.suit : null;
+            
+            // Leitfarbe ist die Farbe der allerersten gespielten Zahlenkarte
             const leadCardObj = cardsOnTable.find(c => c.card.type === 'number');
             const leadSuit = leadCardObj ? leadCardObj.card.suit : null;
 
@@ -768,10 +773,13 @@
                 let currentRank = -1;
 
                 if (trumpSuit && card.suit === trumpSuit) {
+                  // Absoluter Trumpf (+2000 Bonus)
                   currentRank = 2000 + card.value;
                 } else if (leadSuit && card.suit === leadSuit) {
+                  // Leitfarbe (+1000 Bonus)
                   currentRank = 1000 + card.value;
                 } else {
+                  // Fehlfarbe ohne Trumpf und Leitfarbe
                   currentRank = card.value;
                 }
 
@@ -977,7 +985,7 @@
               </div>
 
               <span className="text-[9px] text-center text-slate-300 font-bold block mt-2 drop-shadow bg-slate-950/70 py-1 rounded-full backdrop-blur-md border border-sky-500/30">
-                MYTHOS CARD GAME V10.6 (FIXED RENDER ENGINE)
+                MYTHOS CARD GAME V10.8 (STABLE TRUMP SYNC ENGINE)
               </span>
             </div>
           </div>
