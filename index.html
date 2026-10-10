@@ -94,6 +94,22 @@
       animation: elementVfxBurst 0.75s cubic-bezier(0.1, 0.9, 0.2, 1) forwards;
       z-index: 40;
     }
+
+    /* Animation: Karten schweben zum Gewinner des Stiches */
+    @keyframes floatToWinnerTop {
+      0% { transform: translateY(0) scale(1); opacity: 1; }
+      100% { transform: translateY(-180px) scale(0.3); opacity: 0; filter: drop-shadow(0 0 20px #f59e0b); }
+    }
+    @keyframes floatToWinnerBottom {
+      0% { transform: translateY(0) scale(1); opacity: 1; }
+      100% { transform: translateY(180px) scale(0.3); opacity: 0; filter: drop-shadow(0 0 20px #f59e0b); }
+    }
+    .animate-fly-to-top {
+      animation: floatToWinnerTop 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+    }
+    .animate-fly-to-bottom {
+      animation: floatToWinnerBottom 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+    }
   </style>
 </head>
 <body class="h-screen w-screen overflow-hidden">
@@ -407,10 +423,13 @@
       const [animatingCardId, setAnimatingCardId] = useState(null);
       const [animatingCardObj, setAnimatingCardObj] = useState(null);
 
+      // Animation für das Einsammeln der Karten zum Gewinner
+      const [collectingWinnerId, setCollectingWinnerId] = useState(null);
+
       const isEvaluatingRef = useRef(false);
       const isProcessingClickRef = useRef(false);
       const stateRef = useRef({});
-      stateRef.current = { screen, phase, turn, players, playedCards, trumpCard, round, maxRounds, animatingCardId };
+      stateRef.current = { screen, phase, turn, players, playedCards, trumpCard, round, maxRounds, animatingCardId, collectingWinnerId };
 
       const [showDiceModal, setShowDiceModal] = useState(false);
       const [isDiceRolling, setIsDiceRolling] = useState(false);
@@ -460,7 +479,7 @@
 
       useEffect(() => {
         let interval = null;
-        if (screen === 'game' && phase === 'playing' && turn === 0 && !isEvaluatingRef.current && !animatingCardId && playedCards.length < players.length && !showDiceModal && !roundSummary && !victoryData && !showExitConfirm) {
+        if (screen === 'game' && phase === 'playing' && turn === 0 && !isEvaluatingRef.current && !animatingCardId && !collectingWinnerId && playedCards.length < players.length && !showDiceModal && !roundSummary && !victoryData && !showExitConfirm) {
           interval = setInterval(() => {
             setTurnTimer(prev => {
               if (prev <= 1) { if (players[0]?.hand?.length > 0) { playCard(0, 0); } return 20; }
@@ -471,13 +490,12 @@
           setTurnTimer(20);
         }
         return () => clearInterval(interval);
-      }, [screen, phase, turn, playedCards, animatingCardId, players, showDiceModal, roundSummary, victoryData, showExitConfirm]);
+      }, [screen, phase, turn, playedCards, animatingCardId, collectingWinnerId, players, showDiceModal, roundSummary, victoryData, showExitConfirm]);
 
-      // Erhöhtes Intervall für KI-Züge (mehr Abstand zwischen den Zügen)
       useEffect(() => {
         const interval = setInterval(() => {
-          const { screen: s, phase: p, turn: t, players: pl, playedCards: pc, animatingCardId: anim } = stateRef.current;
-          if (s === 'game' && p === 'playing' && t !== 0 && !isEvaluatingRef.current && !anim && !isProcessingClickRef.current && pc.length < pl.length && !showExitConfirm) {
+          const { screen: s, phase: p, turn: t, players: pl, playedCards: pc, animatingCardId: anim, collectingWinnerId: coll } = stateRef.current;
+          if (s === 'game' && p === 'playing' && t !== 0 && !isEvaluatingRef.current && !anim && !coll && !isProcessingClickRef.current && pc.length < pl.length && !showExitConfirm) {
             const currentKi = pl[t];
             if (currentKi && currentKi.hand.length > 0) { playCard(t, 0); }
           }
@@ -579,6 +597,7 @@
         setTurn(startingPlayerIdx);
         setAnimatingCardId(null);
         setAnimatingCardObj(null);
+        setCollectingWinnerId(null);
         isEvaluatingRef.current = false;
         isProcessingClickRef.current = false;
         setBiddingTimer(20);
@@ -624,7 +643,7 @@
       };
 
       const playCard = (playerIdx, cardIdx) => {
-        if (isEvaluatingRef.current || isProcessingClickRef.current || animatingCardId) return;
+        if (isEvaluatingRef.current || isProcessingClickRef.current || animatingCardId || collectingWinnerId) return;
         const currentPlayers = stateRef.current.players;
         const currentPlayed = stateRef.current.playedCards;
         const p = currentPlayers[playerIdx];
@@ -650,8 +669,7 @@
 
           if (newPlayed.length === currentPlayers.length) {
             isEvaluatingRef.current = true;
-            // Spürbar mehr Zeit (1600ms), wenn der Tisch komplett voll ist, damit man das Ergebnis betrachten kann
-            setTimeout(() => evaluateTrick(newPlayed), 1600);
+            evaluateTrick(newPlayed);
           } else {
             setTurn((playerIdx + 1) % currentPlayers.length);
             setTurnTimer(20);
@@ -685,21 +703,28 @@
 
         const winnerId = winningCardObj.playerId;
 
-        setPlayers(prev => {
-          const updated = prev.map(p => p.id === winnerId ? { ...p, tricks: p.tricks + 1 } : p);
-          setPlayedCards([]);
-          isEvaluatingRef.current = false;
-          isProcessingClickRef.current = false;
+        // 1. Lass die Karten zum Gewinner schweben
+        setCollectingWinnerId(winnerId);
 
-          const human = updated[0];
-          if (human.hand.length === 0) {
-            setTimeout(() => handleRoundEnd(updated, stateRef.current.round), 600);
-          } else {
-            setTurn(winnerId);
-            setTurnTimer(20);
-          }
-          return updated;
-        });
+        // 2. Nach der schwebenden Animation (800ms) wird der Stich offiziell gutgeschrieben
+        setTimeout(() => {
+          setPlayers(prev => {
+            const updated = prev.map(p => p.id === winnerId ? { ...p, tricks: p.tricks + 1 } : p);
+            setPlayedCards([]);
+            setCollectingWinnerId(null);
+            isEvaluatingRef.current = false;
+            isProcessingClickRef.current = false;
+
+            const human = updated[0];
+            if (human.hand.length === 0) {
+              setTimeout(() => handleRoundEnd(updated, stateRef.current.round), 400);
+            } else {
+              setTurn(winnerId);
+              setTurnTimer(20);
+            }
+            return updated;
+          });
+        }, 850);
       };
 
       const handleRoundEnd = (currentPlayers, currentRoundNum) => {
@@ -872,7 +897,7 @@
               </div>
 
               <span className="text-[9px] text-center text-slate-300 font-bold block mt-2 drop-shadow bg-slate-950/70 py-1 rounded-full backdrop-blur-md border border-sky-500/30">
-                MYTHOS CARD GAME V8.8
+                MYTHOS CARD GAME V8.9
               </span>
             </div>
           </div>
@@ -1337,7 +1362,7 @@
 
           <div className="flex justify-between items-center mb-1 bg-slate-900/80 p-2 rounded-xl border border-slate-800">
             <span className="text-xs font-bold text-sky-400">Runde {round} / {maxRounds}</span>
-            {phase === 'playing' && isHumanTurn && !isEvaluatingRef.current && !animatingCardId && !showDiceModal && !roundSummary && !victoryData && !showExitConfirm && (
+            {phase === 'playing' && isHumanTurn && !isEvaluatingRef.current && !animatingCardId && !collectingWinnerId && !showDiceModal && !roundSummary && !victoryData && !showExitConfirm && (
               <span className="text-[11px] font-extrabold text-amber-400 bg-amber-950/80 px-2.5 py-0.5 rounded-full border border-amber-500/40 animate-pulse">⏱️ Dein Zug: {turnTimer}s</span>
             )}
             <button onClick={() => setShowExitConfirm(true)} className="text-[10px] bg-slate-800 hover:bg-slate-700 active:scale-95 text-sky-300 border border-sky-500/30 px-2.5 py-1 rounded-lg font-bold transition-all shadow">Menü</button>
@@ -1346,8 +1371,9 @@
           <div className="grid grid-cols-3 gap-1">
             {players.filter(p => !p.isHuman).map(p => {
               const isCurrentTurn = (turn === p.id);
+              const isWinnerCollecting = (collectingWinnerId === p.id);
               return (
-                <div key={p.id} className={`p-1.5 rounded-lg border text-center text-xs transition-all ${isCurrentTurn ? 'border-sky-400 bg-slate-800 shadow-lg shadow-sky-500/20' : 'border-slate-800 bg-slate-900/60'}`}>
+                <div key={p.id} className={`p-1.5 rounded-lg border text-center text-xs transition-all ${isCurrentTurn ? 'border-sky-400 bg-slate-800 shadow-lg shadow-sky-500/20' : 'border-slate-800 bg-slate-900/60'} ${isWinnerCollecting ? 'ring-2 ring-amber-400 bg-amber-950/40 shadow-[0_0_15px_#f59e0b]' : ''}`}>
                   <div className={`font-bold truncate ${isCurrentTurn ? 'text-sky-300' : 'text-slate-300'}`}>{isCurrentTurn ? `▶ ${p.name}` : p.name}</div>
                   <div className="text-[10px] font-bold text-amber-400">{p.score} Ptn</div>
                   <div className="text-[9px] text-slate-300">Ansage: {p.bid !== null ? p.bid : '?'} | Stiche: {p.tricks}</div>
@@ -1363,7 +1389,7 @@
             </div>
 
             <div className="w-full flex-1 flex items-center justify-center p-2 relative">
-              <div className="grid grid-cols-2 gap-4 items-center justify-items-center">
+              <div className={`grid grid-cols-2 gap-4 items-center justify-items-center ${collectingWinnerId !== null ? (collectingWinnerId === 0 ? 'animate-fly-to-bottom' : 'animate-fly-to-top') : ''}`}>
                 {playedCards.map((pc, i) => (
                   <div key={i} className="flex flex-col items-center">
                     <span className="text-[9px] text-sky-300 mb-0.5">{players[pc.playerId]?.name}</span>
@@ -1398,7 +1424,7 @@
             )}
           </div>
 
-          <div className={`p-2 rounded-2xl border transition-all ${isHumanTurn && phase === 'playing' ? 'border-sky-400 bg-slate-800/90 shadow-xl shadow-sky-500/20 ring-1 ring-sky-400/50' : 'border-slate-800 bg-slate-900'}`}>
+          <div className={`p-2 rounded-2xl border transition-all ${isHumanTurn && phase === 'playing' ? 'border-sky-400 bg-slate-800/90 shadow-xl shadow-sky-500/20 ring-1 ring-sky-400/50' : 'border-slate-800 bg-slate-900'} ${collectingWinnerId === 0 ? 'ring-2 ring-amber-400 bg-amber-950/40 shadow-[0_0_20px_#f59e0b]' : ''}`}>
             <div className="flex justify-between items-center mb-1 px-1">
               <div className="flex items-center gap-2">
                 <span className={`text-xs font-bold ${isHumanTurn && phase === 'playing' ? 'text-sky-300 animate-pulse' : 'text-slate-300'}`}>
@@ -1411,7 +1437,7 @@
 
             <div className="flex gap-1.5 overflow-x-auto pb-1 justify-center">
               {humanPlayer.hand && humanPlayer.hand.map((card, i) => (
-                <CardFace key={card.id || i} card={card} size="md" disabled={phase !== 'playing' || turn !== 0 || isEvaluatingRef.current || animatingCardId !== null || showExitConfirm} onClick={() => playCard(0, i)} />
+                <CardFace key={card.id || i} card={card} size="md" disabled={phase !== 'playing' || turn !== 0 || isEvaluatingRef.current || animatingCardId !== null || collectingWinnerId !== null || showExitConfirm} onClick={() => playCard(0, i)} />
               ))}
             </div>
           </div>
