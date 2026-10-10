@@ -395,13 +395,10 @@
         primaryColor: '#a855f7', 
         glowColor: 'rgba(168, 85, 247, 0.85)', 
         podiumClass: 'podium-wizard', 
-        // NEUE MAJESTÄTISCHE ZAUBERER-KRONE (Spitzhut-Form mit magischen Sternen, Runen & schwebenden Arkan-Sphären)
         crownSvg: (
           <svg viewBox="0 0 140 60" className="w-28 h-12 drop-shadow-[0_0_22px_#a855f7] animate-pulse">
-            {/* Kleine schwebende Zauber-Edelsteine an den Seiten */}
             <polygon points="20,40 28,25 36,40 28,50" fill="#c084fc" stroke="#fde047" strokeWidth="1" />
             <polygon points="120,40 112,25 104,40 112,50" fill="#c084fc" stroke="#fde047" strokeWidth="1" />
-            {/* Großer Magischer Spitzhut / Zaubererkrone */}
             <path d="M 35 50 Q 50 25 65 8 L 70 2 L 75 8 Q 90 25 105 50 Q 85 40 70 48 Q 55 40 35 50 Z" fill="url(#wizardCrownGrad)" stroke="#fde047" strokeWidth="2" />
             <defs>
               <linearGradient id="wizardCrownGrad" x1="0%" y1="100%" x2="0%" y2="0%">
@@ -410,7 +407,6 @@
                 <stop offset="100%" stopColor="#9333ea" />
               </linearGradient>
             </defs>
-            {/* Magischer Kristall / Arkan-Stern an der Hutspitze & Runen */}
             <circle cx="70" cy="5" r="4.5" fill="#fde047" />
             <circle cx="70" cy="25" r="3" fill="#38bdf8" />
             <circle cx="55" cy="38" r="2" fill="#fde047" />
@@ -525,6 +521,8 @@
 
       const cornerText = isWizard ? 'Z' : isJester ? 'N' : card.value;
       const titleText = isWizard ? 'ZAUBERER' : isJester ? 'NARR' : suitInfo.title;
+      
+      const isBlueJester = isJester && card.suit === 'blue';
       const artComponent = isWizard ? CardArt.wizard : isJester ? CardArt.jester : suitInfo.art;
 
       const bgStyle = isWizard
@@ -538,19 +536,34 @@
           onClick={!disabled ? onClick : undefined}
           className={`${dim} rounded-xl bg-gradient-to-b ${bgStyle} border-2 p-1 flex flex-col justify-between items-center relative shadow-2xl cursor-pointer active:scale-95 transition-transform overflow-hidden ${className}`}
         >
+          {isBlueJester && (
+            <div className="absolute inset-0 z-0 overflow-hidden">
+              <img src="./1791660733716.jpg" alt="Blauer Narr" className="w-full h-full object-cover" />
+              <div className="absolute inset-0 bg-blue-950/20 backdrop-brightness-90"></div>
+            </div>
+          )}
+
           <div className="w-full flex justify-between font-black text-amber-300 text-xs drop-shadow z-10">
             <span>{cornerText}</span>
             <span>{cornerText}</span>
           </div>
 
-          <div className="card-art-box w-full flex-1 my-0.5 rounded-lg p-0.5 flex flex-col items-center justify-center relative overflow-hidden">
-            <div className="w-full h-full flex items-center justify-center">
-              {artComponent}
+          {!isBlueJester ? (
+            <div className="card-art-box w-full flex-1 my-0.5 rounded-lg p-0.5 flex flex-col items-center justify-center relative overflow-hidden z-10">
+              <div className="w-full h-full flex items-center justify-center">
+                {artComponent}
+              </div>
+              <span className="absolute bottom-0.5 text-[6px] font-bold text-amber-200 tracking-tighter uppercase drop-shadow bg-black/60 px-1 rounded">
+                {titleText}
+              </span>
             </div>
-            <span className="absolute bottom-0.5 text-[6px] font-bold text-amber-200 tracking-tighter uppercase drop-shadow bg-black/60 px-1 rounded">
-              {titleText}
-            </span>
-          </div>
+          ) : (
+            <div className="flex-1 my-0.5 w-full flex items-center justify-center z-10">
+              <span className="absolute bottom-1 text-[6px] font-bold text-amber-200 tracking-tighter uppercase drop-shadow bg-black/70 px-1 rounded">
+                BLAUER NARR
+              </span>
+            </div>
+          )}
 
           <div className="w-full flex justify-between font-black text-amber-300 text-xs drop-shadow rotate-180 z-10">
             <span>{cornerText}</span>
@@ -572,7 +585,7 @@
           level: 1, 
           xp: 0, 
           activeSuit: 'red',
-          selectedAvatar: { type: 'jester', suit: 'red', label: 'Narr (Rot)' },
+          selectedAvatar: { type: 'jester', suit: 'blue', label: 'Narr (Blau)' },
           elementLevels: {
             red: { level: 1, xp: 0 },
             blue: { level: 1, xp: 0 },
@@ -755,7 +768,7 @@
           
           let randomAvatarObj;
           if (chosenType === 'jester') {
-            randomAvatarObj = { type: 'jester', suit: randomSuit === 'wizard' ? 'red' : randomSuit, label: 'Narr' };
+            randomAvatarObj = { type: 'jester', suit: 'blue', label: 'Narr' };
           } else if (chosenType === 'wizard') {
             randomAvatarObj = { type: 'wizard', suit: 'wizard', label: 'Zauberer' };
           } else {
@@ -835,7 +848,7 @@
           }
         });
         for(let i=0; i<4; i++) rawDeck.push({ type: 'wizard', id: `w_${i}_${roundSeed}_${Math.random()}` });
-        for(let i=0; i<4; i++) rawDeck.push({ type: 'jester', id: `j_${i}_${roundSeed}_${Math.random()}` });
+        for(let i=0; i<4; i++) rawDeck.push({ type: 'jester', suit: 'blue', id: `j_${i}_${roundSeed}_${Math.random()}` });
 
         let deck = shuffleArray(rawDeck);
 
@@ -1056,6 +1069,20 @@
         if (!avatarObj) return <div className={`${sizeClass} rounded-full bg-slate-900 border border-sky-400 flex items-center justify-center`}>🃏</div>;
         
         const suitInfo = SUITS[avatarObj.suit] || SUITS.red;
+        const isBlueJesterAvatar = avatarObj.type === 'jester' && avatarObj.suit === 'blue';
+
+        if (isBlueJesterAvatar) {
+          return (
+            <div className={`${sizeClass} rounded-full bg-slate-900 border-2 border-blue-400 flex items-center justify-center shadow-xl relative overflow-hidden`}>
+              <img 
+                src="./1791660733716.jpg" 
+                alt="Blauer Narr Avatar" 
+                className="w-full h-full object-cover" 
+                style={{ objectPosition: 'center 20%' }} 
+              />
+            </div>
+          );
+        }
 
         if (avatarObj.type === 'jester') {
           return (
@@ -1091,7 +1118,7 @@
           list.push({ type: 'wizard', suit: 'wizard', label: 'Zauberer', unlocked: currentLevel >= 1 });
           return list;
         }
-        list.push({ type: 'jester', suit: suitKey, label: 'Narr', unlocked: currentLevel >= 1 });
+        list.push({ type: 'jester', suit: 'blue', label: 'Blauer Narr', unlocked: currentLevel >= 1 });
         for (let v = 1; v <= 13; v++) {
           list.push({ type: 'number', value: v, suit: suitKey, label: `Karte ${v}`, unlocked: currentLevel >= (v + 1) });
         }
@@ -1137,7 +1164,7 @@
               </div>
 
               <span className="text-[9px] text-center text-slate-300 font-bold block mt-2 drop-shadow bg-slate-950/70 py-1 rounded-full backdrop-blur-md border border-sky-500/30">
-                MYTHOS CARD GAME V10.13 (WIZARD CROWN & PODIUM UPDATE)
+                MYTHOS CARD GAME V10.15 (BLUE JESTER AVATAR UPDATE)
               </span>
             </div>
           </div>
@@ -1589,7 +1616,7 @@
                       </div>
                     </div>
                     
-                    {/* ELEMENT-PODEST (ARANES WIZARD-PODEST, WASSER, FEUER, DIAMANT, TORNADO ODER STANDARD) */}
+                    {/* ELEMENT-PODEST */}
                     <div 
                       className={`w-48 h-20 mt-[-16px] flex flex-col items-center justify-center element-podium-active z-10 ${suitTheme.podiumClass} ${winnerSuitKey === 'yellow' ? 'animate-tornado' : ''}`}
                       style={{ '--glow-color': suitTheme.glowColor }}
