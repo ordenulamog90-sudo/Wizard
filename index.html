@@ -70,6 +70,26 @@
       animation: elementPodiumGlow 2s infinite ease-in-out;
     }
 
+    /* Element-Muster für Podeste */
+    .pattern-fire {
+      background-image: repeating-linear-gradient(45deg, rgba(239, 68, 68, 0.25) 0, rgba(239, 68, 68, 0.25) 10px, transparent 10px, transparent 20px);
+    }
+    .pattern-water {
+      background-image: radial-gradient(circle, rgba(2, 132, 199, 0.3) 10%, transparent 10%);
+      background-size: 16px 16px;
+    }
+    .pattern-diamond {
+      background-image: linear-gradient(135deg, rgba(16, 185, 129, 0.25) 25%, transparent 25%), linear-gradient(225deg, rgba(16, 185, 129, 0.25) 25%, transparent 25%);
+      background-size: 12px 12px;
+    }
+    .pattern-wind {
+      background-image: repeating-linear-gradient(0deg, rgba(245, 158, 11, 0.2) 0, rgba(245, 158, 11, 0.2) 6px, transparent 6px, transparent 12px);
+    }
+    .pattern-arkan {
+      background-image: radial-gradient(circle, rgba(168, 85, 247, 0.3) 20%, transparent 20%);
+      background-size: 14px 14px;
+    }
+
     /* Wuchtige TCG Impact-Slam Animation */
     @keyframes tcglikeSlam {
       0% { transform: translateY(180px) scale(1.7) rotate(-15deg); opacity: 0; filter: brightness(2.5) contrast(1.5); }
@@ -205,11 +225,11 @@
     };
 
     const SUITS = {
-      yellow: { key: 'yellow', name: 'Gelb', title: 'WIND', bg: 'from-amber-950 via-yellow-950 to-slate-950', border: 'border-amber-400', art: CardArt.banner, primaryColor: '#f59e0b', glowColor: 'rgba(245, 158, 11, 0.6)' },
-      red: { key: 'red', name: 'Rot', title: 'FEUER', bg: 'from-red-950 via-rose-950 to-slate-950', border: 'border-red-500', art: CardArt.axe, primaryColor: '#ef4444', glowColor: 'rgba(239, 68, 68, 0.6)' },
-      green: { key: 'green', name: 'Grün', title: 'DIAMANTEN', bg: 'from-emerald-950 via-green-950 to-slate-950', border: 'border-emerald-400', art: CardArt.bow, primaryColor: '#10b981', glowColor: 'rgba(16, 185, 129, 0.6)' },
-      blue: { key: 'blue', name: 'Blau', title: 'WASSER', bg: 'from-blue-950 via-sky-950 to-slate-950', border: 'border-blue-400', art: CardArt.dagger, primaryColor: '#0284c7', glowColor: 'rgba(2, 132, 199, 0.6)' },
-      wizard: { key: 'wizard', name: 'Zauberer', title: 'ARKAN', bg: 'from-purple-950 via-indigo-950 to-slate-950', border: 'border-purple-400', art: CardArt.wizard, primaryColor: '#a855f7', glowColor: 'rgba(168, 85, 247, 0.6)' }
+      yellow: { key: 'yellow', name: 'Gelb', title: 'WIND', bg: 'from-amber-950 via-yellow-950 to-slate-950', border: 'border-amber-400', art: CardArt.banner, primaryColor: '#f59e0b', glowColor: 'rgba(245, 158, 11, 0.6)', patternClass: 'pattern-wind', crownName: 'Wind-Reif' },
+      red: { key: 'red', name: 'Rot', title: 'FEUER', bg: 'from-red-950 via-rose-950 to-slate-950', border: 'border-red-500', art: CardArt.axe, primaryColor: '#ef4444', glowColor: 'rgba(239, 68, 68, 0.6)', patternClass: 'pattern-fire', crownName: 'Flammenkrone' },
+      green: { key: 'green', name: 'Grün', title: 'DIAMANTEN', bg: 'from-emerald-950 via-green-950 to-slate-950', border: 'border-emerald-400', art: CardArt.bow, primaryColor: '#10b981', glowColor: 'rgba(16, 185, 129, 0.6)', patternClass: 'pattern-diamond', crownName: 'Diamantkrone' },
+      blue: { key: 'blue', name: 'Blau', title: 'WASSER', bg: 'from-blue-950 via-sky-950 to-slate-950', border: 'border-blue-400', art: CardArt.dagger, primaryColor: '#0284c7', glowColor: 'rgba(2, 132, 199, 0.6)', patternClass: 'pattern-water', crownName: 'Gezeiten-Krone' },
+      wizard: { key: 'wizard', name: 'Zauberer', title: 'ARKAN', bg: 'from-purple-950 via-indigo-950 to-slate-950', border: 'border-purple-400', art: CardArt.wizard, primaryColor: '#a855f7', glowColor: 'rgba(168, 85, 247, 0.6)', patternClass: 'pattern-arkan', crownName: 'Arkan-Diadem' }
     };
 
     const renderTcgElementAnimation = (card) => {
@@ -524,7 +544,7 @@
 
       const startNewGame = () => {
         const shuffledNames = shuffleArray(FAMOUS_WIZARDS);
-        const suitKeys = Object.keys(SUITS);
+        const suitKeys = Object.keys(SUITS).filter(k => k !== 'wizard');
 
         const initialPlayers = [
           { 
@@ -691,19 +711,14 @@
         }, 750);
       };
 
-      // 100% KORREKTE ZAUBERER-LOGIK: LEITFARBE & TRUMPF STRENG GEPRÜFT
       const evaluateTrick = (cardsOnTable) => {
         let winningCardObj = cardsOnTable[0];
 
-        // 1. Der erste gespielte Zauberer gewinnt absolut immer sofort
         const firstWizard = cardsOnTable.find(c => c.card.type === 'wizard');
         if (firstWizard) {
           winningCardObj = firstWizard;
         } else {
-          // Die aufliegende Trumpfkarte in der Mitte bestimmt die Trumpffarbe
           const trumpSuit = (trumpCard && trumpCard.type === 'number') ? trumpCard.suit : null;
-
-          // Ermittle die Leitfarbe (die Farbe der allerersten ausgespielten Karte)
           const leadCardObj = cardsOnTable.find(c => c.card.type === 'number' || c.card.type === 'jester');
           const leadSuit = leadCardObj ? leadCardObj.card.suit : null;
 
@@ -714,16 +729,11 @@
             if (card.type === 'number') {
               let currentRank = -1;
 
-              // 2. Trumpffarbe hat absoluten Vorrang
               if (trumpSuit && card.suit === trumpSuit) {
                 currentRank = 2000 + card.value;
-              } 
-              // 3. Leitfarbe sticht alle anderen Farben (außer Trumpf)
-              else if (leadSuit && card.suit === leadSuit) {
+              } else if (leadSuit && card.suit === leadSuit) {
                 currentRank = 1000 + card.value;
-              } 
-              // 4. Fehlfarben (weder Trumpf noch Leitfarbe) können NIEMALS gewinnen und erhalten Rang -1
-              else {
+              } else {
                 currentRank = -1;
               }
 
@@ -732,7 +742,6 @@
                 winningCardObj = c;
               }
             } else if (card.type === 'jester') {
-              // Narren haben keinen Zahlenwert und können nur gewinnen, wenn gar nichts anderes da ist
               if (winningCardObj.card.type === 'jester' && bestRank === -1) {
                 // Erster Narr bleibt
               }
@@ -933,7 +942,7 @@
               </div>
 
               <span className="text-[9px] text-center text-slate-300 font-bold block mt-2 drop-shadow bg-slate-950/70 py-1 rounded-full backdrop-blur-md border border-sky-500/30">
-                MYTHOS CARD GAME V9.6 (STRICT TRICK EVALUATION)
+                MYTHOS CARD GAME V9.7 (ELEMENT CROWN FRAME & PATTERN)
               </span>
             </div>
           </div>
@@ -1367,25 +1376,32 @@
 
                 <div className="my-auto flex flex-col items-center w-full">
                   <div className="relative flex flex-col items-center mb-3">
-                    <div className="text-5xl mb-1 drop-shadow-lg animate-bounce">
-                      {winnerAvatar?.type === 'wizard' ? '⚡' : winnerAvatar?.type === 'jester' ? '🃏' : '👑'}
+                    
+                    {/* ELEMENT-KRONEN-RAHMEN UM DAS PROFILBILD */}
+                    <div className="relative z-20 flex flex-col items-center">
+                      <div className="absolute -top-6 text-xl animate-bounce drop-shadow" style={{ filter: `drop-shadow(0 0 8px ${suitTheme.primaryColor})` }}>
+                        {winnerSuitKey === 'red' ? '🔥' : winnerSuitKey === 'green' ? '💎' : winnerSuitKey === 'blue' ? '💧' : winnerSuitKey === 'yellow' ? '⚡' : '🔮'}
+                      </div>
+                      
+                      <div className="w-24 h-24 rounded-full border-4 p-1 flex items-center justify-center shadow-2xl bg-slate-900 relative" style={{ borderColor: suitTheme.primaryColor, boxShadow: `0 0 30px ${suitTheme.glowColor}` }}>
+                        <div className="w-full h-full rounded-full overflow-hidden flex items-center justify-center">
+                          {renderAvatarIcon(winnerAvatar, "w-full h-full")}
+                        </div>
+                      </div>
                     </div>
                     
-                    <div className="w-20 h-20 rounded-full border-4 flex items-center justify-center text-4xl shadow-2xl z-10 overflow-hidden bg-slate-900" style={{ borderColor: suitTheme.primaryColor }}>
-                      {renderAvatarIcon(winnerAvatar, "w-full h-full")}
-                    </div>
-                    
+                    {/* DAS GEMUSTERTE ELEMENT-PODEST */}
                     <div 
-                      className="w-36 h-20 border-2 rounded-t-2xl mt-[-10px] flex flex-col items-center justify-center element-podium-active"
+                      className={`w-38 h-20 border-2 rounded-t-2xl mt-[-14px] flex flex-col items-center justify-center element-podium-active z-10 ${suitTheme.patternClass}`}
                       style={{ 
-                        background: `linear-gradient(to bottom, ${suitTheme.primaryColor}88, #090d16)`, 
+                        background: `linear-gradient(to bottom, ${suitTheme.primaryColor}99, #050811)`, 
                         borderColor: suitTheme.primaryColor,
                         '--glow-color': suitTheme.glowColor 
                       }}
                     >
-                      <span className="text-xs font-black text-white uppercase tracking-wider">{winner.name}</span>
-                      <span className="text-sm font-black text-amber-300">{winner.score} Ptn</span>
-                      <span className="text-[10px] font-bold" style={{ color: suitTheme.primaryColor }}>Platz 1</span>
+                      <span className="text-xs font-black text-white uppercase tracking-wider drop-shadow">{winner.name}</span>
+                      <span className="text-sm font-black text-amber-300 drop-shadow">{winner.score} Ptn</span>
+                      <span className="text-[10px] font-extrabold uppercase tracking-widest px-2 py-0.5 rounded bg-black/60 mt-0.5" style={{ color: suitTheme.primaryColor }}>{suitTheme.crownName}</span>
                     </div>
                   </div>
 
