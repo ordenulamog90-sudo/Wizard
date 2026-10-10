@@ -248,7 +248,7 @@
       const [playedCards, setPlayedCards] = useState([]);
       const [turn, setTurn] = useState(0);
 
-      // WÜRFEL TIMING STATES
+      // TIMER STATES
       const [showDiceModal, setShowDiceModal] = useState(false);
       const [isDiceRolling, setIsDiceRolling] = useState(false);
       const [diceRolls, setDiceRolls] = useState(null);
@@ -256,11 +256,12 @@
       const [diceTimer, setDiceTimer] = useState(20);
       const [resultTimer, setResultTimer] = useState(10);
 
-      // RUNDENERGEBNIS TIMING
+      const [biddingTimer, setBiddingTimer] = useState(10);
+      const [turnTimer, setTurnTimer] = useState(10);
+
       const [roundSummary, setRoundSummary] = useState(null);
       const [summaryTimer, setSummaryTimer] = useState(10);
 
-      // SIEGER POPUP (PODEST) TIMING
       const [victoryData, setVictoryData] = useState(null);
       const [victoryTimer, setVictoryTimer] = useState(20);
 
@@ -298,7 +299,46 @@
         return () => clearInterval(interval);
       }, [showDiceModal, diceRolls, isDiceRolling]);
 
-      // Timer 3: Auto-Weiter bei Rundenabrechnung (10s)
+      // Timer 3: Stich-Ansage Timer (10s)
+      useEffect(() => {
+        let interval = null;
+        if (screen === 'game' && phase === 'bidding' && !showDiceModal && !roundSummary && !victoryData) {
+          interval = setInterval(() => {
+            setBiddingTimer(prev => {
+              if (prev <= 1) {
+                handleHumanBid(0); // Auto-Ansage 0 nach 10s
+                return 10;
+              }
+              return prev - 1;
+            });
+          }, 1000);
+        }
+        return () => clearInterval(interval);
+      }, [screen, phase, showDiceModal, roundSummary, victoryData]);
+
+      // Timer 4: Spieler Zug-Timer beim Ausspielen (10s)
+      useEffect(() => {
+        let interval = null;
+        if (screen === 'game' && phase === 'playing' && turn === 0 && playedCards.length < players.length && !showDiceModal && !roundSummary && !victoryData) {
+          interval = setInterval(() => {
+            setTurnTimer(prev => {
+              if (prev <= 1) {
+                // Auto-Ausspielen der 1. Karte nach 10s
+                if (players[0]?.hand?.length > 0) {
+                  playCard(0, 0);
+                }
+                return 10;
+              }
+              return prev - 1;
+            });
+          }, 1000);
+        } else {
+          setTurnTimer(10);
+        }
+        return () => clearInterval(interval);
+      }, [screen, phase, turn, playedCards, players, showDiceModal, roundSummary, victoryData]);
+
+      // Timer 5: Auto-Weiter bei Rundenabrechnung (10s)
       useEffect(() => {
         let interval = null;
         if (roundSummary) {
@@ -315,7 +355,7 @@
         return () => clearInterval(interval);
       }, [roundSummary]);
 
-      // Timer 4: Auto-Schließen bei Siegerehrung (20s)
+      // Timer 6: Auto-Schließen bei Siegerehrung (20s)
       useEffect(() => {
         let interval = null;
         if (victoryData) {
@@ -401,6 +441,8 @@
         setPhase('bidding');
         setPlayedCards([]);
         setTurn(startingPlayerIdx);
+        setBiddingTimer(10);
+        setTurnTimer(10);
 
         let deck = [];
         const suits = ['yellow', 'red', 'green', 'blue'];
@@ -436,6 +478,7 @@
       const handleHumanBid = (bidVal) => {
         setPlayers(prev => prev.map(p => p.isHuman ? { ...p, bid: bidVal } : p));
         setPhase('playing');
+        setTurnTimer(10);
       };
 
       const playCard = (playerIdx, cardIdx) => {
@@ -452,6 +495,7 @@
           setTimeout(() => evaluateTrick(newPlayed), 1500);
         } else {
           setTurn((playerIdx + 1) % players.length);
+          setTurnTimer(10);
         }
       };
 
@@ -511,6 +555,7 @@
           setTimeout(() => handleRoundEnd(updatedPlayers), 500);
         } else {
           setTurn(winnerId);
+          setTurnTimer(10);
         }
       };
 
@@ -565,12 +610,10 @@
         if (nextR <= maxRounds) {
           startRound(nextR, updated, nextStarter);
         } else {
-          // SPIEL BEENDET -> SIEGER PODEST ANZEIGEN
           const sortedFinal = [...updated].sort((a, b) => b.score - a.score);
           setVictoryData(sortedFinal);
           setVictoryTimer(20);
 
-          // XP / Stats Updaten
           const isHumanWinner = sortedFinal[0].isHuman;
           const updatedProfile = { 
             ...profile, 
@@ -626,7 +669,7 @@
                 </button>
               </div>
 
-              <span className="text-[10px] text-center text-slate-600 block mt-2">Mythos Card Game v3.5 • Victory Podiums</span>
+              <span className="text-[10px] text-center text-slate-600 block mt-2">Mythos Card Game v3.6 • Full Timers</span>
             </div>
           </div>
         );
@@ -801,16 +844,12 @@
             </div>
             <div className="space-y-3 text-xs text-slate-300 leading-relaxed">
               <div className="bg-slate-900 p-3 rounded-xl border border-slate-800">
-                <h3 className="font-bold text-sky-300 mb-1">1. Interaktiver Würfelwurf</h3>
-                <p>Tippe auf den Bildschirm, um zu würfeln (oder warte 20s). Nach dem Ergebnis reicht ein Tippen, um sofort zu starten (oder warte 10s)!</p>
+                <h3 className="font-bold text-sky-300 mb-1">1. Interaktive Timer</h3>
+                <p>Alle Aktionen haben sichtbare 10-Sekunden-Timer (Stich-Ansage, Ausspielen & Ergebnisse). Reagierst du nicht rechtzeitig, wählt das Spiel automatisch für dich!</p>
               </div>
               <div className="bg-slate-900 p-3 rounded-xl border border-slate-800">
                 <h3 className="font-bold text-sky-300 mb-1">2. Die Aufgedeckte Trumpffarbe</h3>
                 <p>Die aufgedeckte Karte bestimmt die Trumpffarbe der Runde. Diese Farbe sticht alle anderen Farben aus.</p>
-              </div>
-              <div className="bg-slate-900 p-3 rounded-xl border border-slate-800">
-                <h3 className="font-bold text-sky-300 mb-1">3. Bester Schätzer ab Runde 2</h3>
-                <p>Ab der zweiten Runde darf immer derjenige beginnen, der in der Vorrunde am genauesten geschätzt hat.</p>
               </div>
             </div>
             <button onClick={() => setScreen('menu')} className="mt-4 w-full py-3 mythic-btn-primary text-white font-bold rounded-xl">Zurück zum Menü</button>
@@ -847,8 +886,8 @@
                     <span className="text-xs font-black text-amber-400 animate-pulse">
                       👉 Tippe auf den Bildschirm zum Würfeln!
                     </span>
-                    <span className="text-[10px] text-slate-500 font-bold">
-                      Auto-Würfeln in {diceTimer}s
+                    <span className="text-[11px] text-sky-400 font-extrabold bg-sky-950 px-3 py-1 rounded-full border border-sky-500/30">
+                      ⏱️ Auto-Würfeln in {diceTimer}s
                     </span>
                   </div>
                 )}
@@ -880,8 +919,8 @@
                   >
                     Weiter zum Spiel ⚔️
                   </button>
-                  <span className="text-[10px] text-slate-400 font-bold">
-                    Tippe auf den Schirm oder warte {resultTimer}s
+                  <span className="text-[11px] text-sky-400 font-extrabold">
+                    ⏱️ Auto-Weiter in {resultTimer}s
                   </span>
                 </div>
               ) : (
@@ -890,7 +929,7 @@
             </div>
           )}
 
-          {/* RUNDENABRECHNUNG POPUP (KLICK UBERALL & 10S TIMER) */}
+          {/* RUNDENABRECHNUNG POPUP */}
           {roundSummary && (
             <div 
               onClick={proceedToNextRound}
@@ -926,14 +965,14 @@
                 >
                   Nächste Runde starten ⚔️
                 </button>
-                <span className="text-[10px] text-slate-400 font-bold">
-                  Tippe irgendwo oder warte {summaryTimer}s
+                <span className="text-[11px] text-sky-400 font-extrabold bg-sky-950 px-3 py-1 rounded-full border border-sky-500/30">
+                  ⏱️ Nächste Runde in {summaryTimer}s
                 </span>
               </div>
             </div>
           )}
 
-          {/* MAGISCHES SIEGER-PODEST AM SPIELENDE (20S TIMER / TAP ANYWHERE) */}
+          {/* MAGISCHES SIEGER-PODEST AM SPIELENDE */}
           {victoryData && (
             <div 
               onClick={finishGameAndGoMenu}
@@ -944,7 +983,6 @@
                 <p className="text-xs text-sky-300 font-bold mt-0.5">Das große Turniergefecht ist zu Ende!</p>
               </div>
 
-              {/* MAGISCHES PODEST */}
               <div className="my-auto flex flex-col items-center w-full">
                 <div className="relative flex flex-col items-center mb-3">
                   <div className="text-5xl mb-1 drop-shadow-lg animate-bounce">👑</div>
@@ -958,7 +996,6 @@
                   </div>
                 </div>
 
-                {/* SCOREBOARD DER GESAMTEN PARTIE */}
                 <div className="w-full bg-slate-900 border border-slate-800 p-3 rounded-2xl space-y-2 text-xs">
                   <div className="font-bold text-sky-300 mb-1 border-b border-slate-800 pb-1 text-center">Finale Rangliste:</div>
                   {victoryData.map((p, idx) => (
@@ -981,16 +1018,23 @@
                 >
                   Zurück zum Hauptmenü 🏰
                 </button>
-                <span className="text-[10px] text-slate-400 font-bold">
-                  Tippe auf den Schirm oder warte {victoryTimer}s
+                <span className="text-[11px] text-sky-400 font-extrabold bg-sky-950 px-3 py-1 rounded-full border border-sky-500/30">
+                  ⏱️ Schließt in {victoryTimer}s
                 </span>
               </div>
             </div>
           )}
 
-          {/* TOP BAR */}
+          {/* TOP BAR MIT ZUG-TIMER */}
           <div className="flex justify-between items-center mb-1 bg-slate-900/80 p-2 rounded-xl border border-slate-800">
             <span className="text-xs font-bold text-sky-400">Runde {round} / {maxRounds}</span>
+            
+            {phase === 'playing' && turn === 0 && !showDiceModal && !roundSummary && !victoryData && (
+              <span className="text-[11px] font-extrabold text-amber-400 bg-amber-950/80 px-2.5 py-0.5 rounded-full border border-amber-500/40 animate-pulse">
+                ⏳ Zugzeit: {turnTimer}s
+              </span>
+            )}
+
             <button onClick={() => setScreen('menu')} className="text-[10px] bg-slate-800 text-sky-300 px-2 py-1 rounded font-bold">Menü</button>
           </div>
 
@@ -1021,9 +1065,15 @@
               ))}
             </div>
 
+            {/* STICH ANSAGE MODAL MIT 10S TIMER */}
             {phase === 'bidding' && !showDiceModal && !roundSummary && !victoryData && (
               <div className="w-full bg-slate-900/95 border border-sky-500/50 p-3 rounded-2xl flex flex-col items-center gap-2 shadow-2xl backdrop-blur-md z-20">
-                <span className="text-xs font-bold text-sky-300">Deine Stich-Ansage für Runde {round}:</span>
+                <div className="flex justify-between items-center w-full px-1">
+                  <span className="text-xs font-bold text-sky-300">Deine Stich-Ansage für Runde {round}:</span>
+                  <span className="text-[10px] font-extrabold text-amber-400 bg-amber-950 px-2 py-0.5 rounded-full border border-amber-500/30">
+                    ⏱️ Noch {biddingTimer}s
+                  </span>
+                </div>
                 <div className="flex gap-2 flex-wrap justify-center">
                   {Array.from({ length: round + 1 }, (_, i) => (
                     <button
