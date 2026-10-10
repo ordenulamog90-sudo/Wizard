@@ -69,39 +69,62 @@
       animation: podiumGlow 2s infinite ease-in-out;
     }
 
-    /* KARTEN-FLUG ANIMATION */
-    @keyframes cardFlyFromHand {
+    /* SPEKTAKULÄRE MAGISCHE KARTEN-FLUG ANIMATION (1 SEKUNDE DAUER) */
+    @keyframes cardFlySpecialPlayer {
       0% {
-        transform: translateY(120px) scale(1.3) rotate(-5deg);
-        opacity: 0.2;
+        transform: translateY(180px) scale(1.4) rotate(-15deg);
+        opacity: 0;
+        box-shadow: 0 0 0px rgba(56, 189, 248, 0);
       }
-      60% {
-        transform: translateY(-10px) scale(1.05) rotate(2deg);
+      30% {
+        transform: translateY(-20px) scale(1.25) rotate(6deg);
         opacity: 0.9;
+        box-shadow: 0 0 35px rgba(56, 189, 248, 0.9), 0 0 15px rgba(251, 191, 36, 0.8);
+      }
+      70% {
+        transform: translateY(-5px) scale(1.08) rotate(-2deg);
+        opacity: 1;
+        box-shadow: 0 0 25px rgba(56, 189, 248, 0.7);
+      }
+      85% {
+        transform: translateY(3px) scale(0.97) rotate(0deg);
       }
       100% {
         transform: translateY(0) scale(1) rotate(0deg);
         opacity: 1;
+        box-shadow: 0 0 10px rgba(56, 189, 248, 0.3);
       }
     }
 
-    @keyframes cardFlyFromAI {
+    @keyframes cardFlySpecialAI {
       0% {
-        transform: translateY(-100px) scale(0.7) rotate(5deg);
-        opacity: 0.2;
+        transform: translateY(-160px) scale(0.5) rotate(15deg);
+        opacity: 0;
+        box-shadow: 0 0 0px rgba(168, 85, 247, 0);
+      }
+      40% {
+        transform: translateY(15px) scale(1.2) rotate(-8deg);
+        opacity: 0.95;
+        box-shadow: 0 0 35px rgba(168, 85, 247, 0.9), 0 0 15px rgba(56, 189, 248, 0.8);
+      }
+      75% {
+        transform: translateY(-3px) scale(1.05) rotate(2deg);
       }
       100% {
         transform: translateY(0) scale(1) rotate(0deg);
         opacity: 1;
+        box-shadow: 0 0 10px rgba(168, 85, 247, 0.3);
       }
     }
 
-    .animate-fly-player {
-      animation: cardFlyFromHand 0.45s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    .animate-fly-player-special {
+      animation: cardFlySpecialPlayer 1.0s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      z-index: 30;
     }
 
-    .animate-fly-ai {
-      animation: cardFlyFromAI 0.4s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    .animate-fly-ai-special {
+      animation: cardFlySpecialAI 1.0s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      z-index: 30;
     }
   </style>
 </head>
@@ -403,7 +426,7 @@
               playCard(t, 0);
             }
           }
-        }, 600);
+        }, 800);
         return () => clearInterval(interval);
       }, []);
 
@@ -574,14 +597,14 @@
         isProcessingClickRef.current = true;
 
         const newHand = p.hand.filter((_, i) => i !== cardIdx);
-        const newPlayed = [...currentPlayed, { playerId: p.id, card: selectedCard, isNew: true }];
+        const newPlayed = [...currentPlayed, { playerId: p.id, card: selectedCard }];
 
         setPlayedCards(newPlayed);
         setPlayers(prev => prev.map(pl => pl.id === p.id ? { ...pl, hand: newHand } : pl));
 
         if (newPlayed.length === currentPlayers.length) {
           isEvaluatingRef.current = true;
-          setTimeout(() => evaluateTrick(newPlayed), 1200);
+          setTimeout(() => evaluateTrick(newPlayed), 1500); // ETWAS LÄNGERE PAUSE DAMIT MAN DIE FLUG-ANIMATION GENIESSEN KANN
         } else {
           setTurn((playerIdx + 1) % currentPlayers.length);
           setTurnTimer(20);
@@ -589,7 +612,7 @@
 
         setTimeout(() => {
           isProcessingClickRef.current = false;
-        }, 400);
+        }, 600);
       };
 
       const evaluateTrick = (cardsOnTable) => {
@@ -756,7 +779,7 @@
                 </button>
               </div>
 
-              <span className="text-[10px] text-center text-slate-600 block mt-2">Mythos Card Game v5.2 • Card Play Flying Animation</span>
+              <span className="text-[10px] text-center text-slate-600 block mt-2">Mythos Card Game v5.3 • Magical 1s Card Flying Special Effect</span>
             </div>
           </div>
         );
@@ -1167,7 +1190,7 @@
                     card={pc.card} 
                     size="sm" 
                     disabled 
-                    className={pc.playerId === 0 ? 'animate-fly-player' : 'animate-fly-ai'}
+                    className={pc.playerId === 0 ? 'animate-fly-player-special' : 'animate-fly-ai-special'}
                   />
                 </div>
               ))}
