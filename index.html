@@ -79,21 +79,17 @@
         opacity: 1;
       }
       80% {
-        /* Flüssiges schnelles Anfliegen kurz vor dem Tisch */
         transform: translateY(-8px) scale(1.15) rotate(2deg);
         box-shadow: 0 10px 25px rgba(56, 189, 248, 0.6);
       }
       88% {
-        /* Der harte Aufknall-Impakt */
         transform: translateY(3px) scale(0.92) rotate(-2deg);
         box-shadow: 0 0 40px rgba(56, 189, 248, 1), 0 0 20px rgba(255, 255, 255, 0.9);
       }
       94% {
-        /* Sanfte Rückstoß-Vibration */
         transform: translateY(-1px) scale(1.03) rotate(1deg);
       }
       100% {
-        /* Fester Sitz auf dem Feld */
         transform: translateY(0) scale(1) rotate(0deg);
         opacity: 1;
         box-shadow: 0 0 12px rgba(56, 189, 248, 0.3);
@@ -296,6 +292,7 @@
 
     function App() {
       const [screen, setScreen] = useState('menu');
+      const [showExitConfirm, setShowExitConfirm] = useState(false);
       
       const [profile, setProfile] = useState(() => {
         const saved = localStorage.getItem('wizard_profile');
@@ -390,7 +387,7 @@
       // Timer 3: Stich-Ansage Timer (20s)
       useEffect(() => {
         let interval = null;
-        if (screen === 'game' && phase === 'bidding' && !showDiceModal && !roundSummary && !victoryData) {
+        if (screen === 'game' && phase === 'bidding' && !showDiceModal && !roundSummary && !victoryData && !showExitConfirm) {
           interval = setInterval(() => {
             setBiddingTimer(prev => {
               if (prev <= 1) {
@@ -402,12 +399,12 @@
           }, 1000);
         }
         return () => clearInterval(interval);
-      }, [screen, phase, showDiceModal, roundSummary, victoryData]);
+      }, [screen, phase, showDiceModal, roundSummary, victoryData, showExitConfirm]);
 
       // Timer 4: ZUG-TIMER FÜR MENSCHLICHEN SPIELER (20s)
       useEffect(() => {
         let interval = null;
-        if (screen === 'game' && phase === 'playing' && turn === 0 && !isEvaluatingRef.current && playedCards.length < players.length && !showDiceModal && !roundSummary && !victoryData) {
+        if (screen === 'game' && phase === 'playing' && turn === 0 && !isEvaluatingRef.current && playedCards.length < players.length && !showDiceModal && !roundSummary && !victoryData && !showExitConfirm) {
           interval = setInterval(() => {
             setTurnTimer(prev => {
               if (prev <= 1) {
@@ -423,13 +420,13 @@
           setTurnTimer(20);
         }
         return () => clearInterval(interval);
-      }, [screen, phase, turn, playedCards, players, showDiceModal, roundSummary, victoryData]);
+      }, [screen, phase, turn, playedCards, players, showDiceModal, roundSummary, victoryData, showExitConfirm]);
 
       // PROAKTIVER KI-HEARTBEAT
       useEffect(() => {
         const interval = setInterval(() => {
           const { screen: s, phase: p, turn: t, players: pl, playedCards: pc } = stateRef.current;
-          if (s === 'game' && p === 'playing' && t !== 0 && !isEvaluatingRef.current && !isProcessingClickRef.current && pc.length < pl.length) {
+          if (s === 'game' && p === 'playing' && t !== 0 && !isEvaluatingRef.current && !isProcessingClickRef.current && pc.length < pl.length && !showExitConfirm) {
             const currentKi = pl[t];
             if (currentKi && currentKi.hand.length > 0) {
               playCard(t, 0);
@@ -437,12 +434,12 @@
           }
         }, 800);
         return () => clearInterval(interval);
-      }, []);
+      }, [showExitConfirm]);
 
       // Timer 5: Rundenabrechnung Countdown (10s)
       useEffect(() => {
         let interval = null;
-        if (roundSummary) {
+        if (roundSummary && !showExitConfirm) {
           interval = setInterval(() => {
             setSummaryTimer(prev => {
               if (prev <= 1) {
@@ -454,12 +451,12 @@
           }, 1000);
         }
         return () => clearInterval(interval);
-      }, [roundSummary]);
+      }, [roundSummary, showExitConfirm]);
 
       // Timer 6: Siegerehrung (20s)
       useEffect(() => {
         let interval = null;
-        if (victoryData) {
+        if (victoryData && !showExitConfirm) {
           interval = setInterval(() => {
             setVictoryTimer(prev => {
               if (prev <= 1) {
@@ -471,7 +468,7 @@
           }, 1000);
         }
         return () => clearInterval(interval);
-      }, [victoryData]);
+      }, [victoryData, showExitConfirm]);
 
       const startNewGame = () => {
         const initialPlayers = [
@@ -491,6 +488,7 @@
         }
         setPlayers(initialPlayers);
         setScreen('game');
+        setShowExitConfirm(false);
 
         setShowDiceModal(true);
         setDiceRolls(null);
@@ -613,7 +611,7 @@
 
         if (newPlayed.length === currentPlayers.length) {
           isEvaluatingRef.current = true;
-          setTimeout(() => evaluateTrick(newPlayed), 900); // 0,9s WARTEZEIT PASSEND ZUM 0,7s SCHNELLEN FLUG
+          setTimeout(() => evaluateTrick(newPlayed), 900);
         } else {
           setTurn((playerIdx + 1) % currentPlayers.length);
           setTurnTimer(20);
@@ -747,6 +745,7 @@
 
       const finishGameAndGoMenu = () => {
         setVictoryData(null);
+        setShowExitConfirm(false);
         setScreen('menu');
       };
 
@@ -788,7 +787,7 @@
                 </button>
               </div>
 
-              <span className="text-[10px] text-center text-slate-600 block mt-2">Mythos Card Game v5.6 • Fast 0.7s Impact Flight Animation</span>
+              <span className="text-[10px] text-center text-slate-600 block mt-2">Mythos Card Game v5.7 • Game Exit Confirmation Modal</span>
             </div>
           </div>
         );
@@ -984,8 +983,36 @@
       return (
         <div className="flex flex-col h-full max-w-md mx-auto p-2 justify-between bg-slate-950 relative overflow-hidden">
           
+          {/* BESTÄTIGUNGS-MODAL BEIM SPIELABBRUCH */}
+          {showExitConfirm && (
+            <div className="absolute inset-0 bg-slate-950/95 backdrop-blur-md z-50 flex flex-col items-center justify-center p-4 text-center select-none overflow-y-auto">
+              <div className="w-full max-w-xs mythic-card p-5 rounded-3xl flex flex-col items-center gap-4 my-auto shadow-2xl border border-sky-500/40">
+                <div className="text-4xl animate-bounce">⚠️</div>
+                <div className="space-y-1">
+                  <h3 className="text-base font-black text-sky-200">Duell wirklich abbrechen?</h3>
+                  <p className="text-xs text-slate-400 leading-relaxed">Dein aktueller Fortschritt in dieser Partie geht dabei verloren.</p>
+                </div>
+
+                <div className="flex gap-2 w-full pt-2">
+                  <button
+                    onClick={finishGameAndGoMenu}
+                    className="flex-1 py-3 bg-red-950/80 hover:bg-red-900 border border-red-500/50 text-red-200 font-black text-xs rounded-xl active:scale-95 transition-transform shadow-lg"
+                  >
+                    Ja, beenden
+                  </button>
+                  <button
+                    onClick={() => setShowExitConfirm(false)}
+                    className="flex-1 py-3 mythic-btn-primary text-white font-black text-xs rounded-xl active:scale-95 transition-transform shadow-lg"
+                  >
+                    Nein, weiter
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* INTERAKTIVES WÜRFEL MODAL */}
-          {showDiceModal && (
+          {showDiceModal && !showExitConfirm && (
             <div 
               onClick={handleDiceOverlayClick}
               className="absolute inset-0 bg-slate-950/95 backdrop-blur-md z-50 flex flex-col items-center justify-center p-4 text-center cursor-pointer select-none overflow-y-auto"
@@ -1050,7 +1077,7 @@
           )}
 
           {/* RUNDENABRECHNUNG POPUP */}
-          {roundSummary && (
+          {roundSummary && !showExitConfirm && (
             <div 
               onClick={proceedToNextRound}
               className="absolute inset-0 bg-slate-950/95 backdrop-blur-md z-50 flex flex-col items-center justify-center p-4 cursor-pointer select-none overflow-y-auto"
@@ -1100,7 +1127,7 @@
           )}
 
           {/* MAGISCHES SIEGER-PODEST AM SPIELENDE */}
-          {victoryData && (
+          {victoryData && !showExitConfirm && (
             <div 
               onClick={finishGameAndGoMenu}
               className="absolute inset-0 bg-slate-950/95 backdrop-blur-md z-50 flex flex-col items-center justify-between p-4 cursor-pointer select-none overflow-y-auto"
@@ -1156,13 +1183,18 @@
           <div className="flex justify-between items-center mb-1 bg-slate-900/80 p-2 rounded-xl border border-slate-800">
             <span className="text-xs font-bold text-sky-400">Runde {round} / {maxRounds}</span>
             
-            {phase === 'playing' && isHumanTurn && !isEvaluatingRef.current && !showDiceModal && !roundSummary && !victoryData && (
+            {phase === 'playing' && isHumanTurn && !isEvaluatingRef.current && !showDiceModal && !roundSummary && !victoryData && !showExitConfirm && (
               <span className="text-[11px] font-extrabold text-amber-400 bg-amber-950/80 px-2.5 py-0.5 rounded-full border border-amber-500/40 animate-pulse">
                 ⏳ Dein Zug: {turnTimer}s
               </span>
             )}
 
-            <button onClick={() => setScreen('menu')} className="text-[10px] bg-slate-800 text-sky-300 px-2 py-1 rounded font-bold">Menü</button>
+            <button 
+              onClick={() => setShowExitConfirm(true)} 
+              className="text-[10px] bg-slate-800 hover:bg-slate-700 active:scale-95 text-sky-300 border border-sky-500/30 px-2.5 py-1 rounded-lg font-bold transition-all shadow"
+            >
+              Menü
+            </button>
           </div>
 
           {/* KI GEGNER MIT PUNKTESTAND UND ABLAUF-PFEIL */}
@@ -1206,7 +1238,7 @@
             </div>
 
             {/* STICH ANSAGE MODAL MIT 20S TIMER */}
-            {phase === 'bidding' && !showDiceModal && !roundSummary && !victoryData && (
+            {phase === 'bidding' && !showDiceModal && !roundSummary && !victoryData && !showExitConfirm && (
               <div className="w-full bg-slate-900/95 border border-sky-500/50 p-3 rounded-2xl flex flex-col items-center gap-2 shadow-2xl backdrop-blur-md z-20">
                 <div className="flex justify-between items-center w-full px-1">
                   <span className="text-xs font-bold text-sky-300">Deine Stich-Ansage für Runde {round}:</span>
@@ -1251,7 +1283,7 @@
                   key={card.id || i} 
                   card={card} 
                   size="md" 
-                  disabled={phase !== 'playing' || turn !== 0 || isEvaluatingRef.current}
+                  disabled={phase !== 'playing' || turn !== 0 || isEvaluatingRef.current || showExitConfirm}
                   onClick={() => playCard(0, i)} 
                 />
               ))}
