@@ -16,12 +16,6 @@
       box-shadow: inset 0 0 20px #000, 0 4px 10px rgba(0,0,0,0.8);
       position: relative;
     }
-    .magma-crack {
-      background: linear-gradient(90deg, transparent, #f97316, #ef4444, #f97316, transparent);
-      height: 2px;
-      width: 80%;
-      filter: blur(0.5px);
-    }
     .card-art-box {
       background: radial-gradient(circle at center, rgba(255,255,255,0.1) 0%, rgba(0,0,0,0.6) 100%);
       border: 1px solid rgba(251, 191, 36, 0.4);
@@ -32,76 +26,54 @@
   <div id="root" class="h-full"></div>
 
   <script type="text/babel">
-    const { useState } = React;
+    const { useState, useEffect } = React;
 
-    // Vektor-Illustrationen im düsteren Fantasy-Stil
     const CardArt = {
       wizard: (
         <svg viewBox="0 0 100 120" className="w-full h-full drop-shadow-md">
-          {/* Hintergrund-Aura */}
           <circle cx="50" cy="50" r="38" fill="#581c87" opacity="0.4" />
-          {/* Zauberer-Gewand */}
           <path d="M 30 110 L 50 45 L 70 110 Z" fill="#3b0764" stroke="#a855f7" strokeWidth="2" />
-          {/* Bart */}
           <path d="M 40 55 Q 50 90 60 55 C 55 75 45 75 40 55 Z" fill="#e2e8f0" />
-          {/* Gesicht */}
           <circle cx="50" cy="48" r="10" fill="#fde047" opacity="0.8" />
-          {/* Zauberhut */}
           <path d="M 25 45 L 50 10 L 75 45 Z" fill="#6b21a8" stroke="#f59e0b" strokeWidth="2" />
-          <path d="M 20 45 C 35 40 65 40 80 45 C 65 48 35 48 20 45 Z" fill="#f59e0b" />
-          <path d="M 48 25 L 52 25 L 50 20 Z" fill="#fef08a" />
-          {/* Zauberstab & Magie */}
           <line x1="20" y1="100" x2="35" y2="40" stroke="#78350f" strokeWidth="3" strokeLinecap="round" />
           <circle cx="35" cy="40" r="5" fill="#38bdf8" />
-          <circle cx="35" cy="40" r="8" fill="#e0f2fe" opacity="0.5" />
         </svg>
       ),
       jester: (
         <svg viewBox="0 0 100 120" className="w-full h-full drop-shadow-md">
           <circle cx="50" cy="50" r="38" fill="#831843" opacity="0.4" />
-          {/* Kragen */}
           <path d="M 25 75 L 35 60 L 50 80 L 65 60 L 75 75 L 50 105 Z" fill="#be185d" stroke="#f472b6" strokeWidth="1.5" />
-          {/* Narrenkappe */}
           <path d="M 30 48 Q 15 25 10 35 Q 25 50 35 45 Z" fill="#e11d48" stroke="#fecdd3" strokeWidth="1.5" />
           <path d="M 70 48 Q 85 25 90 35 Q 75 50 65 45 Z" fill="#0284c7" stroke="#bae6fd" strokeWidth="1.5" />
           <circle cx="10" cy="35" r="4" fill="#fef08a" />
           <circle cx="90" cy="35" r="4" fill="#fef08a" />
-          {/* Gesicht & Maske */}
           <circle cx="50" cy="48" r="14" fill="#fde047" opacity="0.8" />
-          <path d="M 40 45 Q 50 35 60 45 Q 50 58 40 45 Z" fill="#0f172a" />
         </svg>
       ),
       bow: (
         <svg viewBox="0 0 100 120" className="w-full h-full drop-shadow-md">
           <path d="M 25 100 C 50 80 80 50 65 20" fill="none" stroke="#15803d" strokeWidth="6" strokeLinecap="round" />
-          <path d="M 25 100 L 65 20" stroke="#cbd5e1" strokeWidth="1.5" strokeDasharray="4 2" />
-          {/* Pfeil */}
           <line x1="20" y1="90" x2="75" y2="25" stroke="#78350f" strokeWidth="3" />
           <path d="M 75 25 L 65 28 L 72 35 Z" fill="#ef4444" />
-          <path d="M 20 90 L 26 95 M 23 87 L 29 92" stroke="#f8fafc" strokeWidth="2" />
         </svg>
       ),
       axe: (
         <svg viewBox="0 0 100 120" className="w-full h-full drop-shadow-md">
           <line x1="25" y1="95" x2="75" y2="25" stroke="#78350f" strokeWidth="7" strokeLinecap="round" />
-          {/* Axtblatt */}
           <path d="M 55 30 C 70 15 85 25 80 50 C 65 45 55 40 50 35 Z" fill="#94a3b8" stroke="#f8fafc" strokeWidth="2" />
-          <path d="M 45 40 C 30 25 15 35 20 60 C 35 55 45 50 50 45 Z" fill="#64748b" stroke="#f8fafc" strokeWidth="2" />
         </svg>
       ),
       dagger: (
         <svg viewBox="0 0 100 120" className="w-full h-full drop-shadow-md">
           <line x1="30" y1="90" x2="70" y2="30" stroke="#38bdf8" strokeWidth="5" strokeLinecap="round" />
           <path d="M 70 30 L 85 15 L 75 35 L 55 55 Z" fill="#cbd5e1" stroke="#f8fafc" strokeWidth="1.5" />
-          <path d="M 25 95 L 35 85" stroke="#f59e0b" strokeWidth="8" strokeLinecap="round" />
-          <circle cx="22" cy="98" r="5" fill="#f59e0b" />
         </svg>
       ),
       banner: (
         <svg viewBox="0 0 100 120" className="w-full h-full drop-shadow-md">
           <line x1="30" y1="15" x2="30" y2="105" stroke="#78350f" strokeWidth="6" strokeLinecap="round" />
           <path d="M 30 25 L 80 25 L 65 45 L 80 65 L 30 65 Z" fill="#f59e0b" stroke="#fef08a" strokeWidth="2" />
-          <circle cx="30" cy="12" r="5" fill="#fef08a" />
         </svg>
       )
     };
@@ -113,27 +85,10 @@
       blue: { name: 'Blau', title: 'DER DOLCH', bg: 'from-blue-950 via-sky-950 to-slate-950', border: 'border-blue-400', art: CardArt.dagger }
     };
 
-    function CardBack({ size = "md" }) {
-      const dim = size === "sm" ? "w-16 h-24" : size === "lg" ? "w-28 h-44" : "w-20 h-32";
-      return (
-        <div className={`${dim} stone-card-back rounded-xl p-2 flex flex-col justify-between items-center overflow-hidden`}>
-          <div className="magma-crack mt-2"></div>
-          <div className="flex flex-col items-center gap-1 my-auto">
-            <span className="text-xs font-black tracking-widest text-amber-500 drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)]">WIZARD</span>
-            <div className="grid grid-cols-2 gap-1 w-10 h-10 opacity-80 my-1">
-              {CardArt.axe}
-              {CardArt.banner}
-              {CardArt.bow}
-              {CardArt.dagger}
-            </div>
-          </div>
-          <div className="magma-crack mb-2"></div>
-        </div>
-      );
-    }
+    const AI_NAMES = ['Merlin', 'Morgana', 'Gandalf', 'Circe', 'Albus'];
 
     function CardFace({ card, size = "md", onClick, disabled }) {
-      const dim = size === "sm" ? "w-16 h-24" : size === "lg" ? "w-32 h-48" : "w-24 h-36";
+      const dim = size === "sm" ? "w-12 h-20" : size === "lg" ? "w-28 h-40" : "w-20 h-32";
       if (!card) return null;
 
       const isWizard = card.type === 'wizard';
@@ -154,26 +109,23 @@
       return (
         <div 
           onClick={!disabled ? onClick : undefined}
-          className={`${dim} rounded-xl bg-gradient-to-b ${bgStyle} border-2 p-1.5 flex flex-col justify-between items-center relative shadow-2xl cursor-pointer active:scale-95 transition-transform overflow-hidden`}
+          className={`${dim} rounded-xl bg-gradient-to-b ${bgStyle} border-2 p-1 flex flex-col justify-between items-center relative shadow-2xl cursor-pointer active:scale-95 transition-transform overflow-hidden`}
         >
-          {/* Ecken-Zahlen Oben */}
-          <div className="w-full flex justify-between font-black text-amber-300 text-sm drop-shadow z-10">
+          <div className="w-full flex justify-between font-black text-amber-300 text-xs drop-shadow z-10">
             <span>{cornerText}</span>
             <span>{cornerText}</span>
           </div>
 
-          {/* Detaillierter Kunstrahmen & Illustration */}
-          <div className="card-art-box w-full flex-1 my-1 rounded-lg p-1 flex flex-col items-center justify-center relative overflow-hidden">
+          <div className="card-art-box w-full flex-1 my-0.5 rounded-lg p-0.5 flex flex-col items-center justify-center relative overflow-hidden">
             <div className="w-full h-full flex items-center justify-center">
               {artComponent}
             </div>
-            <span className="absolute bottom-0.5 text-[7px] font-bold text-amber-200 tracking-tighter uppercase drop-shadow bg-black/60 px-1 rounded">
+            <span className="absolute bottom-0.5 text-[6px] font-bold text-amber-200 tracking-tighter uppercase drop-shadow bg-black/60 px-1 rounded">
               {titleText}
             </span>
           </div>
 
-          {/* Ecken-Zahlen Unten (Auf dem Kopf) */}
-          <div className="w-full flex justify-between font-black text-amber-300 text-sm drop-shadow rotate-180 z-10">
+          <div className="w-full flex justify-between font-black text-amber-300 text-xs drop-shadow rotate-180 z-10">
             <span>{cornerText}</span>
             <span>{cornerText}</span>
           </div>
@@ -182,38 +134,324 @@
     }
 
     function App() {
-      const [round] = useState(1);
+      const [screen, setScreen] = useState('menu'); // 'menu', 'game', 'rules', 'stats'
+      
+      // Menü-Einstellungen
+      const [playerCount, setPlayerCount] = useState(4);
+      const [maxRounds, setMaxRounds] = useState(15);
+      const [difficulty, setDifficulty] = useState('Normal');
+
+      // Spielzustand
+      const [round, setRound] = useState(1);
       const [phase, setPhase] = useState('bidding');
-      const [playerHand] = useState([
-        { type: 'number', value: 13, suit: 'yellow' },
-        { type: 'wizard', value: 14 },
-        { type: 'number', value: 5, suit: 'red' }
-      ]);
-      const [trumpCard] = useState({ type: 'number', value: 8, suit: 'green' });
-      const [myBid, setMyBid] = useState(null);
+      const [players, setPlayers] = useState([]);
+      const [trumpCard, setTrumpCard] = useState(null);
+      const [playedCards, setPlayedCards] = useState([]);
+      const [turn, setTurn] = useState(0);
+
+      // Neues Spiel aus dem Menü starten
+      const startNewGame = () => {
+        const initialPlayers = [
+          { id: 0, name: 'Du', isHuman: true, bid: null, tricks: 0, score: 0, hand: [] }
+        ];
+        for (let i = 1; i < playerCount; i++) {
+          initialPlayers.push({
+            id: i,
+            name: `${AI_NAMES[i-1]} (KI)`,
+            isHuman: false,
+            bid: null,
+            tricks: 0,
+            score: 0,
+            hand: []
+          });
+        }
+        setPlayers(initialPlayers);
+        setScreen('game');
+        startRound(1, initialPlayers);
+      };
+
+      const startRound = (rNum, currentPlayers) => {
+        setRound(rNum);
+        setPhase('bidding');
+        setPlayedCards([]);
+        setTurn(0);
+
+        let deck = [];
+        const suits = ['yellow', 'red', 'green', 'blue'];
+        suits.forEach(s => {
+          for(let v = 1; v <= 13; v++) deck.push({ type: 'number', value: v, suit: s });
+        });
+        for(let i=0; i<4; i++) deck.push({ type: 'wizard' });
+        for(let i=0; i<4; i++) deck.push({ type: 'jester' });
+
+        deck = deck.sort(() => Math.random() - 0.5);
+
+        const newPlayers = currentPlayers.map(p => {
+          const hand = deck.splice(0, rNum);
+          return { ...p, hand, bid: null, tricks: 0 };
+        });
+
+        const trump = deck.length > 0 ? deck[0] : null;
+
+        // KI-Ansagen
+        newPlayers.forEach(p => {
+          if (!p.isHuman) {
+            let kiBid = 0;
+            p.hand.forEach(c => {
+              if (c.type === 'wizard' || (c.type === 'number' && c.value > 10)) kiBid++;
+            });
+            p.bid = Math.min(kiBid, rNum);
+          }
+        });
+
+        setTrumpCard(trump);
+        setPlayers(newPlayers);
+      };
+
+      const handleHumanBid = (bidVal) => {
+        setPlayers(prev => prev.map(p => p.isHuman ? { ...p, bid: bidVal } : p));
+        setPhase('playing');
+      };
+
+      const playCard = (playerIdx, cardIdx) => {
+        const p = players[playerIdx];
+        const card = p.hand[cardIdx];
+
+        const newHand = p.hand.filter((_, i) => i !== cardIdx);
+        const newPlayed = [...playedCards, { playerId: p.id, card }];
+
+        setPlayedCards(newPlayed);
+        setPlayers(prev => prev.map(pl => pl.id === p.id ? { ...pl, hand: newHand } : pl));
+
+        if (newPlayed.length === players.length) {
+          setTimeout(() => evaluateTrick(newPlayed), 1500);
+        } else {
+          setTurn((playerIdx + 1) % players.length);
+        }
+      };
+
+      useEffect(() => {
+        if (screen === 'game' && phase === 'playing' && turn !== 0 && playedCards.length < players.length) {
+          const timer = setTimeout(() => {
+            const ki = players[turn];
+            if (ki && ki.hand.length > 0) {
+              playCard(turn, 0);
+            }
+          }, 800);
+          return () => clearTimeout(timer);
+        }
+      }, [screen, phase, turn, playedCards]);
+
+      const evaluateTrick = (cardsOnTable) => {
+        let winnerId = cardsOnTable[0].playerId;
+        const wizIndex = cardsOnTable.findIndex(c => c.card.type === 'wizard');
+        if (wizIndex !== -1) {
+          winnerId = cardsOnTable[wizIndex].playerId;
+        }
+
+        setPlayers(prev => prev.map(p => p.id === winnerId ? { ...p, tricks: p.tricks + 1 } : p));
+        setPlayedCards([]);
+
+        const human = players[0];
+        if (human.hand.length === 0) {
+          setTimeout(() => {
+            if (round < maxRounds) {
+              alert(`Runde ${round} beendet! Weiter zu Runde ${round + 1}.`);
+              startRound(round + 1, players);
+            } else {
+              alert("Spiel beendet! Danke fürs Spielen.");
+              setScreen('menu');
+            }
+          }, 500);
+        } else {
+          setTurn(winnerId);
+        }
+      };
+
+      // ---------------- Hauptmenü Ansicht ----------------
+      if (screen === 'menu') {
+        return (
+          <div className="flex flex-col h-full max-w-md mx-auto p-4 justify-between bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950">
+            <div className="text-center my-auto">
+              <h1 className="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-amber-400 via-amber-200 to-amber-500 tracking-wider mb-1 drop-shadow">
+                WIZARD
+              </h1>
+              <p className="text-xs text-amber-400/70 font-semibold tracking-widest uppercase mb-8">Das magische Karten-Duell</p>
+
+              {/* Optionen-Box */}
+              <div className="bg-slate-900/80 border border-amber-500/30 p-4 rounded-2xl shadow-2xl flex flex-col gap-4 text-left backdrop-blur-sm">
+                <div>
+                  <label className="text-xs font-bold text-amber-300 block mb-1">Spieleranzahl:</label>
+                  <div className="flex gap-2">
+                    {[3, 4, 5, 6].map(num => (
+                      <button
+                        key={num}
+                        onClick={() => setPlayerCount(num)}
+                        className={`flex-1 py-1.5 rounded-lg text-xs font-bold border transition-all ${playerCount === num ? 'bg-amber-500 border-amber-300 text-slate-950' : 'bg-slate-800 border-slate-700 text-slate-300'}`}
+                      >
+                        {num} Spieler
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div>
+                  <label className="text-xs font-bold text-amber-300 block mb-1">Rundenanzahl:</label>
+                  <div className="flex gap-2">
+                    {[5, 10, 15].map(num => (
+                      <button
+                        key={num}
+                        onClick={() => setMaxRounds(num)}
+                        className={`flex-1 py-1.5 rounded-lg text-xs font-bold border transition-all ${maxRounds === num ? 'bg-amber-500 border-amber-300 text-slate-950' : 'bg-slate-800 border-slate-700 text-slate-300'}`}
+                      >
+                        {num} Runden
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div>
+                  <label className="text-xs font-bold text-amber-300 block mb-1">KI-Schwierigkeit:</label>
+                  <div className="flex gap-2">
+                    {['Leicht', 'Normal', 'Magisch'].map(diff => (
+                      <button
+                        key={diff}
+                        onClick={() => setDifficulty(diff)}
+                        className={`flex-1 py-1.5 rounded-lg text-xs font-bold border transition-all ${difficulty === diff ? 'bg-amber-500 border-amber-300 text-slate-950' : 'bg-slate-800 border-slate-700 text-slate-300'}`}
+                      >
+                        {diff}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              {/* Hauptmenü Buttons */}
+              <div className="flex flex-col gap-3 mt-8">
+                <button
+                  onClick={startNewGame}
+                  className="w-full py-3.5 rounded-xl bg-gradient-to-r from-amber-500 via-amber-400 to-amber-600 text-slate-950 font-black text-lg shadow-xl border border-amber-300 active:scale-95 transition-transform"
+                >
+                  Neues Spiel starten
+                </button>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => setScreen('rules')}
+                    className="flex-1 py-2.5 rounded-xl bg-slate-900 border border-slate-800 text-amber-300 font-bold text-xs active:scale-95 transition-transform"
+                  >
+                    Anleitung / Regeln
+                  </button>
+                  <button
+                    onClick={() => setScreen('stats')}
+                    className="flex-1 py-2.5 rounded-xl bg-slate-900 border border-slate-800 text-amber-300 font-bold text-xs active:scale-95 transition-transform"
+                  >
+                    Punkte & Statistiken
+                  </button>
+                </div>
+              </div>
+            </div>
+            
+            <span className="text-[10px] text-center text-slate-600">Wizard Digital v1.2 • PWA Web App</span>
+          </div>
+        );
+      }
+
+      // ---------------- Regeln Ansicht ----------------
+      if (screen === 'rules') {
+        return (
+          <div className="flex flex-col h-full max-w-md mx-auto p-4 justify-between bg-slate-950 overflow-y-auto">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-xl font-bold text-amber-400">Spielregeln</h2>
+              <button onClick={() => setScreen('menu')} className="text-xs bg-slate-800 text-amber-300 px-3 py-1.5 rounded-lg font-bold">Menü</button>
+            </div>
+            <div className="space-y-3 text-xs text-slate-300 leading-relaxed">
+              <div className="bg-slate-900 p-3 rounded-xl border border-slate-800">
+                <h3 className="font-bold text-amber-300 mb-1">1. Vorhersage & Stich-Ansage</h3>
+                <p>In jeder Runde sagst du voraus, wie viele Stiche du mit deinen Handkarten erzielen wirst.</p>
+              </div>
+              <div className="bg-slate-900 p-3 rounded-xl border border-slate-800">
+                <h3 className="font-bold text-amber-300 mb-1">2. Die Zauberer (Z)</h3>
+                <p>Der Zauberer gewinnt immer den Stich, egal welche Farbe oder Zahl gespielt wurde.</p>
+              </div>
+              <div className="bg-slate-900 p-3 rounded-xl border border-slate-800">
+                <h3 className="font-bold text-amber-300 mb-1">3. Die Narren (N)</h3>
+                <p>Der Narr verliert immer den Stich. Er hat den Wert Null.</p>
+              </div>
+              <div className="bg-slate-900 p-3 rounded-xl border border-slate-800">
+                <h3 className="font-bold text-amber-300 mb-1">4. Bedienen & Trumpf</h3>
+                <p>Die zuerst ausgespielte Farbe muss bedient werden. Hast du diese Farbe nicht, darfst du Trumpf oder eine beliebige andere Karte legen.</p>
+              </div>
+            </div>
+            <button onClick={() => setScreen('menu')} className="mt-4 w-full py-3 bg-amber-500 text-slate-950 font-bold rounded-xl">Zurück zum Menü</button>
+          </div>
+        );
+      }
+
+      // ---------------- Statistiken Ansicht ----------------
+      if (screen === 'stats') {
+        return (
+          <div className="flex flex-col h-full max-w-md mx-auto p-4 justify-between bg-slate-950">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-xl font-bold text-amber-400">Punkte & Statistik</h2>
+              <button onClick={() => setScreen('menu')} className="text-xs bg-slate-800 text-amber-300 px-3 py-1.5 rounded-lg font-bold">Menü</button>
+            </div>
+            <div className="bg-slate-900 p-4 rounded-xl border border-slate-800 text-center my-auto">
+              <p className="text-sm text-slate-400">Noch keine gespeicherten Spiele vorhanden.</p>
+              <p className="text-xs text-slate-500 mt-1">Starte ein neues Spiel, um Punkte aufzuzeichnen!</p>
+            </div>
+            <button onClick={() => setScreen('menu')} className="w-full py-3 bg-amber-500 text-slate-950 font-bold rounded-xl">Zurück zum Menü</button>
+          </div>
+        );
+      }
+
+      // ---------------- Spielfeld Ansicht ----------------
+      const humanPlayer = players[0] || {};
 
       return (
-        <div className="flex flex-col h-full max-w-md mx-auto p-3 justify-between bg-slate-950">
-          <div className="flex justify-between items-center bg-slate-900/90 p-3 rounded-xl border border-amber-500/30 shadow-lg">
-            <span className="font-bold text-amber-400 text-sm">Runde {round} / 15</span>
-            <span className="text-xs text-amber-200/80 font-medium">Phase: {phase === 'bidding' ? 'Stich-Ansage' : 'Spielrunde'}</span>
+        <div className="flex flex-col h-full max-w-md mx-auto p-2 justify-between bg-slate-950">
+          {/* Top-Bar */}
+          <div className="flex justify-between items-center mb-1 bg-slate-900/80 p-2 rounded-xl border border-slate-800">
+            <span className="text-xs font-bold text-amber-400">Runde {round} / {maxRounds}</span>
+            <button onClick={() => setScreen('menu')} className="text-[10px] bg-slate-800 text-amber-300 px-2 py-1 rounded font-bold">Menü</button>
           </div>
 
-          <div className="flex-1 my-3 rounded-2xl bg-slate-900/50 border border-slate-800 p-4 flex flex-col justify-between items-center relative shadow-inner">
-            <div className="flex flex-col items-center gap-1.5">
-              <span className="text-[11px] font-bold text-amber-400/90 tracking-widest uppercase">Aufgedeckte Trumpfkarte</span>
-              {trumpCard && <CardFace card={trumpCard} size="lg" disabled />}
+          {/* KI-Gegner Übersicht */}
+          <div className="grid grid-cols-3 gap-1">
+            {players.filter(p => !p.isHuman).map(p => (
+              <div key={p.id} className={`p-1.5 rounded-lg border text-center text-xs ${turn === p.id ? 'border-amber-400 bg-slate-800' : 'border-slate-800 bg-slate-900/60'}`}>
+                <div className="font-bold text-amber-300 truncate">{p.name}</div>
+                <div className="text-[10px] text-slate-300">Ansage: {p.bid !== null ? p.bid : '?'} | Stiche: {p.tricks}</div>
+              </div>
+            ))}
+          </div>
+
+          {/* Spielfeld Tisch */}
+          <div className="flex-1 my-2 rounded-2xl bg-slate-900/50 border border-slate-800 p-2 flex flex-col justify-between items-center relative">
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] font-bold text-amber-400 uppercase">Trumpf:</span>
+              {trumpCard ? <CardFace card={trumpCard} size="sm" disabled /> : <span className="text-xs text-slate-500">Keiner</span>}
             </div>
 
+            {/* Ausgespielte Karten */}
+            <div className="grid grid-cols-2 gap-2 my-auto">
+              {playedCards.map((pc, i) => (
+                <div key={i} className="flex flex-col items-center">
+                  <span className="text-[9px] text-amber-300 mb-0.5">{players[pc.playerId]?.name}</span>
+                  <CardFace card={pc.card} size="sm" disabled />
+                </div>
+              ))}
+            </div>
+
+            {/* Stich-Ansage Overlay */}
             {phase === 'bidding' && (
-              <div className="w-full bg-slate-900/95 border border-amber-500/50 p-3 rounded-2xl flex flex-col items-center gap-2 shadow-2xl backdrop-blur-md">
-                <span className="text-xs font-bold text-amber-300">Stiche für diese Runde vorhersagen:</span>
+              <div className="w-full bg-slate-900/95 border border-amber-500/50 p-3 rounded-2xl flex flex-col items-center gap-2 shadow-2xl backdrop-blur-md z-20">
+                <span className="text-xs font-bold text-amber-300">Deine Stich-Ansage für Runde {round}:</span>
                 <div className="flex gap-2 flex-wrap justify-center">
                   {Array.from({ length: round + 1 }, (_, i) => (
                     <button
                       key={i}
-                      onClick={() => { setMyBid(i); setPhase('playing'); }}
-                      className="w-11 h-11 rounded-full bg-gradient-to-b from-amber-500 to-amber-700 text-slate-950 font-black text-lg shadow-lg border border-amber-300 active:scale-90 transition-transform"
+                      onClick={() => handleHumanBid(i)}
+                      className="w-10 h-10 rounded-full bg-gradient-to-b from-amber-500 to-amber-700 text-slate-950 font-black text-base shadow-lg border border-amber-300 active:scale-90 transition-transform"
                     >
                       {i}
                     </button>
@@ -223,14 +461,24 @@
             )}
           </div>
 
-          <div className="bg-slate-900 p-3 rounded-2xl border border-slate-800 shadow-xl">
-            <div className="flex justify-between items-center mb-2 px-1">
-              <span className="text-xs font-bold text-slate-400">Deine Handkarten:</span>
-              {myBid !== null && <span className="text-xs font-bold text-amber-400">Ansage: {myBid} Stich(e)</span>}
+          {/* Handkarten des Spielers */}
+          <div className="bg-slate-900 p-2 rounded-2xl border border-slate-800 shadow-xl">
+            <div className="flex justify-between items-center mb-1 px-1">
+              <span className="text-xs font-bold text-slate-300">Deine Hand:</span>
+              <span className="text-xs font-bold text-amber-400">
+                Ansage: {humanPlayer.bid !== null ? humanPlayer.bid : '-'} | Stiche: {humanPlayer.tricks}
+              </span>
             </div>
-            <div className="flex gap-2 overflow-x-auto pb-1 justify-center">
-              {playerHand.map((card, i) => (
-                <CardFace key={i} card={card} size="md" />
+
+            <div className="flex gap-1.5 overflow-x-auto pb-1 justify-center">
+              {humanPlayer.hand && humanPlayer.hand.map((card, i) => (
+                <CardFace 
+                  key={i} 
+                  card={card} 
+                  size="md" 
+                  disabled={phase !== 'playing' || turn !== 0}
+                  onClick={() => playCard(0, i)} 
+                />
               ))}
             </div>
           </div>
