@@ -64,7 +64,7 @@
 
     @keyframes elementPodiumGlow {
       0%, 100% { box-shadow: 0 0 35px var(--glow-color), inset 0 0 20px var(--glow-color); }
-      50% { box-shadow: 0 0 60px var(--glow-color), inset 0 0 35px var(--glow-color); }
+      50% { box-shadow: 0 0 65px var(--glow-color), inset 0 0 40px var(--glow-color); }
     }
     .element-podium-active {
       animation: elementPodiumGlow 2.5s infinite ease-in-out;
@@ -78,14 +78,19 @@
       background-image: radial-gradient(circle, rgba(56, 189, 248, 0.25) 15%, transparent 15%);
       background-size: 16px 16px;
     }
+
+    /* NEUES LODERNDES FEUER-PODEST */
     .podium-fire {
-      background: linear-gradient(to bottom, rgba(239, 68, 68, 0.85), rgba(3, 7, 18, 0.95));
+      background: linear-gradient(135deg, rgba(220, 38, 38, 0.95), rgba(185, 28, 28, 0.9), rgba(3, 7, 18, 0.98));
       border: 2px solid #ef4444;
-      clip-path: polygon(10% 0%, 90% 0%, 100% 20%, 95% 100%, 5% 100%, 0% 20%);
-      background-image: repeating-linear-gradient(45deg, rgba(252, 165, 165, 0.2) 0, rgba(252, 165, 165, 0.2) 10px, transparent 10px, transparent 20px);
+      clip-path: polygon(15% 0%, 85% 0%, 100% 25%, 90% 100%, 10% 100%, 0% 25%);
+      background-image: 
+        repeating-linear-gradient(45deg, rgba(252, 165, 165, 0.2) 0, rgba(252, 165, 165, 0.2) 12px, transparent 12px, transparent 24px),
+        radial-gradient(circle at 50% 100%, rgba(245, 158, 11, 0.6) 0%, transparent 70%);
+      background-size: 100% 100%, 100% 100%;
     }
 
-    /* ECHTES DIAMANTEN-KRISTALL-PODEST */
+    /* DIAMANTEN-KRISTALL-PODEST */
     .podium-diamond {
       background: linear-gradient(135deg, rgba(5, 150, 105, 0.95), rgba(4, 120, 87, 0.9), rgba(3, 7, 18, 0.98));
       border: 2px solid #34d399;
@@ -278,12 +283,38 @@
           </svg>
         ) 
       },
-      red: { key: 'red', name: 'Rot', title: 'FEUER', bg: 'from-red-950 via-rose-950 to-slate-950', border: 'border-red-500', art: CardArt.axe, primaryColor: '#ef4444', glowColor: 'rgba(239, 68, 68, 0.7)', podiumClass: 'podium-fire', crownSvg: (
-        <svg viewBox="0 0 100 40" className="w-20 h-10 drop-shadow-[0_0_10px_#ef4444]">
-          <path d="M 10 35 L 15 10 L 30 25 L 50 2 L 70 25 L 85 10 L 90 35 Z" fill="#ef4444" stroke="#fca5a5" strokeWidth="2" />
-          <path d="M 50 12 Q 55 22 50 28 Q 45 22 50 12 Z" fill="#fef08a" />
-        </svg>
-      ) },
+      red: { 
+        key: 'red', 
+        name: 'Rot', 
+        title: 'FEUER', 
+        bg: 'from-red-950 via-rose-950 to-slate-950', 
+        border: 'border-red-500', 
+        art: CardArt.axe, 
+        primaryColor: '#ef4444', 
+        glowColor: 'rgba(239, 68, 68, 0.85)', 
+        podiumClass: 'podium-fire', 
+        // NEUE LODERNDE FLAMMEN-KRINE (Dynamische Flammenzungen und lodernder Kern)
+        crownSvg: (
+          <svg viewBox="0 0 140 60" className="w-28 h-12 drop-shadow-[0_0_20px_#ef4444] animate-pulse">
+            {/* Äußere Flammenzungen */}
+            <path d="M 15 45 Q 25 15 35 30 Q 20 20 15 45 Z" fill="#f59e0b" opacity="0.85" />
+            <path d="M 125 45 Q 115 15 105 30 Q 120 20 125 45 Z" fill="#f59e0b" opacity="0.85" />
+            {/* Große lodernde Zentrale Flamme */}
+            <path d="M 30 50 Q 38 10 55 25 Q 70 -2 85 25 Q 102 10 110 50 Q 90 35 70 48 Q 50 35 30 50 Z" fill="url(#fireGrad)" stroke="#fca5a5" strokeWidth="2" />
+            <defs>
+              <linearGradient id="fireGrad" x1="0%" y1="100%" x2="0%" y2="0%">
+                <stop offset="0%" stopColor="#dc2626" />
+                <stop offset="50%" stopColor="#ef4444" />
+                <stop offset="100%" stopColor="#f59e0b" />
+              </linearGradient>
+            </defs>
+            {/* Glühender Kern / Funken */}
+            <circle cx="70" cy="22" r="5" fill="#fef08a" />
+            <circle cx="50" cy="30" r="2.5" fill="#fef08a" />
+            <circle cx="90" cy="30" r="2.5" fill="#fef08a" />
+          </svg>
+        ) 
+      },
       green: { 
         key: 'green', 
         name: 'Grün', 
@@ -294,13 +325,10 @@
         primaryColor: '#10b981', 
         glowColor: 'rgba(16, 185, 129, 0.8)', 
         podiumClass: 'podium-diamond', 
-        // NEUE DIAMANTEN-KRISTALL-KRONE (Facettierter Edelstein-Look mit funkelnden Kristallspitzen)
         crownSvg: (
           <svg viewBox="0 0 140 60" className="w-28 h-12 drop-shadow-[0_0_18px_#10b981] animate-pulse">
-            {/* Funkelnde Seitenkristalle */}
             <polygon points="15,42 30,20 45,42" fill="#34d399" stroke="#a7f3d0" strokeWidth="1.5" />
             <polygon points="95,42 110,20 125,42" fill="#34d399" stroke="#a7f3d0" strokeWidth="1.5" />
-            {/* Großer Haupt-Diamant in der Mitte */}
             <polygon points="35,48 55,10 85,10 105,48 70,55" fill="url(#diamondGrad)" stroke="#6ee7b7" strokeWidth="2" />
             <polygon points="55,10 70,30 85,10" fill="#a7f3d0" opacity="0.8" />
             <polygon points="35,48 70,30 55,10" fill="#059669" opacity="0.6" />
@@ -314,7 +342,6 @@
                 <stop offset="100%" stopColor="#047857" />
               </linearGradient>
             </defs>
-            {/* Glanzpunkte / Lichtreflexe */}
             <circle cx="70" cy="20" r="3" fill="#fff" />
             <circle cx="30" cy="15" r="1.5" fill="#fff" />
             <circle cx="110" cy="15" r="1.5" fill="#fff" />
@@ -1047,7 +1074,7 @@
               </div>
 
               <span className="text-[9px] text-center text-slate-300 font-bold block mt-2 drop-shadow bg-slate-950/70 py-1 rounded-full backdrop-blur-md border border-sky-500/30">
-                MYTHOS CARD GAME V10.10 (DIAMOND CRYSTAL & CROWN UPDATE)
+                MYTHOS CARD GAME V10.11 (FIRE FLAME & PODIUM UPDATE)
               </span>
             </div>
           </div>
@@ -1496,7 +1523,7 @@
                       </div>
                     </div>
                     
-                    {/* ELEMENT-PODEST (DIAMANT, TORNADO ODER STANDARD) */}
+                    {/* ELEMENT-PODEST (FEUER, DIAMANT, TORNADO ODER STANDARD) */}
                     <div 
                       className={`w-48 h-20 mt-[-16px] flex flex-col items-center justify-center element-podium-active z-10 ${suitTheme.podiumClass} ${winnerSuitKey === 'yellow' ? 'animate-tornado' : ''}`}
                       style={{ '--glow-color': suitTheme.glowColor }}
