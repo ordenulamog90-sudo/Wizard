@@ -134,14 +134,12 @@
     }
 
     function App() {
-      const [screen, setScreen] = useState('menu'); // 'menu', 'game', 'rules', 'stats'
+      const [screen, setScreen] = useState('menu');
       
-      // Menü-Einstellungen
       const [playerCount, setPlayerCount] = useState(4);
       const [maxRounds, setMaxRounds] = useState(15);
       const [difficulty, setDifficulty] = useState('Normal');
 
-      // Spielzustand
       const [round, setRound] = useState(1);
       const [phase, setPhase] = useState('bidding');
       const [players, setPlayers] = useState([]);
@@ -149,7 +147,6 @@
       const [playedCards, setPlayedCards] = useState([]);
       const [turn, setTurn] = useState(0);
 
-      // Neues Spiel aus dem Menü starten
       const startNewGame = () => {
         const initialPlayers = [
           { id: 0, name: 'Du', isHuman: true, bid: null, tricks: 0, score: 0, hand: [] }
@@ -193,7 +190,6 @@
 
         const trump = deck.length > 0 ? deck[0] : null;
 
-        // KI-Ansagen
         newPlayers.forEach(p => {
           if (!p.isHuman) {
             let kiBid = 0;
@@ -242,12 +238,48 @@
         }
       }, [screen, phase, turn, playedCards]);
 
+      // KORREKTE WIZARD-STICHAUSWERTUNG
       const evaluateTrick = (cardsOnTable) => {
-        let winnerId = cardsOnTable[0].playerId;
-        const wizIndex = cardsOnTable.findIndex(c => c.card.type === 'wizard');
-        if (wizIndex !== -1) {
-          winnerId = cardsOnTable[wizIndex].playerId;
+        let winningCardObj = cardsOnTable[0];
+
+        // 1. Erster Zauberer gewinnt sofort
+        const firstWizard = cardsOnTable.find(c => c.card.type === 'wizard');
+        if (firstWizard) {
+          winningCardObj = firstWizard;
+        } else {
+          // Anspiel-Farbe ermitteln (erste Farbkarte nach eventuellen Narren)
+          const leadCardObj = cardsOnTable.find(c => c.card.type === 'number');
+          const leadSuit = leadCardObj ? leadCardObj.card.suit : null;
+          const trumpSuit = (trumpCard && trumpCard.type === 'number') ? trumpCard.suit : null;
+
+          let highestRank = -1;
+
+          cardsOnTable.forEach(c => {
+            const card = c.card;
+            if (card.type === 'number') {
+              let rank = 0;
+              // Trumpfschlag
+              if (trumpSuit && card.suit === trumpSuit) {
+                rank = 200 + card.value;
+              } 
+              // Anspielfarbe bedient
+              else if (leadSuit && card.suit === leadSuit) {
+                rank = 100 + card.value;
+              } 
+              // Fehlfarbe
+              else {
+                rank = card.value;
+              }
+
+              if (rank > highestRank) {
+                highestRank = rank;
+                winningCardObj = c;
+              }
+            }
+          });
         }
+
+        const winnerId = winningCardObj.playerId;
 
         setPlayers(prev => prev.map(p => p.id === winnerId ? { ...p, tricks: p.tricks + 1 } : p));
         setPlayedCards([]);
@@ -268,7 +300,6 @@
         }
       };
 
-      // ---------------- Hauptmenü Ansicht ----------------
       if (screen === 'menu') {
         return (
           <div className="flex flex-col h-full max-w-md mx-auto p-4 justify-between bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950">
@@ -278,7 +309,6 @@
               </h1>
               <p className="text-xs text-amber-400/70 font-semibold tracking-widest uppercase mb-8">Das magische Karten-Duell</p>
 
-              {/* Optionen-Box */}
               <div className="bg-slate-900/80 border border-amber-500/30 p-4 rounded-2xl shadow-2xl flex flex-col gap-4 text-left backdrop-blur-sm">
                 <div>
                   <label className="text-xs font-bold text-amber-300 block mb-1">Spieleranzahl:</label>
@@ -326,7 +356,6 @@
                 </div>
               </div>
 
-              {/* Hauptmenü Buttons */}
               <div className="flex flex-col gap-3 mt-8">
                 <button
                   onClick={startNewGame}
@@ -351,12 +380,11 @@
               </div>
             </div>
             
-            <span className="text-[10px] text-center text-slate-600">Wizard Digital v1.2 • PWA Web App</span>
+            <span className="text-[10px] text-center text-slate-600">Wizard Digital v1.3 • Rules Fixed</span>
           </div>
         );
       }
 
-      // ---------------- Regeln Ansicht ----------------
       if (screen === 'rules') {
         return (
           <div className="flex flex-col h-full max-w-md mx-auto p-4 justify-between bg-slate-950 overflow-y-auto">
@@ -375,7 +403,7 @@
               </div>
               <div className="bg-slate-900 p-3 rounded-xl border border-slate-800">
                 <h3 className="font-bold text-amber-300 mb-1">3. Die Narren (N)</h3>
-                <p>Der Narr verliert immer den Stich. Er hat den Wert Null.</p>
+                <p>Der Narr verliert immer den Stich. Er hat den Wert Null und kann keinen Stich gewinnen.</p>
               </div>
               <div className="bg-slate-900 p-3 rounded-xl border border-slate-800">
                 <h3 className="font-bold text-amber-300 mb-1">4. Bedienen & Trumpf</h3>
@@ -387,7 +415,6 @@
         );
       }
 
-      // ---------------- Statistiken Ansicht ----------------
       if (screen === 'stats') {
         return (
           <div className="flex flex-col h-full max-w-md mx-auto p-4 justify-between bg-slate-950">
@@ -404,18 +431,15 @@
         );
       }
 
-      // ---------------- Spielfeld Ansicht ----------------
       const humanPlayer = players[0] || {};
 
       return (
         <div className="flex flex-col h-full max-w-md mx-auto p-2 justify-between bg-slate-950">
-          {/* Top-Bar */}
           <div className="flex justify-between items-center mb-1 bg-slate-900/80 p-2 rounded-xl border border-slate-800">
             <span className="text-xs font-bold text-amber-400">Runde {round} / {maxRounds}</span>
             <button onClick={() => setScreen('menu')} className="text-[10px] bg-slate-800 text-amber-300 px-2 py-1 rounded font-bold">Menü</button>
           </div>
 
-          {/* KI-Gegner Übersicht */}
           <div className="grid grid-cols-3 gap-1">
             {players.filter(p => !p.isHuman).map(p => (
               <div key={p.id} className={`p-1.5 rounded-lg border text-center text-xs ${turn === p.id ? 'border-amber-400 bg-slate-800' : 'border-slate-800 bg-slate-900/60'}`}>
@@ -425,14 +449,12 @@
             ))}
           </div>
 
-          {/* Spielfeld Tisch */}
           <div className="flex-1 my-2 rounded-2xl bg-slate-900/50 border border-slate-800 p-2 flex flex-col justify-between items-center relative">
             <div className="flex items-center gap-2">
               <span className="text-[10px] font-bold text-amber-400 uppercase">Trumpf:</span>
               {trumpCard ? <CardFace card={trumpCard} size="sm" disabled /> : <span className="text-xs text-slate-500">Keiner</span>}
             </div>
 
-            {/* Ausgespielte Karten */}
             <div className="grid grid-cols-2 gap-2 my-auto">
               {playedCards.map((pc, i) => (
                 <div key={i} className="flex flex-col items-center">
@@ -442,7 +464,6 @@
               ))}
             </div>
 
-            {/* Stich-Ansage Overlay */}
             {phase === 'bidding' && (
               <div className="w-full bg-slate-900/95 border border-amber-500/50 p-3 rounded-2xl flex flex-col items-center gap-2 shadow-2xl backdrop-blur-md z-20">
                 <span className="text-xs font-bold text-amber-300">Deine Stich-Ansage für Runde {round}:</span>
@@ -461,7 +482,6 @@
             )}
           </div>
 
-          {/* Handkarten des Spielers */}
           <div className="bg-slate-900 p-2 rounded-2xl border border-slate-800 shadow-xl">
             <div className="flex justify-between items-center mb-1 px-1">
               <span className="text-xs font-bold text-slate-300">Deine Hand:</span>
