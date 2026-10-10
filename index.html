@@ -279,7 +279,7 @@
       const [diceTimer, setDiceTimer] = useState(20);
       const [resultTimer, setResultTimer] = useState(10);
 
-      const [biddingTimer, setBiddingTimer] = useState(10);
+      const [biddingTimer, setBiddingTimer] = useState(20); // AUF 20 SEKUNDEN ERHÖHT
       const [turnTimer, setTurnTimer] = useState(20);
 
       const [roundSummary, setRoundSummary] = useState(null);
@@ -322,7 +322,7 @@
         return () => clearInterval(interval);
       }, [showDiceModal, diceRolls, isDiceRolling]);
 
-      // Timer 3: Stich-Ansage Timer (10s)
+      // Timer 3: Stich-Ansage Timer (AUF 20 SEKUNDEN ANGEPASST)
       useEffect(() => {
         let interval = null;
         if (screen === 'game' && phase === 'bidding' && !showDiceModal && !roundSummary && !victoryData) {
@@ -330,7 +330,7 @@
             setBiddingTimer(prev => {
               if (prev <= 1) {
                 handleHumanBid(0);
-                return 10;
+                return 20;
               }
               return prev - 1;
             });
@@ -481,7 +481,7 @@
         setTurn(startingPlayerIdx);
         isEvaluatingRef.current = false;
         isProcessingClickRef.current = false;
-        setBiddingTimer(10);
+        setBiddingTimer(20); // NEU: 20 SEKUNDEN
         setTurnTimer(20);
 
         let rawDeck = [];
@@ -724,7 +724,7 @@
                 </button>
               </div>
 
-              <span className="text-[10px] text-center text-slate-600 block mt-2">Mythos Card Game v4.7 • Embedded Dice Timer & Result Button</span>
+              <span className="text-[10px] text-center text-slate-600 block mt-2">Mythos Card Game v4.8 • 20s Bidding Timer Update</span>
             </div>
           </div>
         );
@@ -948,7 +948,6 @@
                   </div>
                 )}
 
-                {/* DIGITALE INFOBOX MIT DIREKT EINGEBETTETEM BUTTON UND TIMER */}
                 {diceRolls && (
                   <div className="w-full bg-slate-900 border border-slate-800 p-3 rounded-2xl space-y-2 text-xs shadow-2xl animate-fadeIn">
                     <div className="font-bold text-sky-300 border-b border-slate-800 pb-1 text-xs">Augenzahlen aller Spieler:</div>
@@ -965,7 +964,6 @@
                       🏆 {players[diceWinner]?.name} gewinnt und beginnt Runde 1!
                     </div>
 
-                    {/* BUTTON MIT DIREKT KOPPELTEM COUNTDOWN-TIMER DIREKT UNTER DEM ERGEBNIS */}
                     <div className="pt-2 flex flex-col items-center gap-1 border-t border-slate-800 mt-2">
                       <button
                         onClick={(e) => { e.stopPropagation(); startRoundAfterDice(); }}
@@ -1125,7 +1123,7 @@
               ))}
             </div>
 
-            {/* STICH ANSAGE MODAL MIT 10S TIMER */}
+            {/* STICH ANSAGE MODAL MIT 20S TIMER */}
             {phase === 'bidding' && !showDiceModal && !roundSummary && !victoryData && (
               <div className="w-full bg-slate-900/95 border border-sky-500/50 p-3 rounded-2xl flex flex-col items-center gap-2 shadow-2xl backdrop-blur-md z-20">
                 <div className="flex justify-between items-center w-full px-1">
