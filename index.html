@@ -50,6 +50,16 @@
       box-shadow: 0 0 15px rgba(56, 189, 248, 0.6);
       transform: scale(1.05);
     }
+
+    /* Würfel Animation CSS */
+    @keyframes rollDice {
+      0% { transform: rotate(0deg) scale(0.5); opacity: 0; }
+      50% { transform: rotate(720deg) scale(1.3); opacity: 1; }
+      100% { transform: rotate(1080deg) scale(1); opacity: 1; }
+    }
+    .animate-dice-roll {
+      animation: rollDice 1.2s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+    }
   </style>
 </head>
 <body class="h-screen w-screen overflow-hidden">
@@ -229,6 +239,11 @@
       const [playedCards, setPlayedCards] = useState([]);
       const [turn, setTurn] = useState(0);
 
+      // Neue States für Würfel-Animation & Rundenabrechnung
+      const [rollingDice, setRollingDice] = useState(false);
+      const [diceResult, setDiceResult] = useState(null);
+      const [roundSummary, setRoundSummary] = useState(null);
+
       const startNewGame = () => {
         const initialPlayers = [
           { id: 0, name: profile.name, isHuman: true, bid: null, tricks: 0, score: 0, hand: [] }
@@ -246,14 +261,32 @@
         }
         setPlayers(initialPlayers);
         setScreen('game');
-        startRound(1, initialPlayers);
+
+        // Runde 1 starten mit Würfel-Animation!
+        triggerDiceStart(1, initialPlayers);
       };
 
-      const startRound = (rNum, currentPlayers) => {
+      const triggerDiceStart = (rNum, currentPlayers) => {
+        setRollingDice(true);
+        setDiceResult(null);
+
+        setTimeout(() => {
+          // Erster Startspieler per Würfelwurf (0 bis playerCount - 1)
+          const winningStarter = Math.floor(Math.random() * currentPlayers.length);
+          setDiceResult(winningStarter);
+
+          setTimeout(() => {
+            setRollingDice(false);
+            startRound(rNum, currentPlayers, winningStarter);
+          }, 1500);
+        }, 1200);
+      };
+
+      const startRound = (rNum, currentPlayers, startingPlayerIdx) => {
         setRound(rNum);
         setPhase('bidding');
         setPlayedCards([]);
-        setTurn(0);
+        setTurn(startingPlayerIdx);
 
         let deck = [];
         const suits = ['yellow', 'red', 'green', 'blue'];
@@ -270,7 +303,6 @@
           return { ...p, hand, bid: null, tricks: 0 };
         });
 
-        // Aufgedeckte Trumpfkarte vorbereiten
         const trump = deck.length > 0 ? deck[0] : null;
 
         newPlayers.forEach(p => {
@@ -310,7 +342,7 @@
       };
 
       useEffect(() => {
-        if (screen === 'game' && phase === 'playing' && turn !== 0 && playedCards.length < players.length) {
+        if (screen === 'game' && phase === 'playing' && turn !== 0 && playedCards.length < players.length && !rollingDice && !roundSummary) {
           const timer = setTimeout(() => {
             const ki = players[turn];
             if (ki && ki.hand.length > 0) {
@@ -319,9 +351,8 @@
           }, 800);
           return () => clearTimeout(timer);
         }
-      }, [screen, phase, turn, playedCards]);
+      }, [screen, phase, turn, playedCards, rollingDice, roundSummary]);
 
-      // KORRIGIERTE STICH-LOGIK: Aufgedeckter Trumpf bleibt immer die stärkste Farbe!
       const evaluateTrick = (cardsOnTable) => {
         let winningCardObj = cardsOnTable[0];
 
@@ -331,8 +362,6 @@
         } else {
           const leadCardObj = cardsOnTable.find(c => c.card.type === 'number');
           const leadSuit = leadCardObj ? leadCardObj.card.suit : null;
-          
-          // Trumpffarbe von der aufgedeckten Karte
           const trumpSuit = (trumpCard && trumpCard.type === 'number') ? trumpCard.suit : null;
 
           let highestRank = -1;
@@ -341,16 +370,11 @@
             const card = c.card;
             if (card.type === 'number') {
               let rank = 0;
-              // Trumpf schlägt alles (Rang 200+)
               if (trumpSuit && card.suit === trumpSuit) {
                 rank = 200 + card.value;
-              } 
-              // Angespielte Farbe bedient (Rang 100+)
-              else if (leadSuit && card.suit === leadSuit) {
+              } else if (leadSuit && card.suit === leadSuit) {
                 rank = 100 + card.value;
-              } 
-              // Abgeworfen (Rang < 100, verliert)
-              else {
+              } else {
                 rank = card.value;
               }
 
@@ -364,25 +388,76 @@
 
         const winnerId = winningCardObj.playerId;
 
-        setPlayers(prev => prev.map(p => p.id === winnerId ? { ...p, tricks: p.tricks + 1 } : p));
+        const updatedPlayers = players.map(p => p.id === winnerId ? { ...p, tricks: p.tricks + 1 } : p);
+        setPlayers(updatedPlayers);
         setPlayedCards([]);
 
-        const human = players[0];
+        const human = updatedPlayers[0];
         if (human.hand.length === 0) {
-          setTimeout(() => {
-            if (round < maxRounds) {
-              alert(`Runde ${round} beendet! Weiter zu Runde ${round + 1}.`);
-              startRound(round + 1, players);
-            } else {
-              alert("Spiel beendet! Danke fürs Spielen.");
-              const updatedProfile = { ...profile, gamesPlayed: profile.gamesPlayed + 1, xp: profile.xp + 50 };
-              setProfile(updatedProfile);
-              localStorage.setItem('wizard_profile', JSON.stringify(updatedProfile));
-              setScreen('menu');
-            }
-          }, 500);
+          // RUNDENENDE: Punkte berechnen & Besten Schätzer ermitteln
+          setTimeout(() => handleRoundEnd(updatedPlayers), 500);
         } else {
           setTurn(winnerId);
+        }
+      };
+
+      // Punkte-Berechnung und Ermittlung des besten Schätzers
+      const handleRoundEnd = (currentPlayers) => {
+        let bestGuessers = [];
+        let minDiff = 999;
+
+        const calculated = currentPlayers.map(p => {
+          const diff = Math.abs(p.bid - p.tricks);
+          let pointsGained = 0;
+
+          if (diff === 0) {
+            pointsGained = 20 + (p.tricks * 10);
+          } else {
+            pointsGained = -(diff * 10);
+          }
+
+          if (diff < minDiff) {
+            minDiff = diff;
+            bestGuessers = [p.id];
+          } else if (diff === minDiff) {
+            bestGuessers.push(p.id);
+          }
+
+          return {
+            ...p,
+            score: p.score + pointsGained,
+            pointsGained
+          };
+        });
+
+        // Bei Gleichstand entscheidet der Zufall unter den besten Schätzern
+        const nextRoundStarter = bestGuessers[Math.floor(Math.random() * bestGuessers.length)];
+
+        setRoundSummary({
+          round,
+          calculatedPlayers: calculated,
+          nextStarterId: nextRoundStarter
+        });
+      };
+
+      const proceedToNextRound = () => {
+        if (!roundSummary) return;
+
+        const updated = roundSummary.calculatedPlayers;
+        const nextStarter = roundSummary.nextStarterId;
+        const nextR = round + 1;
+
+        setPlayers(updated);
+        setRoundSummary(null);
+
+        if (nextR <= maxRounds) {
+          startRound(nextR, updated, nextStarter);
+        } else {
+          alert("Spiel beendet! Danke fürs Spielen.");
+          const updatedProfile = { ...profile, gamesPlayed: profile.gamesPlayed + 1, xp: profile.xp + 50 };
+          setProfile(updatedProfile);
+          localStorage.setItem('wizard_profile', JSON.stringify(updatedProfile));
+          setScreen('menu');
         }
       };
 
@@ -424,7 +499,7 @@
                 </button>
               </div>
 
-              <span className="text-[10px] text-center text-slate-600 block mt-2">Mythos Card Game v3.1</span>
+              <span className="text-[10px] text-center text-slate-600 block mt-2">Mythos Card Game v3.2 • Dice & Scores</span>
             </div>
           </div>
         );
@@ -599,20 +674,16 @@
             </div>
             <div className="space-y-3 text-xs text-slate-300 leading-relaxed">
               <div className="bg-slate-900 p-3 rounded-xl border border-slate-800">
-                <h3 className="font-bold text-sky-300 mb-1">1. Vorhersage & Stich-Ansage</h3>
-                <p>Sage in jeder Runde voraus, wie viele Stiche du mit deinen Handkarten erzielen wirst.</p>
+                <h3 className="font-bold text-sky-300 mb-1">1. Startspieler & Schätzer</h3>
+                <p>In Runde 1 entscheidet ein magischer Würfelwurf, wer anfängt. Ab Runde 2 darf immer der beste Schätzer der Vorrunde den ersten Stich spielen!</p>
               </div>
               <div className="bg-slate-900 p-3 rounded-xl border border-slate-800">
                 <h3 className="font-bold text-sky-300 mb-1">2. Die Aufgedeckte Trumpffarbe</h3>
-                <p>Die aufgedeckte Karte bestimmt die Trumpffarbe der Runde. Diese Farbe sticht alle anderen Farben aus – auch wenn eine andere Farbe angespielt wurde!</p>
+                <p>Die aufgedeckte Karte bestimmt die Trumpffarbe der Runde. Diese Farbe sticht alle anderen Farben aus.</p>
               </div>
               <div className="bg-slate-900 p-3 rounded-xl border border-slate-800">
-                <h3 className="font-bold text-sky-300 mb-1">3. Die Zauberer (Z)</h3>
-                <p>Ein Zauberer gewinnt immer den Stich, egal welche Farbe zuvor ausgespielt wurde.</p>
-              </div>
-              <div className="bg-slate-900 p-3 rounded-xl border border-slate-800">
-                <h3 className="font-bold text-sky-300 mb-1">4. Die Narren (N)</h3>
-                <p>Der Narr verliert immer den Stich (Wert 0).</p>
+                <h3 className="font-bold text-sky-300 mb-1">3. Zauberer & Narren</h3>
+                <p>Zauberer (Z) gewinnt immer. Narr (N) verliert immer.</p>
               </div>
             </div>
             <button onClick={() => setScreen('menu')} className="mt-4 w-full py-3 mythic-btn-primary text-white font-bold rounded-xl">Zurück zum Menü</button>
@@ -624,21 +695,75 @@
       const humanPlayer = players[0] || {};
 
       return (
-        <div className="flex flex-col h-full max-w-md mx-auto p-2 justify-between bg-slate-950">
+        <div className="flex flex-col h-full max-w-md mx-auto p-2 justify-between bg-slate-950 relative overflow-hidden">
+          
+          {/* WÜRFEL ANIMATION OVERLAY */}
+          {rollingDice && (
+            <div className="absolute inset-0 bg-slate-950/90 backdrop-blur-md z-50 flex flex-col items-center justify-center p-4 text-center">
+              <div className="text-6xl my-4 animate-dice-roll">🎲</div>
+              <h2 className="text-xl font-black text-sky-300 mb-1">Magischer Würfelwurf</h2>
+              <p className="text-xs text-slate-400">Wer eröffnet das erste Duell?</p>
+              {diceResult !== null && (
+                <div className="mt-4 bg-sky-950 border border-sky-400 text-sky-200 px-4 py-2 rounded-xl font-bold text-sm animate-bounce">
+                  ✨ {players[diceResult]?.name} eröffnet die 1. Runde!
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* RUNDENABRECHNUNG POPUP */}
+          {roundSummary && (
+            <div className="absolute inset-0 bg-slate-950/95 backdrop-blur-md z-50 flex flex-col items-center justify-between p-4">
+              <h2 className="text-xl font-black text-sky-300 mt-2">Ergebnis Runde {roundSummary.round}</h2>
+              
+              <div className="w-full space-y-2 my-auto">
+                {roundSummary.calculatedPlayers.map(p => (
+                  <div key={p.id} className="bg-slate-900 border border-slate-800 p-3 rounded-xl flex justify-between items-center text-xs">
+                    <div>
+                      <div className="font-bold text-sky-200">{p.name}</div>
+                      <div className="text-[10px] text-slate-400">Stiche: {p.tricks} (Ansage: {p.bid})</div>
+                    </div>
+                    <div className="text-right">
+                      <div className={`font-extrabold ${p.pointsGained >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
+                        {p.pointsGained >= 0 ? `+${p.pointsGained}` : p.pointsGained} Ptn
+                      </div>
+                      <div className="text-[10px] font-bold text-amber-300">Gesamt: {p.score}</div>
+                    </div>
+                  </div>
+                ))}
+
+                <div className="bg-sky-950/80 border border-sky-400/50 p-2.5 rounded-xl text-center text-xs text-sky-200 mt-3 font-bold">
+                  👑 Bester Schätzer: {roundSummary.calculatedPlayers.find(p => p.id === roundSummary.nextStarterId)?.name} beginnt Runde {round + 1}!
+                </div>
+              </div>
+
+              <button 
+                onClick={proceedToNextRound} 
+                className="w-full py-3.5 mythic-btn-primary text-white font-black text-sm rounded-2xl shadow-2xl active:scale-95 transition-transform mb-2"
+              >
+                Nächste Runde starten ⚔️
+              </button>
+            </div>
+          )}
+
+          {/* TOP BAR */}
           <div className="flex justify-between items-center mb-1 bg-slate-900/80 p-2 rounded-xl border border-slate-800">
             <span className="text-xs font-bold text-sky-400">Runde {round} / {maxRounds}</span>
             <button onClick={() => setScreen('menu')} className="text-[10px] bg-slate-800 text-sky-300 px-2 py-1 rounded font-bold">Menü</button>
           </div>
 
+          {/* KI GEGNER MIT PUNKTESTAND */}
           <div className="grid grid-cols-3 gap-1">
             {players.filter(p => !p.isHuman).map(p => (
               <div key={p.id} className={`p-1.5 rounded-lg border text-center text-xs ${turn === p.id ? 'border-sky-400 bg-slate-800' : 'border-slate-800 bg-slate-900/60'}`}>
                 <div className="font-bold text-sky-300 truncate">{p.name}</div>
-                <div className="text-[10px] text-slate-300">Ansage: {p.bid !== null ? p.bid : '?'} | Stiche: {p.tricks}</div>
+                <div className="text-[10px] font-bold text-amber-400">{p.score} Ptn</div>
+                <div className="text-[9px] text-slate-300">Ansage: {p.bid !== null ? p.bid : '?'} | Stiche: {p.tricks}</div>
               </div>
             ))}
           </div>
 
+          {/* MITTE / SPIELFELD */}
           <div className="flex-1 my-2 rounded-2xl bg-slate-900/50 border border-slate-800 p-2 flex flex-col justify-between items-center relative">
             <div className="flex items-center gap-2">
               <span className="text-[10px] font-bold text-sky-400 uppercase">Trumpf:</span>
@@ -654,7 +779,7 @@
               ))}
             </div>
 
-            {phase === 'bidding' && (
+            {phase === 'bidding' && !rollingDice && (
               <div className="w-full bg-slate-900/95 border border-sky-500/50 p-3 rounded-2xl flex flex-col items-center gap-2 shadow-2xl backdrop-blur-md z-20">
                 <span className="text-xs font-bold text-sky-300">Deine Stich-Ansage für Runde {round}:</span>
                 <div className="flex gap-2 flex-wrap justify-center">
@@ -672,9 +797,15 @@
             )}
           </div>
 
+          {/* SPIELER HAND & GESAMTPUNKTE */}
           <div className="bg-slate-900 p-2 rounded-2xl border border-slate-800 shadow-xl">
             <div className="flex justify-between items-center mb-1 px-1">
-              <span className="text-xs font-bold text-slate-300">Deine Hand:</span>
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-bold text-slate-300">Deine Hand:</span>
+                <span className="text-xs font-extrabold text-amber-400 bg-amber-950/60 px-2 py-0.5 rounded-md border border-amber-500/30">
+                  {humanPlayer.score || 0} Ptn
+                </span>
+              </div>
               <span className="text-xs font-bold text-sky-400">
                 Ansage: {humanPlayer.bid !== null ? humanPlayer.bid : '-'} | Stiche: {humanPlayer.tricks}
               </span>
