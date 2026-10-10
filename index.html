@@ -97,7 +97,7 @@
       return { valid: true, error: '' };
     };
 
-    // FISHER-YATES SHUFFLE ALGORITHMUS FÜR ECHTES ZUFÄLLIGES MISCHEN
+    // FISHER-YATES SHUFFLE ALGORITHMUS
     const shuffleArray = (array) => {
       const shuffled = [...array];
       for (let i = shuffled.length - 1; i > 0; i--) {
@@ -428,6 +428,7 @@
         setResultTimer(10);
       };
 
+      // GARANTIERT ECHTES DYNAMISCHES WÜRFELN
       const handleUserRollDice = () => {
         if (isDiceRolling || diceRolls) return;
 
@@ -452,7 +453,8 @@
         }, 800);
       };
 
-      const handleDiceOverlayClick = () => {
+      const handleDiceOverlayClick = (e) => {
+        e.stopPropagation();
         if (!diceRolls && !isDiceRolling) {
           handleUserRollDice();
         } else if (diceRolls && !isDiceRolling) {
@@ -462,7 +464,7 @@
 
       const startRoundAfterDice = () => {
         setShowDiceModal(false);
-        startRound(1, players, diceWinner);
+        startRound(1, players, diceWinner !== null ? diceWinner : 0);
       };
 
       const startRound = (rNum, currentPlayers, startingPlayerIdx) => {
@@ -475,7 +477,6 @@
         setBiddingTimer(10);
         setTurnTimer(20);
 
-        // KARTENDECKE ERSTELLEN
         let rawDeck = [];
         const suits = ['yellow', 'red', 'green', 'blue'];
         const roundSeed = Date.now();
@@ -488,7 +489,6 @@
         for(let i=0; i<4; i++) rawDeck.push({ type: 'wizard', id: `w_${i}_${roundSeed}_${Math.random()}` });
         for(let i=0; i<4; i++) rawDeck.push({ type: 'jester', id: `j_${i}_${roundSeed}_${Math.random()}` });
 
-        // FISHER-YATES SHUFFLE FÜR ECHTE UND DYNAMISCHE DURCHMISCHUNG
         let deck = shuffleArray(rawDeck);
 
         const newPlayers = currentPlayers.map(p => {
@@ -717,7 +717,7 @@
                 </button>
               </div>
 
-              <span className="text-[10px] text-center text-slate-600 block mt-2">Mythos Card Game v4.4 • Fisher-Yates Deck Shuffle Engine</span>
+              <span className="text-[10px] text-center text-slate-600 block mt-2">Mythos Card Game v4.5 • Dice Timer & True Random Fix</span>
             </div>
           </div>
         );
@@ -912,7 +912,7 @@
       return (
         <div className="flex flex-col h-full max-w-md mx-auto p-2 justify-between bg-slate-950 relative overflow-hidden">
           
-          {/* INTERAKTIVES WÜRFEL MODAL */}
+          {/* INTERAKTIVES WÜRFEL MODAL MIT TIMER BUTTON */}
           {showDiceModal && (
             <div 
               onClick={handleDiceOverlayClick}
@@ -960,16 +960,20 @@
                 )}
               </div>
 
+              {/* TIMER-BUTTON NACH DEM WÜRFELN (SICHTBAR) */}
               {diceRolls ? (
-                <div className="w-full flex flex-col items-center gap-1 mb-2">
+                <div className="w-full flex flex-col items-center gap-1.5 mb-2 z-10">
                   <button
-                    onClick={startRoundAfterDice}
-                    className="w-full py-3.5 mythic-btn-primary text-white font-black text-sm rounded-2xl shadow-2xl active:scale-95 transition-transform"
+                    onClick={(e) => { e.stopPropagation(); startRoundAfterDice(); }}
+                    className="w-full py-3.5 mythic-btn-primary text-white font-black text-sm rounded-2xl shadow-2xl active:scale-95 transition-transform flex items-center justify-center gap-2"
                   >
-                    Weiter zum Spiel ⚔️
+                    <span>Weiter zum Spiel ⚔️</span>
+                    <span className="bg-sky-950/80 border border-sky-400/60 px-2 py-0.5 rounded-lg text-xs font-bold text-amber-300">
+                      ⏱️ {resultTimer}s
+                    </span>
                   </button>
-                  <span className="text-[11px] text-sky-400 font-extrabold">
-                    ⏱️ Auto-Weiter in {resultTimer}s
+                  <span className="text-[10px] text-slate-400 font-bold">
+                    Tippe irgendwo auf den Bildschirm oder warte {resultTimer}s
                   </span>
                 </div>
               ) : (
@@ -1010,7 +1014,7 @@
               {/* BUTTON & SICHTBARER COUNTDOWN-TIMER */}
               <div className="w-full flex flex-col items-center gap-1.5 mb-3">
                 <button 
-                  onClick={proceedToNextRound} 
+                  onClick={(e) => { e.stopPropagation(); proceedToNextRound(); }}
                   className="w-full py-4 mythic-btn-primary text-white font-black text-base rounded-2xl shadow-2xl active:scale-95 transition-transform flex items-center justify-center gap-2"
                 >
                   <span>Nächste Runde starten ⚔️</span>
@@ -1078,7 +1082,7 @@
             </div>
           )}
 
-          {/* TOP BAR MIT ZUG-TIMER (NUR FÜR MENSCHLICHEN SPIELER SICHTBAR) */}
+          {/* TOP BAR MIT ZUG-TIMER */}
           <div className="flex justify-between items-center mb-1 bg-slate-900/80 p-2 rounded-xl border border-slate-800">
             <span className="text-xs font-bold text-sky-400">Runde {round} / {maxRounds}</span>
             
