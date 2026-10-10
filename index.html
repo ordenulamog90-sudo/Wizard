@@ -195,10 +195,8 @@
       blue: { key: 'blue', name: 'Blau', title: 'WASSER', bg: 'from-blue-950 via-sky-950 to-slate-950', border: 'border-blue-400', art: CardArt.dagger }
     };
 
-    // NEUE, HOCHWERTIGE TCG ELEMENT-GRAFIK-ANIMATIONEN (Exakt auf die Elemente abgestimmt)
     const renderTcgElementAnimation = (card) => {
       if (card.type === 'wizard') {
-        // Arkan-Magie: Rotierende Zauberkreise & Pentagramm-Runen
         return (
           <div className="tcg-element-vfx text-purple-400 flex items-center justify-center">
             <svg className="w-36 h-36" viewBox="0 0 100 100" fill="none" stroke="currentColor" strokeWidth="2.5">
@@ -210,7 +208,6 @@
         );
       }
       if (card.type === 'jester') {
-        // Chaos / Narr: Verspielte wirbelnde Portale
         return (
           <div className="tcg-element-vfx text-pink-500 flex items-center justify-center">
             <svg className="w-36 h-36" viewBox="0 0 100 100" fill="none" stroke="currentColor" strokeWidth="3">
@@ -221,7 +218,6 @@
         );
       }
       if (card.suit === 'green') {
-        // Diamanten / Erde: Ausbrechende Kristall-Facetten & grüne Edelstein-Matrix
         return (
           <div className="tcg-element-vfx text-emerald-400 flex items-center justify-center">
             <svg className="w-36 h-36" viewBox="0 0 100 100" fill="none" stroke="currentColor" strokeWidth="3">
@@ -234,7 +230,6 @@
         );
       }
       if (card.suit === 'red') {
-        // Feuer: Lodernder Feuerball, Explosions-Schockwellen & lodernde Flammenzungen
         return (
           <div className="tcg-element-vfx text-red-500 flex items-center justify-center">
             <svg className="w-36 h-36" viewBox="0 0 100 100" fill="none" stroke="currentColor" strokeWidth="3">
@@ -246,7 +241,6 @@
         );
       }
       if (card.suit === 'blue') {
-        // Wasser: Tidal-Wave Strudel, rotierende Hydro-Ringe & Wasserschwall
         return (
           <div className="tcg-element-vfx text-sky-400 flex items-center justify-center">
             <svg className="w-36 h-36" viewBox="0 0 100 100" fill="none" stroke="currentColor" strokeWidth="3">
@@ -258,7 +252,6 @@
         );
       }
       if (card.suit === 'yellow') {
-        // Wind: Reißender Tornado-Wirbel, Sturmböen & goldene Windklingen
         return (
           <div className="tcg-element-vfx text-amber-300 flex items-center justify-center">
             <svg className="w-36 h-36" viewBox="0 0 100 100" fill="none" stroke="currentColor" strokeWidth="3.5">
@@ -480,6 +473,7 @@
         return () => clearInterval(interval);
       }, [screen, phase, turn, playedCards, animatingCardId, players, showDiceModal, roundSummary, victoryData, showExitConfirm]);
 
+      // Erhöhtes Intervall für KI-Züge (mehr Abstand zwischen den Zügen)
       useEffect(() => {
         const interval = setInterval(() => {
           const { screen: s, phase: p, turn: t, players: pl, playedCards: pc, animatingCardId: anim } = stateRef.current;
@@ -487,7 +481,7 @@
             const currentKi = pl[t];
             if (currentKi && currentKi.hand.length > 0) { playCard(t, 0); }
           }
-        }, 800);
+        }, 1200);
         return () => clearInterval(interval);
       }, [showExitConfirm]);
 
@@ -656,13 +650,14 @@
 
           if (newPlayed.length === currentPlayers.length) {
             isEvaluatingRef.current = true;
-            setTimeout(() => evaluateTrick(newPlayed), 800);
+            // Spürbar mehr Zeit (1600ms), wenn der Tisch komplett voll ist, damit man das Ergebnis betrachten kann
+            setTimeout(() => evaluateTrick(newPlayed), 1600);
           } else {
             setTurn((playerIdx + 1) % currentPlayers.length);
             setTurnTimer(20);
           }
           isProcessingClickRef.current = false;
-        }, 700);
+        }, 750);
       };
 
       const evaluateTrick = (cardsOnTable) => {
@@ -698,7 +693,7 @@
 
           const human = updated[0];
           if (human.hand.length === 0) {
-            setTimeout(() => handleRoundEnd(updated, stateRef.current.round), 300);
+            setTimeout(() => handleRoundEnd(updated, stateRef.current.round), 600);
           } else {
             setTurn(winnerId);
             setTurnTimer(20);
@@ -877,7 +872,7 @@
               </div>
 
               <span className="text-[9px] text-center text-slate-300 font-bold block mt-2 drop-shadow bg-slate-950/70 py-1 rounded-full backdrop-blur-md border border-sky-500/30">
-                MYTHOS CARD GAME V8.7
+                MYTHOS CARD GAME V8.8
               </span>
             </div>
           </div>
@@ -1377,7 +1372,7 @@
                 ))}
               </div>
 
-              {/* EPISCHE TCG ELEMENT-ANIMATION BEIM AUSPIELEN */}
+              {/* TCG ELEMENT-ANIMATION */}
               {animatingCardId && animatingCardObj && (
                 <div className="absolute inset-0 flex flex-col items-center justify-center z-40 bg-black/55 backdrop-blur-[2px]">
                   <div className="relative flex flex-col items-center">
