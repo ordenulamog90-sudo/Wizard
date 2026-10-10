@@ -9,7 +9,7 @@
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    body { background-color: #070a12; color: white; font-family: sans-serif; user-select: none; }
+    body { background-color: #070a12; color: white; font-family: system-ui, -apple-system, sans-serif; user-select: none; }
     /* Authentische Stein-Magma-Rückseite mit WIZARD Logo */
     .stone-card-back {
       background: radial-gradient(circle at center, #3d2218 0%, #170d0a 70%, #080403 100%);
@@ -31,31 +31,31 @@
   <script type="text/babel">
     const { useState, useEffect } = React;
 
-    // Zuordnung der Völker mit authentischen Farben, Symbolen und Zunft-Illustrationen
+    // Zuordnung der Völker mit authentischen Farben, Titeln und zuverlässigen Inlined-Symbolen
     const SUITS = {
       yellow: { 
         name: 'Gelb', title: 'DIE STANDARTE', 
-        bg: 'from-amber-900 via-yellow-950 to-slate-950', border: 'border-amber-400', 
+        bg: 'from-amber-950 via-yellow-950 to-slate-950', border: 'border-amber-400', 
         color: '#f59e0b',
-        img: 'https://img.icons8.com/color/96/banner.png'
+        symbol: '🚩'
       },
       red: { 
         name: 'Rot', title: 'DIE AXT', 
         bg: 'from-red-950 via-rose-950 to-slate-950', border: 'border-red-500', 
         color: '#ef4444',
-        img: 'https://img.icons8.com/color/96/battle-axe.png'
+        symbol: '🪓'
       },
       green: { 
         name: 'Grün', title: 'DER BOGEN', 
         bg: 'from-emerald-950 via-green-950 to-slate-950', border: 'border-emerald-400', 
         color: '#10b981',
-        img: 'https://img.icons8.com/color/96/bow-and-arrow.png'
+        symbol: '🏹'
       },
       blue: { 
         name: 'Blau', title: 'DER DOLCH', 
         bg: 'from-blue-950 via-sky-950 to-slate-950', border: 'border-blue-400', 
         color: '#3b82f6',
-        img: 'https://img.icons8.com/color/96/dagger.png'
+        symbol: '🗡️'
       }
     };
 
@@ -67,11 +67,11 @@
           
           <div class="flex flex-col items-center gap-1 my-auto">
             <span class="text-xs font-black tracking-widest text-amber-500 drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)]">WIZARD</span>
-            <div class="grid grid-cols-2 gap-2 opacity-80 my-1">
-              <img src={SUITS.red.img} class="w-4 h-4 object-contain" />
-              <img src={SUITS.yellow.img} class="w-4 h-4 object-contain" />
-              <img src={SUITS.green.img} class="w-4 h-4 object-contain" />
-              <img src={SUITS.blue.img} class="w-4 h-4 object-contain" />
+            <div class="grid grid-cols-2 gap-1.5 opacity-90 my-1 text-sm">
+              <span>🪓</span>
+              <span>🚩</span>
+              <span>🏹</span>
+              <span>🗡️</span>
             </div>
           </div>
 
@@ -91,11 +91,7 @@
       const cornerText = isWizard ? 'Z' : isJester ? 'N' : card.value;
       const titleText = isWizard ? 'ZAUBERER' : isJester ? 'NARR' : suitInfo.title;
 
-      const cardImg = isWizard 
-        ? 'https://img.icons8.com/color/96/wizard.png'
-        : isJester 
-        ? 'https://img.icons8.com/color/96/jester.png'
-        : suitInfo.img;
+      const cardSymbol = isWizard ? '🧙‍♂️' : isJester ? '🃏' : suitInfo.symbol;
 
       const bgStyle = isWizard
         ? 'from-purple-950 via-indigo-950 to-slate-950 border-amber-300'
@@ -108,15 +104,17 @@
           onClick={!disabled ? onClick : undefined}
           class={`${dim} rounded-xl bg-gradient-to-b ${bgStyle} border-2 p-1.5 flex flex-col justify-between items-center relative shadow-2xl cursor-pointer active:scale-95 transition-transform`}
         >
-          {/* Ecken-Zahlen Oben (Goldener Retro-Look) */}
+          {/* Ecken-Zahlen Oben */}
           <div class="w-full flex justify-between font-black text-amber-300 text-sm drop-shadow-[0_1px_2px_rgba(0,0,0,1)]">
             <span>{cornerText}</span>
             <span>{cornerText}</span>
           </div>
 
-          {/* Mittleres Bild & Titel */}
+          {/* Mittleres Symbol & Titel */}
           <div class="flex flex-col items-center justify-center my-auto">
-            <img src={cardImg} class={`${size === 'lg' ? 'w-16 h-16' : 'w-10 h-10'} object-contain drop-shadow-[0_4px_6px_rgba(0,0,0,0.6)]`} />
+            <span class={`${size === 'lg' ? 'text-4xl' : 'text-2xl'} drop-shadow-[0_4px_6px_rgba(0,0,0,0.8)]`}>
+              {cardSymbol}
+            </span>
             <span class="text-[8px] font-bold text-amber-200 tracking-tighter uppercase mt-1 drop-shadow">
               {titleText}
             </span>
