@@ -66,7 +66,7 @@
   <div id="root" class="h-full w-full"></div>
 
   <script type="text/babel">
-    const { useState, useEffect } = React;
+    const { useState, useEffect, useRef } = React;
 
     const BANNED_WORDS = [
       'arsch', 'idiot', 'scheisse', 'scheiße', 'wichser', 'hurensohn', 'spast', 'depp',
@@ -239,12 +239,48 @@
       const [playedCards, setPlayedCards] = useState([]);
       const [turn, setTurn] = useState(0);
 
-      // INTERAKTIVE WÜRFEL-STATES
+      // WÜRFEL TIMING STATES
       const [showDiceModal, setShowDiceModal] = useState(false);
       const [isDiceRolling, setIsDiceRolling] = useState(false);
-      const [diceRolls, setDiceRolls] = useState(null); // Array mit Augenzahlen für jeden Spieler
+      const [diceRolls, setDiceRolls] = useState(null);
       const [diceWinner, setDiceWinner] = useState(null);
+      const [diceTimer, setDiceTimer] = useState(20);
+      const [resultTimer, setResultTimer] = useState(10);
       const [roundSummary, setRoundSummary] = useState(null);
+
+      // Timer für Auto-Würfeln (20s)
+      useEffect(() => {
+        let interval = null;
+        if (showDiceModal && !diceRolls && !isDiceRolling) {
+          interval = setInterval(() => {
+            setDiceTimer(prev => {
+              if (prev <= 1) {
+                handleUserRollDice(); // Auto-Würfeln bei 0s
+                return 0;
+              }
+              return prev - 1;
+            });
+          }, 1000);
+        }
+        return () => clearInterval(interval);
+      }, [showDiceModal, diceRolls, isDiceRolling]);
+
+      // Timer für Auto-Weiterleitung bei Ergebnis (10s)
+      useEffect(() => {
+        let interval = null;
+        if (showDiceModal && diceRolls && !isDiceRolling) {
+          interval = setInterval(() => {
+            setResultTimer(prev => {
+              if (prev <= 1) {
+                startRoundAfterDice(); // Auto-Start bei 0s
+                return 0;
+              }
+              return prev - 1;
+            });
+          }, 1000);
+        }
+        return () => clearInterval(interval);
+      }, [showDiceModal, diceRolls, isDiceRolling]);
 
       const startNewGame = () => {
         const initialPlayers = [
@@ -264,21 +300,20 @@
         setPlayers(initialPlayers);
         setScreen('game');
 
-        // Würfel-Modal vor Runde 1 öffnen
         setShowDiceModal(true);
         setDiceRolls(null);
         setDiceWinner(null);
         setIsDiceRolling(false);
+        setDiceTimer(20);
+        setResultTimer(10);
       };
 
-      // VOM SPIELER AUSGELÖSTER WÜRFELWURF
       const handleUserRollDice = () => {
         if (isDiceRolling || diceRolls) return;
 
         setIsDiceRolling(true);
 
         setTimeout(() => {
-          // Würfelergebnisse generieren (1-6)
           const rolls = players.map(() => Math.floor(Math.random() * 6) + 1);
           
           let maxRoll = -1;
@@ -293,7 +328,18 @@
           setDiceRolls(rolls);
           setDiceWinner(winnerIdx);
           setIsDiceRolling(false);
+          setResultTimer(10);
         }, 800);
+      };
+
+      const handleOverlayClick = () => {
+        if (!diceRolls && !isDiceRolling) {
+          // Vor dem Würfeln: Tippen auf Bildschirm löst Würfeln aus
+          handleUserRollDice();
+        } else if (diceRolls && !isDiceRolling) {
+          // Nach dem Würfeln: Tippen auf Bildschirm startet direkt Runde 1
+          startRoundAfterDice();
+        }
       };
 
       const startRoundAfterDice = () => {
@@ -515,7 +561,7 @@
                 </button>
               </div>
 
-              <span className="text-[10px] text-center text-slate-600 block mt-2">Mythos Card Game v3.3 • Interactive Dice</span>
+              <span className="text-[10px] text-center text-slate-600 block mt-2">Mythos Card Game v3.4 • Touch Anywhere & Timers</span>
             </div>
           </div>
         );
@@ -691,7 +737,7 @@
             <div className="space-y-3 text-xs text-slate-300 leading-relaxed">
               <div className="bg-slate-900 p-3 rounded-xl border border-slate-800">
                 <h3 className="font-bold text-sky-300 mb-1">1. Interaktiver Würfelwurf</h3>
-                <p>In Runde 1 würfelst du selbst per Tippen auf den Schicksals-Würfel. Wer die höchste Augenzahl würfelt, beginnt die Partie!</p>
+                <p>Tippe auf den Bildschirm, um zu würfeln (oder warte 20s). Nach dem Ergebnis reicht ein Tippen, um sofort zu starten (oder warte 10s)!</p>
               </div>
               <div className="bg-slate-900 p-3 rounded-xl border border-slate-800">
                 <h3 className="font-bold text-sky-300 mb-1">2. Die Aufgedeckte Trumpffarbe</h3>
@@ -713,28 +759,34 @@
       return (
         <div className="flex flex-col h-full max-w-md mx-auto p-2 justify-between bg-slate-950 relative overflow-hidden">
           
-          {/* INTERAKTIVES WÜRFEL MODAL */}
+          {/* INTERAKTIVES WÜRFEL MODAL MIT SCHIRMFULL-TAP & TIMER */}
           {showDiceModal && (
-            <div className="absolute inset-0 bg-slate-950/95 backdrop-blur-md z-50 flex flex-col items-center justify-between p-5 text-center">
+            <div 
+              onClick={handleOverlayClick}
+              className="absolute inset-0 bg-slate-950/95 backdrop-blur-md z-50 flex flex-col items-center justify-between p-5 text-center cursor-pointer select-none"
+            >
               <div>
                 <h2 className="text-xl font-black text-sky-300 mt-2">Duell-Eröffnung</h2>
                 <p className="text-xs text-slate-400 mt-1">Wer schlägt das erste Kapitel auf?</p>
               </div>
 
               <div className="my-auto flex flex-col items-center gap-4 w-full">
-                {/* WÜRFEL BUTTON */}
-                <button
-                  onClick={handleUserRollDice}
-                  disabled={isDiceRolling || diceRolls !== null}
-                  className={`w-28 h-28 rounded-3xl bg-gradient-to-b from-sky-500 to-sky-800 border-2 border-sky-300 shadow-2xl flex items-center justify-center text-5xl active:scale-90 transition-transform ${isDiceRolling ? 'animate-dice-active' : 'shadow-sky-500/30'}`}
+                {/* WÜRFEL ANZEIGE */}
+                <div
+                  className={`w-28 h-28 rounded-3xl bg-gradient-to-b from-sky-500 to-sky-800 border-2 border-sky-300 shadow-2xl flex items-center justify-center text-5xl transition-transform ${isDiceRolling ? 'animate-dice-active' : 'shadow-sky-500/30'}`}
                 >
                   {isDiceRolling ? '🎲' : diceRolls ? `🎲 ${diceRolls[0]}` : '🎲'}
-                </button>
+                </div>
 
                 {!diceRolls && !isDiceRolling && (
-                  <span className="text-xs font-black text-amber-400 animate-pulse">
-                    👉 Tippe auf den Würfel zum Werfen!
-                  </span>
+                  <div className="flex flex-col items-center gap-1">
+                    <span className="text-xs font-black text-amber-400 animate-pulse">
+                      👉 Tippe auf den Bildschirm zum Würfeln!
+                    </span>
+                    <span className="text-[10px] text-slate-500 font-bold">
+                      Auto-Würfeln in {diceTimer}s
+                    </span>
+                  </div>
                 )}
 
                 {/* DIGITALE WÜRFELERGEBNISSE DER KI */}
@@ -758,12 +810,17 @@
               </div>
 
               {diceRolls ? (
-                <button
-                  onClick={startRoundAfterDice}
-                  className="w-full py-3.5 mythic-btn-primary text-white font-black text-sm rounded-2xl shadow-2xl active:scale-95 transition-transform mb-2"
-                >
-                  Runde 1 starten ⚔️
-                </button>
+                <div className="w-full flex flex-col items-center gap-1 mb-2">
+                  <button
+                    onClick={startRoundAfterDice}
+                    className="w-full py-3.5 mythic-btn-primary text-white font-black text-sm rounded-2xl shadow-2xl active:scale-95 transition-transform"
+                  >
+                    Weiter zum Spiel ⚔️
+                  </button>
+                  <span className="text-[10px] text-slate-400 font-bold">
+                    Tippe auf den Schirm oder warte {resultTimer}s
+                  </span>
+                </div>
               ) : (
                 <div className="h-10"></div>
               )}
