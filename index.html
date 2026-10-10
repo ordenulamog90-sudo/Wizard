@@ -63,36 +63,39 @@
     }
 
     @keyframes elementPodiumGlow {
-      0%, 100% { box-shadow: 0 0 25px var(--glow-color), inset 0 0 15px var(--glow-color); }
-      50% { box-shadow: 0 0 45px var(--glow-color), inset 0 0 25px var(--glow-color); }
+      0%, 100% { box-shadow: 0 0 30px var(--glow-color), inset 0 0 20px var(--glow-color); }
+      50% { box-shadow: 0 0 55px var(--glow-color), inset 0 0 35px var(--glow-color); }
     }
     .element-podium-active {
-      animation: elementPodiumGlow 2s infinite ease-in-out;
+      animation: elementPodiumGlow 2.5s infinite ease-in-out;
     }
 
-    /* Element-Muster für Podeste & Formen */
-    .pattern-fire {
-      background-image: repeating-linear-gradient(45deg, rgba(239, 68, 68, 0.3) 0, rgba(239, 68, 68, 0.3) 8px, transparent 8px, transparent 16px);
-      clip-path: polygon(0% 10%, 10% 0%, 20% 8%, 30% 0%, 40% 8%, 50% 0%, 60% 8%, 70% 0%, 80% 8%, 90% 0%, 100% 10%, 100% 100%, 0% 100%);
+    /* Einzigartige elementare Podestformen & Texturen */
+    .podium-water {
+      background: linear-gradient(to bottom, rgba(2, 132, 199, 0.85), rgba(3, 7, 18, 0.95));
+      border: 2px solid #38bdf8;
+      border-radius: 2.5rem 2.5rem 1rem 1rem;
+      background-image: radial-gradient(circle, rgba(56, 189, 248, 0.25) 15%, transparent 15%);
+      background-size: 16px 16px;
     }
-    .pattern-water {
-      background-image: radial-gradient(circle, rgba(2, 132, 199, 0.35) 12%, transparent 12%);
-      background-size: 14px 14px;
-      border-radius: 2rem 2rem 1rem 1rem;
+    .podium-fire {
+      background: linear-gradient(to bottom, rgba(239, 68, 68, 0.85), rgba(3, 7, 18, 0.95));
+      border: 2px solid #ef4444;
+      clip-path: polygon(10% 0%, 90% 0%, 100% 20%, 95% 100%, 5% 100%, 0% 20%);
+      background-image: repeating-linear-gradient(45deg, rgba(252, 165, 165, 0.2) 0, rgba(252, 165, 165, 0.2) 10px, transparent 10px, transparent 20px);
     }
-    .pattern-diamond {
-      background-image: linear-gradient(135deg, rgba(16, 185, 129, 0.3) 25%, transparent 25%), linear-gradient(225deg, rgba(16, 185, 129, 0.3) 25%, transparent 25%);
-      background-size: 10px 10px;
-      clip-path: polygon(15% 0%, 85% 0%, 100% 15%, 100% 100%, 0% 100%, 0% 15%);
+    .podium-wind {
+      background: linear-gradient(to bottom, rgba(245, 158, 11, 0.85), rgba(3, 7, 18, 0.95));
+      border: 2px solid #f59e0b;
+      border-radius: 2rem 2rem 1.5rem 1.5rem;
+      background-image: repeating-linear-gradient(0deg, rgba(253, 230, 138, 0.2) 0, rgba(253, 230, 138, 0.2) 6px, transparent 6px, transparent 12px);
     }
-    .pattern-wind {
-      background-image: repeating-linear-gradient(0deg, rgba(245, 158, 11, 0.25) 0, rgba(245, 158, 11, 0.25) 5px, transparent 5px, transparent 10px);
-      border-radius: 1.5rem 1.5rem 2rem 2rem;
-    }
-    .pattern-arkan {
-      background-image: radial-gradient(circle, rgba(168, 85, 247, 0.35) 20%, transparent 20%);
+    .podium-diamond {
+      background: linear-gradient(to bottom, rgba(16, 185, 129, 0.85), rgba(3, 7, 18, 0.95));
+      border: 2px solid #10b981;
+      clip-path: polygon(20% 0%, 80% 0%, 100% 25%, 100% 100%, 0% 100%, 0% 25%);
+      background-image: linear-gradient(135deg, rgba(110, 231, 183, 0.25) 25%, transparent 25%), linear-gradient(225deg, rgba(110, 231, 183, 0.25) 25%, transparent 25%);
       background-size: 12px 12px;
-      border-radius: 1rem 1rem 1.5rem 1.5rem;
     }
 
     /* Wuchtige TCG Impact-Slam Animation */
@@ -230,11 +233,37 @@
     };
 
     const SUITS = {
-      yellow: { key: 'yellow', name: 'Gelb', title: 'WIND', bg: 'from-amber-950 via-yellow-950 to-slate-950', border: 'border-amber-400', art: CardArt.banner, primaryColor: '#f59e0b', glowColor: 'rgba(245, 158, 11, 0.6)', patternClass: 'pattern-wind', crownIcon: '⚡' },
-      red: { key: 'red', name: 'Rot', title: 'FEUER', bg: 'from-red-950 via-rose-950 to-slate-950', border: 'border-red-500', art: CardArt.axe, primaryColor: '#ef4444', glowColor: 'rgba(239, 68, 68, 0.6)', patternClass: 'pattern-fire', crownIcon: '🔥' },
-      green: { key: 'green', name: 'Grün', title: 'DIAMANTEN', bg: 'from-emerald-950 via-green-950 to-slate-950', border: 'border-emerald-400', art: CardArt.bow, primaryColor: '#10b981', glowColor: 'rgba(16, 185, 129, 0.6)', patternClass: 'pattern-diamond', crownIcon: '💎' },
-      blue: { key: 'blue', name: 'Blau', title: 'WASSER', bg: 'from-blue-950 via-sky-950 to-slate-950', border: 'border-blue-400', art: CardArt.dagger, primaryColor: '#0284c7', glowColor: 'rgba(2, 132, 199, 0.6)', patternClass: 'pattern-water', crownIcon: '💧' },
-      wizard: { key: 'wizard', name: 'Zauberer', title: 'ARKAN', bg: 'from-purple-950 via-indigo-950 to-slate-950', border: 'border-purple-400', art: CardArt.wizard, primaryColor: '#a855f7', glowColor: 'rgba(168, 85, 247, 0.6)', patternClass: 'pattern-arkan', crownIcon: '🔮' }
+      yellow: { key: 'yellow', name: 'Gelb', title: 'WIND', bg: 'from-amber-950 via-yellow-950 to-slate-950', border: 'border-amber-400', art: CardArt.banner, primaryColor: '#f59e0b', glowColor: 'rgba(245, 158, 11, 0.7)', podiumClass: 'podium-wind', crownSvg: (
+        <svg viewBox="0 0 100 40" className="w-20 h-10 drop-shadow-[0_0_10px_#f59e0b]">
+          <path d="M 10 35 L 20 15 L 35 28 L 50 5 L 65 28 L 80 15 L 90 35 Z" fill="#f59e0b" stroke="#fef08a" strokeWidth="2" />
+          <circle cx="50" cy="8" r="4" fill="#fff" />
+          <circle cx="20" cy="18" r="3" fill="#fff" />
+          <circle cx="80" cy="18" r="3" fill="#fff" />
+        </svg>
+      ) },
+      red: { key: 'red', name: 'Rot', title: 'FEUER', bg: 'from-red-950 via-rose-950 to-slate-950', border: 'border-red-500', art: CardArt.axe, primaryColor: '#ef4444', glowColor: 'rgba(239, 68, 68, 0.7)', podiumClass: 'podium-fire', crownSvg: (
+        <svg viewBox="0 0 100 40" className="w-20 h-10 drop-shadow-[0_0_10px_#ef4444]">
+          <path d="M 10 35 L 15 10 L 30 25 L 50 2 L 70 25 L 85 10 L 90 35 Z" fill="#ef4444" stroke="#fca5a5" strokeWidth="2" />
+          <path d="M 50 12 Q 55 22 50 28 Q 45 22 50 12 Z" fill="#fef08a" />
+        </svg>
+      ) },
+      green: { key: 'green', name: 'Grün', title: 'DIAMANTEN', bg: 'from-emerald-950 via-green-950 to-slate-950', border: 'border-emerald-400', art: CardArt.bow, primaryColor: '#10b981', glowColor: 'rgba(16, 185, 129, 0.7)', podiumClass: 'podium-diamond', crownSvg: (
+        <svg viewBox="0 0 100 40" className="w-20 h-10 drop-shadow-[0_0_10px_#10b981]">
+          <polygon points="10,35 25,12 50,30 75,12 90,35" fill="#10b981" stroke="#6ee7b7" strokeWidth="2" />
+          <polygon points="50,10 60,22 50,34 40,22" fill="#a7f3d0" />
+        </svg>
+      ) },
+      blue: { key: 'blue', name: 'Blau', title: 'WASSER', bg: 'from-blue-950 via-sky-950 to-slate-950', border: 'border-blue-400', art: CardArt.dagger, primaryColor: '#0284c7', glowColor: 'rgba(2, 132, 199, 0.7)', podiumClass: 'podium-water', crownSvg: (
+        <svg viewBox="0 0 100 40" className="w-20 h-10 drop-shadow-[0_0_10px_#38bdf8]">
+          <path d="M 10 32 Q 30 10 50 28 Q 70 10 90 32 Z" fill="#0284c7" stroke="#38bdf8" strokeWidth="2" />
+          <circle cx="50" cy="18" r="5" fill="#bae6fd" />
+        </svg>
+      ) },
+      wizard: { key: 'wizard', name: 'Zauberer', title: 'ARKAN', bg: 'from-purple-950 via-indigo-950 to-slate-950', border: 'border-purple-400', art: CardArt.wizard, primaryColor: '#a855f7', glowColor: 'rgba(168, 85, 247, 0.7)', podiumClass: 'podium-water', crownSvg: (
+        <svg viewBox="0 0 100 40" className="w-20 h-10 drop-shadow-[0_0_10px_#a855f7]">
+          <polygon points="50,2 62,25 90,28 68,42 75,68 50,52 25,68 32,42 10,28 38,25" fill="#a855f7" stroke="#fde047" strokeWidth="2" />
+        </svg>
+      ) }
     };
 
     const renderTcgElementAnimation = (card) => {
@@ -716,10 +745,6 @@
         }, 750);
       };
 
-      // KORREKTE WIZARD-AUSWERTUNG:
-      // 1. Erster Zauberer gewinnt immer.
-      // 2. Trumpffarbe ist die Farbe der aufgedeckten Trumpfkarte (sofern Zahlenkarte).
-      // 3. Trumpf schlägt Leitfarbe, Leitfarbe schlägt Fehlfarbe. Höherer Kartenwert gewinnt in derselben Kategorie.
       const evaluateTrick = (cardsOnTable) => {
         let winningCardObj = cardsOnTable[0];
 
@@ -731,10 +756,7 @@
           if (allJesters) {
             winningCardObj = cardsOnTable[0];
           } else {
-            // Trumpffarbe kommt direkt von der aufgedeckten Trumpfkarte (falls Zahlenkarte)
             const trumpSuit = (trumpCard && trumpCard.type === 'number') ? trumpCard.suit : null;
-            
-            // Leitfarbe ist die Farbe der ERSTEN ausgespielten Zahlenkarte
             const leadCardObj = cardsOnTable.find(c => c.card.type === 'number');
             const leadSuit = leadCardObj ? leadCardObj.card.suit : null;
 
@@ -746,13 +768,10 @@
                 let currentRank = -1;
 
                 if (trumpSuit && card.suit === trumpSuit) {
-                  // Trumpf hat oberste Priorität vor Leit- und Fehlfarbe
                   currentRank = 2000 + card.value;
                 } else if (leadSuit && card.suit === leadSuit) {
-                  // Leitfarbe schlägt Fehlfarbe
                   currentRank = 1000 + card.value;
                 } else {
-                  // Fehlfarbe (kann nicht gewinnen, außer wenn sonst nichts da ist)
                   currentRank = card.value;
                 }
 
@@ -958,7 +977,7 @@
               </div>
 
               <span className="text-[9px] text-center text-slate-300 font-bold block mt-2 drop-shadow bg-slate-950/70 py-1 rounded-full backdrop-blur-md border border-sky-500/30">
-                MYTHOS CARD GAME V10.4 (TRUE TRUMP & SUIT PRIORITY)
+                MYTHOS CARD GAME V10.5 (MAJESTIC ELEMENT CROWNS & PODIUMS)
               </span>
             </div>
           </div>
@@ -1386,37 +1405,33 @@
             return (
               <div onClick={finishGameAndGoMenu} className="absolute inset-0 bg-slate-950/95 backdrop-blur-md z-50 flex flex-col items-center justify-between p-4 cursor-pointer select-none overflow-y-auto">
                 <div className="text-center mt-2">
-                  <h2 className="text-2xl font-black drop-shadow" style={{ color: suitTheme.primaryColor }}>👑 SIEGEREHRUNG 👑</h2>
+                  <h2 className="text-2xl font-black drop-shadow tracking-widest" style={{ color: suitTheme.primaryColor }}>👑 SIEGEREHRUNG 👑</h2>
                   <p className="text-xs text-sky-300 font-bold mt-0.5">Das große Turnier ist zu Ende!</p>
                 </div>
 
                 <div className="my-auto flex flex-col items-center w-full">
                   <div className="relative flex flex-col items-center mb-3">
                     
-                    {/* DIE ANGEPASSTE KRONE IM OBEREN DRITTEL DES PROFILBILDES */}
+                    {/* MAJESTÄTISCHE ELEMENT-KRONE ÜBER DEM PROFILBILD */}
                     <div className="relative z-20 flex flex-col items-center">
-                      <div className="absolute -top-5 text-2xl animate-bounce drop-shadow z-30" style={{ filter: `drop-shadow(0 0 10px ${suitTheme.primaryColor})` }}>
-                        {suitTheme.crownIcon}
+                      <div className="absolute -top-7 animate-bounce drop-shadow z-30">
+                        {suitTheme.crownSvg}
                       </div>
                       
-                      <div className="w-24 h-24 rounded-full border-4 p-1 flex items-center justify-center shadow-2xl bg-slate-900 relative overflow-visible" style={{ borderColor: suitTheme.primaryColor, boxShadow: `0 0 30px ${suitTheme.glowColor}` }}>
-                        <div className="absolute top-0 inset-x-0 h-8 bg-gradient-to-b from-amber-400/30 to-transparent rounded-t-full pointer-events-none z-10 border-t border-amber-300/60"></div>
+                      <div className="w-24 h-24 rounded-full border-4 p-1 flex items-center justify-center shadow-2xl bg-slate-900 relative overflow-visible mt-2" style={{ borderColor: suitTheme.primaryColor, boxShadow: `0 0 35px ${suitTheme.glowColor}` }}>
+                        <div className="absolute top-0 inset-x-0 h-8 bg-gradient-to-b from-white/20 to-transparent rounded-t-full pointer-events-none z-10"></div>
                         <div className="w-full h-full rounded-full overflow-hidden flex items-center justify-center">
                           {renderAvatarIcon(winnerAvatar, "w-full h-full")}
                         </div>
                       </div>
                     </div>
                     
-                    {/* DAS GEFORMTE & GEMUSTERTE ELEMENT-PODEST */}
+                    {/* EINZIGARTIGES ELEMENT-PODEST */}
                     <div 
-                      className={`w-40 h-20 border-2 mt-[-14px] flex flex-col items-center justify-center element-podium-active z-10 ${suitTheme.patternClass}`}
-                      style={{ 
-                        background: `linear-gradient(to bottom, ${suitTheme.primaryColor}aa, #030712)`, 
-                        borderColor: suitTheme.primaryColor,
-                        '--glow-color': suitTheme.glowColor 
-                      }}
+                      className={`w-44 h-20 mt-[-16px] flex flex-col items-center justify-center element-podium-active z-10 ${suitTheme.podiumClass}`}
+                      style={{ '--glow-color': suitTheme.glowColor }}
                     >
-                      <span className="text-xs font-black text-white uppercase tracking-wider drop-shadow">{winner.name}</span>
+                      <span className="text-xs font-black text-white uppercase tracking-wider drop-shadow mt-3">{winner.name}</span>
                       <span className="text-sm font-black text-amber-300 drop-shadow">{winner.score} Ptn</span>
                     </div>
                   </div>
@@ -1539,7 +1554,7 @@
       );
     }
 
-    ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+    ReactDOM.createRoot(getElementById('root')).render(<App />);
   </script>
 </body>
 </html>
