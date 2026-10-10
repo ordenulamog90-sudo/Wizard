@@ -711,42 +711,51 @@
         }, 750);
       };
 
+      // 100% EXAKTE ZAUBERER- & NARR-REGELN
       const evaluateTrick = (cardsOnTable) => {
         let winningCardObj = cardsOnTable[0];
 
+        // 1. Der erste gespielte Zauberer gewinnt absolut immer sofort
         const firstWizard = cardsOnTable.find(c => c.card.type === 'wizard');
         if (firstWizard) {
           winningCardObj = firstWizard;
         } else {
-          const trumpSuit = (trumpCard && trumpCard.type === 'number') ? trumpCard.suit : null;
-          const leadCardObj = cardsOnTable.find(c => c.card.type === 'number' || c.card.type === 'jester');
-          const leadSuit = leadCardObj ? leadCardObj.card.suit : null;
+          // Prüfen, ob NUR Narren auf dem Tisch liegen
+          const allJesters = cardsOnTable.every(c => c.card.type === 'jester');
+          if (allJesters) {
+            // Wenn alle Narren sind, gewinnt der allererste gespielte Narr (cardsOnTable[0])
+            winningCardObj = cardsOnTable[0];
+          } else {
+            // Die aufliegende Trumpfkarte bestimmt die Trumpffarbe
+            const trumpSuit = (trumpCard && trumpCard.type === 'number') ? trumpCard.suit : null;
 
-          let bestRank = -1;
+            // Ermittle die Leitfarbe (die Farbe der allerersten ausgespielten Karte, überspringt evtl. Narren am Anfang)
+            const leadCardObj = cardsOnTable.find(c => c.card.type === 'number');
+            const leadSuit = leadCardObj ? leadCardObj.card.suit : null;
 
-          cardsOnTable.forEach(c => {
-            const card = c.card;
-            if (card.type === 'number') {
-              let currentRank = -1;
+            let bestRank = -1;
 
-              if (trumpSuit && card.suit === trumpSuit) {
-                currentRank = 2000 + card.value;
-              } else if (leadSuit && card.suit === leadSuit) {
-                currentRank = 1000 + card.value;
-              } else {
-                currentRank = -1;
+            cardsOnTable.forEach(c => {
+              const card = c.card;
+              if (card.type === 'number') {
+                let currentRank = -1;
+
+                if (trumpSuit && card.suit === trumpSuit) {
+                  currentRank = 2000 + card.value;
+                } else if (leadSuit && card.suit === leadSuit) {
+                  currentRank = 1000 + card.value;
+                } else {
+                  currentRank = -1; // Fehlfarbe kann niemals gewinnen
+                }
+
+                if (currentRank > bestRank) {
+                  bestRank = currentRank;
+                  winningCardObj = c;
+                }
               }
-
-              if (currentRank > bestRank) {
-                bestRank = currentRank;
-                winningCardObj = c;
-              }
-            } else if (card.type === 'jester') {
-              if (winningCardObj.card.type === 'jester' && bestRank === -1) {
-                // Erster Narr bleibt
-              }
-            }
-          });
+              // Narren (jester) werden bei Zahlenvergleichen komplett ignoriert und können niemals gewinnen, wenn Zahlen/Zauberer im Spiel sind
+            });
+          }
         }
 
         const winnerId = winningCardObj.playerId;
@@ -942,7 +951,7 @@
               </div>
 
               <span className="text-[9px] text-center text-slate-300 font-bold block mt-2 drop-shadow bg-slate-950/70 py-1 rounded-full backdrop-blur-md border border-sky-500/30">
-                MYTHOS CARD GAME V9.7 (ELEMENT CROWN FRAME & PATTERN)
+                MYTHOS CARD GAME V9.8 (STRICT JESTER & TRICK LOGIC)
               </span>
             </div>
           </div>
@@ -1242,11 +1251,11 @@
             <div className="space-y-3 text-xs text-slate-300 leading-relaxed">
               <div className="bg-slate-900 p-3 rounded-xl border border-slate-800">
                 <h3 className="font-bold text-sky-300 mb-1">1. Trumpf & Leitfarbe</h3>
-                <p>Die aufliegende Trumpfkarte hat immer absoluten Vorrang. Die zuerst ausgespielte Karte gibt die Leitfarbe vor. Fehlfarben stechen niemals!</p>
+                <p>Die aufliegende Trumpfkarte hat immer absoluten Vorrang. Die zuerst ausgespielte Zahlenkarte gibt die Leitfarbe vor. Fehlfarben stechen niemals!</p>
               </div>
               <div className="bg-slate-900 p-3 rounded-xl border border-slate-800">
                 <h3 className="font-bold text-sky-300 mb-1">2. Zauberer & Narren</h3>
-                <p>Der erste gespielte Zauberer gewinnt den Stich immer. Narren verlieren in jedem Fall.</p>
+                <p>Der erste Zauberer gewinnt immer. Narren verlieren in jedem Fall, es sei denn, es werden ausschließlich Narren ausgespielt (dann gewinnt der erste Narr).</p>
               </div>
             </div>
             <button onClick={() => setScreen('menu')} className="mt-4 w-full py-3 mythic-btn-primary text-white font-bold rounded-xl">Zurück zum Menü</button>
