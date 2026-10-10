@@ -9,10 +9,26 @@
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    body { background-color: #070a12; color: white; font-family: system-ui, -apple-system, sans-serif; user-select: none; }
+    body { background-color: #030712; color: white; font-family: system-ui, -apple-system, sans-serif; user-select: none; }
     .card-art-box {
       background: radial-gradient(circle at center, rgba(255,255,255,0.1) 0%, rgba(0,0,0,0.6) 100%);
-      border: 1px solid rgba(251, 191, 36, 0.4);
+      border: 1px solid rgba(56, 189, 248, 0.4);
+    }
+    .mythic-card {
+      background: rgba(15, 23, 42, 0.85);
+      border: 1px solid rgba(56, 189, 248, 0.3);
+      box-shadow: 0 0 25px rgba(14, 165, 233, 0.15);
+    }
+    .mythic-btn-primary {
+      background: linear-gradient(135deg, #0284c7 0%, #0369a1 50%, #075985 100%);
+      border: 1px solid #38bdf8;
+      box-shadow: 0 0 15px rgba(56, 189, 248, 0.3);
+    }
+    .mythic-btn-active {
+      background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+      border-color: #38bdf8;
+      color: #f0f9ff;
+      box-shadow: 0 0 10px rgba(56, 189, 248, 0.4);
     }
   </style>
 </head>
@@ -84,7 +100,7 @@
     function CardBack({ size = "md" }) {
       const dim = size === "sm" ? "w-12 h-20" : size === "lg" ? "w-28 h-40" : "w-20 h-32";
       return (
-        <div className={`${dim} rounded-xl border-2 border-amber-500/60 overflow-hidden shadow-2xl relative bg-slate-900`}>
+        <div className={`${dim} rounded-xl border-2 border-sky-400/60 overflow-hidden shadow-2xl relative bg-slate-950`}>
           <img src="./1791625015038.jpg" alt="Kartenrücken" className="w-full h-full object-cover" />
         </div>
       );
@@ -295,56 +311,66 @@
         }
       };
 
+      // ---------------- HAUPTMENÜ NEUES DESIGN ----------------
       if (screen === 'menu') {
         return (
-          <div className="flex flex-col h-full max-w-md mx-auto p-4 justify-between relative overflow-hidden bg-slate-950">
-            <img src="./1791625015038.jpg" className="absolute inset-0 w-full h-full object-cover opacity-30 blur-sm pointer-events-none" />
+          <div className="flex flex-col h-full max-w-md mx-auto bg-slate-950 justify-between overflow-y-auto">
             
-            <div className="text-center my-auto z-10">
-              <h1 className="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-amber-400 via-amber-200 to-amber-500 tracking-wider mb-1 drop-shadow">
-                WIZARD
-              </h1>
-              <p className="text-xs text-amber-400/80 font-semibold tracking-widest uppercase mb-8">Das magische Karten-Duell</p>
+            {/* Gestochen scharfes Bild im Querformat (16:9) */}
+            <div className="w-full aspect-video relative overflow-hidden border-b border-sky-500/30 shadow-2xl shrink-0">
+              <img src="./1791625015038.jpg" alt="Mythos Header" className="w-full h-full object-cover" />
+              <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent"></div>
+            </div>
 
-              <div className="bg-slate-900/90 border border-amber-500/40 p-4 rounded-2xl shadow-2xl flex flex-col gap-4 text-left backdrop-blur-md">
+            {/* Menü-Inhalt im magisch-mythischen Look */}
+            <div className="p-4 flex-1 flex flex-col justify-between gap-3">
+              <div className="text-center">
+                <h1 className="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-sky-300 via-cyan-100 to-sky-400 tracking-wider">
+                  WIZARD
+                </h1>
+                <p className="text-[10px] text-sky-300/80 font-bold tracking-widest uppercase">Das magische Karten-Duell</p>
+              </div>
+
+              {/* Einstellungen-Karte */}
+              <div className="mythic-card p-3 rounded-2xl flex flex-col gap-3">
                 <div>
-                  <label className="text-xs font-bold text-amber-300 block mb-1">Spieleranzahl:</label>
-                  <div className="flex gap-2">
+                  <label className="text-[11px] font-bold text-sky-200 block mb-1">Spieleranzahl:</label>
+                  <div className="flex gap-1.5">
                     {[3, 4, 5, 6].map(num => (
                       <button
                         key={num}
                         onClick={() => setPlayerCount(num)}
-                        className={`flex-1 py-1.5 rounded-lg text-xs font-bold border transition-all ${playerCount === num ? 'bg-amber-500 border-amber-300 text-slate-950' : 'bg-slate-800 border-slate-700 text-slate-300'}`}
+                        className={`flex-1 py-1.5 rounded-lg text-xs font-bold border transition-all ${playerCount === num ? 'mythic-btn-active' : 'bg-slate-900/90 border-slate-800 text-slate-400'}`}
                       >
-                        {num} Spieler
+                        {num}
                       </button>
                     ))}
                   </div>
                 </div>
 
                 <div>
-                  <label className="text-xs font-bold text-amber-300 block mb-1">Rundenanzahl:</label>
-                  <div className="flex gap-2">
+                  <label className="text-[11px] font-bold text-sky-200 block mb-1">Rundenanzahl:</label>
+                  <div className="flex gap-1.5">
                     {[5, 10, 15].map(num => (
                       <button
                         key={num}
                         onClick={() => setMaxRounds(num)}
-                        className={`flex-1 py-1.5 rounded-lg text-xs font-bold border transition-all ${maxRounds === num ? 'bg-amber-500 border-amber-300 text-slate-950' : 'bg-slate-800 border-slate-700 text-slate-300'}`}
+                        className={`flex-1 py-1.5 rounded-lg text-xs font-bold border transition-all ${maxRounds === num ? 'mythic-btn-active' : 'bg-slate-900/90 border-slate-800 text-slate-400'}`}
                       >
-                        {num} Runden
+                        {num} R.
                       </button>
                     ))}
                   </div>
                 </div>
 
                 <div>
-                  <label className="text-xs font-bold text-amber-300 block mb-1">KI-Schwierigkeit:</label>
-                  <div className="flex gap-2">
+                  <label className="text-[11px] font-bold text-sky-200 block mb-1">KI-Schwierigkeit:</label>
+                  <div className="flex gap-1.5">
                     {['Leicht', 'Normal', 'Magisch'].map(diff => (
                       <button
                         key={diff}
                         onClick={() => setDifficulty(diff)}
-                        className={`flex-1 py-1.5 rounded-lg text-xs font-bold border transition-all ${difficulty === diff ? 'bg-amber-500 border-amber-300 text-slate-950' : 'bg-slate-800 border-slate-700 text-slate-300'}`}
+                        className={`flex-1 py-1.5 rounded-lg text-xs font-bold border transition-all ${difficulty === diff ? 'mythic-btn-active' : 'bg-slate-900/90 border-slate-800 text-slate-400'}`}
                       >
                         {diff}
                       </button>
@@ -353,31 +379,32 @@
                 </div>
               </div>
 
-              <div className="flex flex-col gap-3 mt-8 z-10">
+              {/* Aktions-Buttons */}
+              <div className="flex flex-col gap-2 mt-1">
                 <button
                   onClick={startNewGame}
-                  className="w-full py-3.5 rounded-xl bg-gradient-to-r from-amber-500 via-amber-400 to-amber-600 text-slate-950 font-black text-lg shadow-xl border border-amber-300 active:scale-95 transition-transform"
+                  className="w-full py-3 rounded-xl mythic-btn-primary text-white font-black text-base active:scale-95 transition-transform"
                 >
                   Neues Spiel starten
                 </button>
                 <div className="flex gap-2">
                   <button
                     onClick={() => setScreen('rules')}
-                    className="flex-1 py-2.5 rounded-xl bg-slate-900/90 border border-slate-800 text-amber-300 font-bold text-xs active:scale-95 transition-transform backdrop-blur-sm"
+                    className="flex-1 py-2 rounded-xl bg-slate-900/90 border border-slate-800 text-sky-300 font-bold text-xs active:scale-95 transition-transform"
                   >
-                    Anleitung / Regeln
+                    Regeln
                   </button>
                   <button
                     onClick={() => setScreen('stats')}
-                    className="flex-1 py-2.5 rounded-xl bg-slate-900/90 border border-slate-800 text-amber-300 font-bold text-xs active:scale-95 transition-transform backdrop-blur-sm"
+                    className="flex-1 py-2 rounded-xl bg-slate-900/90 border border-slate-800 text-sky-300 font-bold text-xs active:scale-95 transition-transform"
                   >
-                    Punkte & Statistiken
+                    Statistiken
                   </button>
                 </div>
               </div>
+
+              <span className="text-[9px] text-center text-slate-600 block mt-1">Wizard Digital v1.5 • Mythic Theme</span>
             </div>
-            
-            <span className="text-[10px] text-center text-slate-500 z-10">Wizard Digital v1.4 • Custom Background</span>
           </div>
         );
       }
@@ -386,28 +413,28 @@
         return (
           <div className="flex flex-col h-full max-w-md mx-auto p-4 justify-between bg-slate-950 overflow-y-auto">
             <div className="flex justify-between items-center mb-4">
-              <h2 className="text-xl font-bold text-amber-400">Spielregeln</h2>
-              <button onClick={() => setScreen('menu')} className="text-xs bg-slate-800 text-amber-300 px-3 py-1.5 rounded-lg font-bold">Menü</button>
+              <h2 className="text-xl font-bold text-sky-400">Spielregeln</h2>
+              <button onClick={() => setScreen('menu')} className="text-xs bg-slate-800 text-sky-300 px-3 py-1.5 rounded-lg font-bold">Menü</button>
             </div>
             <div className="space-y-3 text-xs text-slate-300 leading-relaxed">
               <div className="bg-slate-900 p-3 rounded-xl border border-slate-800">
-                <h3 className="font-bold text-amber-300 mb-1">1. Vorhersage & Stich-Ansage</h3>
+                <h3 className="font-bold text-sky-300 mb-1">1. Vorhersage & Stich-Ansage</h3>
                 <p>In jeder Runde sagst du voraus, wie viele Stiche du mit deinen Handkarten erzielen wirst.</p>
               </div>
               <div className="bg-slate-900 p-3 rounded-xl border border-slate-800">
-                <h3 className="font-bold text-amber-300 mb-1">2. Die Zauberer (Z)</h3>
+                <h3 className="font-bold text-sky-300 mb-1">2. Die Zauberer (Z)</h3>
                 <p>Der Zauberer gewinnt immer den Stich, egal welche Farbe oder Zahl gespielt wurde.</p>
               </div>
               <div className="bg-slate-900 p-3 rounded-xl border border-slate-800">
-                <h3 className="font-bold text-amber-300 mb-1">3. Die Narren (N)</h3>
+                <h3 className="font-bold text-sky-300 mb-1">3. Die Narren (N)</h3>
                 <p>Der Narr verliert immer den Stich. Er hat den Wert Null und kann keinen Stich gewinnen.</p>
               </div>
               <div className="bg-slate-900 p-3 rounded-xl border border-slate-800">
-                <h3 className="font-bold text-amber-300 mb-1">4. Bedienen & Trumpf</h3>
+                <h3 className="font-bold text-sky-300 mb-1">4. Bedienen & Trumpf</h3>
                 <p>Die zuerst ausgespielte Farbe muss bedient werden. Hast du diese Farbe nicht, darfst du Trumpf oder eine beliebige andere Karte legen.</p>
               </div>
             </div>
-            <button onClick={() => setScreen('menu')} className="mt-4 w-full py-3 bg-amber-500 text-slate-950 font-bold rounded-xl">Zurück zum Menü</button>
+            <button onClick={() => setScreen('menu')} className="mt-4 w-full py-3 mythic-btn-primary text-white font-bold rounded-xl">Zurück zum Menü</button>
           </div>
         );
       }
@@ -416,14 +443,14 @@
         return (
           <div className="flex flex-col h-full max-w-md mx-auto p-4 justify-between bg-slate-950">
             <div className="flex justify-between items-center mb-4">
-              <h2 className="text-xl font-bold text-amber-400">Punkte & Statistik</h2>
-              <button onClick={() => setScreen('menu')} className="text-xs bg-slate-800 text-amber-300 px-3 py-1.5 rounded-lg font-bold">Menü</button>
+              <h2 className="text-xl font-bold text-sky-400">Punkte & Statistik</h2>
+              <button onClick={() => setScreen('menu')} className="text-xs bg-slate-800 text-sky-300 px-3 py-1.5 rounded-lg font-bold">Menü</button>
             </div>
             <div className="bg-slate-900 p-4 rounded-xl border border-slate-800 text-center my-auto">
               <p className="text-sm text-slate-400">Noch keine gespeicherten Spiele vorhanden.</p>
               <p className="text-xs text-slate-500 mt-1">Starte ein neues Spiel, um Punkte aufzuzeichnen!</p>
             </div>
-            <button onClick={() => setScreen('menu')} className="w-full py-3 bg-amber-500 text-slate-950 font-bold rounded-xl">Zurück zum Menü</button>
+            <button onClick={() => setScreen('menu')} className="w-full py-3 mythic-btn-primary text-white font-bold rounded-xl">Zurück zum Menü</button>
           </div>
         );
       }
@@ -433,14 +460,14 @@
       return (
         <div className="flex flex-col h-full max-w-md mx-auto p-2 justify-between bg-slate-950">
           <div className="flex justify-between items-center mb-1 bg-slate-900/80 p-2 rounded-xl border border-slate-800">
-            <span className="text-xs font-bold text-amber-400">Runde {round} / {maxRounds}</span>
-            <button onClick={() => setScreen('menu')} className="text-[10px] bg-slate-800 text-amber-300 px-2 py-1 rounded font-bold">Menü</button>
+            <span className="text-xs font-bold text-sky-400">Runde {round} / {maxRounds}</span>
+            <button onClick={() => setScreen('menu')} className="text-[10px] bg-slate-800 text-sky-300 px-2 py-1 rounded font-bold">Menü</button>
           </div>
 
           <div className="grid grid-cols-3 gap-1">
             {players.filter(p => !p.isHuman).map(p => (
-              <div key={p.id} className={`p-1.5 rounded-lg border text-center text-xs ${turn === p.id ? 'border-amber-400 bg-slate-800' : 'border-slate-800 bg-slate-900/60'}`}>
-                <div className="font-bold text-amber-300 truncate">{p.name}</div>
+              <div key={p.id} className={`p-1.5 rounded-lg border text-center text-xs ${turn === p.id ? 'border-sky-400 bg-slate-800' : 'border-slate-800 bg-slate-900/60'}`}>
+                <div className="font-bold text-sky-300 truncate">{p.name}</div>
                 <div className="text-[10px] text-slate-300">Ansage: {p.bid !== null ? p.bid : '?'} | Stiche: {p.tricks}</div>
               </div>
             ))}
@@ -448,28 +475,28 @@
 
           <div className="flex-1 my-2 rounded-2xl bg-slate-900/50 border border-slate-800 p-2 flex flex-col justify-between items-center relative">
             <div className="flex items-center gap-2">
-              <span className="text-[10px] font-bold text-amber-400 uppercase">Trumpf:</span>
+              <span className="text-[10px] font-bold text-sky-400 uppercase">Trumpf:</span>
               {trumpCard ? <CardFace card={trumpCard} size="sm" disabled /> : <CardBack size="sm" />}
             </div>
 
             <div className="grid grid-cols-2 gap-2 my-auto">
               {playedCards.map((pc, i) => (
                 <div key={i} className="flex flex-col items-center">
-                  <span className="text-[9px] text-amber-300 mb-0.5">{players[pc.playerId]?.name}</span>
+                  <span className="text-[9px] text-sky-300 mb-0.5">{players[pc.playerId]?.name}</span>
                   <CardFace card={pc.card} size="sm" disabled />
                 </div>
               ))}
             </div>
 
             {phase === 'bidding' && (
-              <div className="w-full bg-slate-900/95 border border-amber-500/50 p-3 rounded-2xl flex flex-col items-center gap-2 shadow-2xl backdrop-blur-md z-20">
-                <span className="text-xs font-bold text-amber-300">Deine Stich-Ansage für Runde {round}:</span>
+              <div className="w-full bg-slate-900/95 border border-sky-500/50 p-3 rounded-2xl flex flex-col items-center gap-2 shadow-2xl backdrop-blur-md z-20">
+                <span className="text-xs font-bold text-sky-300">Deine Stich-Ansage für Runde {round}:</span>
                 <div className="flex gap-2 flex-wrap justify-center">
                   {Array.from({ length: round + 1 }, (_, i) => (
                     <button
                       key={i}
                       onClick={() => handleHumanBid(i)}
-                      className="w-10 h-10 rounded-full bg-gradient-to-b from-amber-500 to-amber-700 text-slate-950 font-black text-base shadow-lg border border-amber-300 active:scale-90 transition-transform"
+                      className="w-10 h-10 rounded-full bg-gradient-to-b from-sky-500 to-sky-700 text-white font-black text-base shadow-lg border border-sky-300 active:scale-90 transition-transform"
                     >
                       {i}
                     </button>
@@ -482,7 +509,7 @@
           <div className="bg-slate-900 p-2 rounded-2xl border border-slate-800 shadow-xl">
             <div className="flex justify-between items-center mb-1 px-1">
               <span className="text-xs font-bold text-slate-300">Deine Hand:</span>
-              <span className="text-xs font-bold text-amber-400">
+              <span className="text-xs font-bold text-sky-400">
                 Ansage: {humanPlayer.bid !== null ? humanPlayer.bid : '-'} | Stiche: {humanPlayer.tricks}
               </span>
             </div>
