@@ -58,6 +58,28 @@
   <script type="text/babel">
     const { useState, useEffect } = React;
 
+    // Filter-Liste für unangebrachte Namen (Schimpfwörter DE/EN)
+    const BANNED_WORDS = [
+      'arsch', 'idiot', 'scheisse', 'scheiße', 'wichser', 'hurensohn', 'spast', 'depp',
+      'fick', 'fucker', 'fuck', 'bitch', 'asshole', 'bastard', 'nazi', 'hitler', 'cunt',
+      'nigger', 'nigga', 'piss', 'penis', 'vagina', 'neger', 'wank', 'retard'
+    ];
+
+    const validatePlayerName = (input) => {
+      const trimmed = input.trim();
+      if (trimmed.length < 3) return { valid: false, error: 'Name muss mind. 3 Zeichen lang sein!' };
+      if (trimmed.length > 16) return { valid: false, error: 'Name darf max. 16 Zeichen lang sein!' };
+      
+      const cleanRegex = /^[a-zA-Z0-9_äöüÄÖÜß\s]+$/;
+      if (!cleanRegex.test(trimmed)) return { valid: false, error: 'Keine Sonderzeichen erlaubt!' };
+
+      const lower = trimmed.toLowerCase().replace(/[\s_0-9]/g, '');
+      const containsBanned = BANNED_WORDS.some(word => lower.includes(word));
+      if (containsBanned) return { valid: false, error: 'Unangebrachter Name nicht erlaubt!' };
+
+      return { valid: true, error: '' };
+    };
+
     const CardArt = {
       wizard: (
         <svg viewBox="0 0 100 120" className="w-full h-full drop-shadow-md">
@@ -179,6 +201,24 @@
         const saved = localStorage.getItem('wizard_profile');
         return saved ? JSON.parse(saved) : { name: 'Erzmagier', level: 1, xp: 0, gamesPlayed: 0, wins: 0 };
       });
+
+      // Profil-Namensänderung States
+      const [isEditingName, setIsEditingName] = useState(false);
+      const [nameInput, setNameInput] = useState(profile.name);
+      const [nameError, setNameError] = useState('');
+
+      const handleSaveName = () => {
+        const check = validatePlayerName(nameInput);
+        if (!check.valid) {
+          setNameError(check.error);
+          return;
+        }
+        const updated = { ...profile, name: nameInput.trim() };
+        setProfile(updated);
+        localStorage.setItem('wizard_profile', JSON.stringify(updated));
+        setIsEditingName(false);
+        setNameError('');
+      };
 
       const [playerCount, setPlayerCount] = useState(4);
       const [maxRounds, setMaxRounds] = useState(15);
@@ -377,7 +417,7 @@
                 </button>
               </div>
 
-              <span className="text-[10px] text-center text-slate-600 block mt-2">Wizard Digital v2.3 • Cinzel Edition</span>
+              <span className="text-[10px] text-center text-slate-600 block mt-2">Wizard Digital v2.6 • Protected Profile</span>
             </div>
           </div>
         );
@@ -386,78 +426,76 @@
       // ---------------- 2. EINZELSPIEL EINSTELLUNGEN ----------------
       if (screen === 'game_setup') {
         return (
-          <div className="flex flex-col landscape:flex-row h-full max-w-4xl mx-auto bg-slate-950 justify-between overflow-y-auto">
-            <div className="w-full landscape:w-1/2 aspect-video landscape:aspect-auto landscape:h-full relative overflow-hidden border-b landscape:border-b-0 landscape:border-r border-sky-500/30 shadow-2xl shrink-0 flex items-center justify-center">
+          <div className="flex flex-col landscape:flex-row h-full max-w-4xl mx-auto bg-slate-950 justify-between overflow-hidden">
+            <div className="w-full h-24 landscape:h-full landscape:w-1/2 relative overflow-hidden border-b landscape:border-b-0 landscape:border-r border-sky-500/30 shadow-2xl shrink-0 flex items-center justify-center">
               <img src="./1791625015038.jpg" alt="Mythos Header" className="w-full h-full object-cover" />
             </div>
 
-            <div className="p-4 flex-1 flex flex-col justify-between gap-3 overflow-y-auto">
-              <div>
-                <div className="flex justify-between items-center mb-3">
-                  <h2 className="text-lg font-black text-sky-300 flex items-center gap-2"><span>⚔️</span> Einzelspiel</h2>
-                  <button onClick={() => setScreen('menu')} className="text-xs bg-slate-900 border border-slate-800 text-sky-300 px-3 py-1.5 rounded-lg font-bold">Zurück</button>
-                </div>
-
-                <div className="mythic-card p-3 rounded-2xl flex flex-col gap-3">
-                  <div>
-                    <label className="text-[11px] font-bold text-sky-200 block mb-1">Gegner / Spieleranzahl:</label>
-                    <div className="grid grid-cols-4 gap-2">
-                      {[3, 4, 5, 6].map(num => (
-                        <button
-                          key={num}
-                          onClick={() => setPlayerCount(num)}
-                          className={`py-2 rounded-xl font-extrabold text-sm crystal-btn ${playerCount === num ? 'crystal-active text-white' : 'bg-slate-900 text-slate-400'}`}
-                        >
-                          {num}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="text-[11px] font-bold text-sky-200 block mb-1">Rundenanzahl:</label>
-                    <div className="grid grid-cols-3 gap-2">
-                      {[5, 10, 15].map(num => (
-                        <button
-                          key={num}
-                          onClick={() => setMaxRounds(num)}
-                          className={`py-2 rounded-xl font-bold text-xs crystal-btn ${maxRounds === num ? 'crystal-active text-white' : 'bg-slate-900 text-slate-400'}`}
-                        >
-                          {num} R.
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="text-[11px] font-bold text-sky-200 block mb-1">KI-Schwierigkeit:</label>
-                    <div className="grid grid-cols-3 gap-2">
-                      {['Leicht', 'Normal', 'Magisch'].map(diff => (
-                        <button
-                          key={diff}
-                          onClick={() => setDifficulty(diff)}
-                          className={`py-2 rounded-xl font-bold text-xs crystal-btn ${difficulty === diff ? 'crystal-active text-white' : 'bg-slate-900 text-slate-400'}`}
-                        >
-                          {diff}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                </div>
+            <div className="p-4 flex-1 flex flex-col gap-3 overflow-y-auto">
+              <div className="flex justify-between items-center mb-1">
+                <h2 className="text-lg font-black text-sky-300 flex items-center gap-2"><span>⚔️</span> Einzelspiel</h2>
+                <button onClick={() => setScreen('menu')} className="text-xs bg-slate-900 border border-slate-800 text-sky-300 px-3 py-1.5 rounded-lg font-bold">Zurück</button>
               </div>
 
               <button
                 onClick={startNewGame}
-                className="w-full py-3 rounded-xl mythic-btn-primary text-white font-black text-base active:scale-95 transition-transform mt-2 mb-1 shrink-0"
+                className="w-full py-3.5 rounded-2xl mythic-btn-primary text-white font-black text-base active:scale-95 transition-transform shrink-0 shadow-2xl"
               >
-                Duell beginnen
+                Duell beginnen ⚔️
               </button>
+
+              <div className="mythic-card p-3 rounded-2xl flex flex-col gap-3">
+                <div>
+                  <label className="text-[11px] font-bold text-sky-200 block mb-1">Gegner / Spieleranzahl:</label>
+                  <div className="grid grid-cols-4 gap-2">
+                    {[3, 4, 5, 6].map(num => (
+                      <button
+                        key={num}
+                        onClick={() => setPlayerCount(num)}
+                        className={`py-2 rounded-xl font-extrabold text-sm crystal-btn ${playerCount === num ? 'crystal-active text-white' : 'bg-slate-900 text-slate-400'}`}
+                      >
+                        {num}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div>
+                  <label className="text-[11px] font-bold text-sky-200 block mb-1">Rundenanzahl:</label>
+                  <div className="grid grid-cols-3 gap-2">
+                    {[5, 10, 15].map(num => (
+                      <button
+                        key={num}
+                        onClick={() => setMaxRounds(num)}
+                        className={`py-2 rounded-xl font-bold text-xs crystal-btn ${maxRounds === num ? 'crystal-active text-white' : 'bg-slate-900 text-slate-400'}`}
+                      >
+                        {num} R.
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div>
+                  <label className="text-[11px] font-bold text-sky-200 block mb-1">KI-Schwierigkeit:</label>
+                  <div className="grid grid-cols-3 gap-2">
+                    {['Leicht', 'Normal', 'Magisch'].map(diff => (
+                      <button
+                        key={diff}
+                        onClick={() => setDifficulty(diff)}
+                        className={`py-2 rounded-xl font-bold text-xs crystal-btn ${difficulty === diff ? 'crystal-active text-white' : 'bg-slate-900 text-slate-400'}`}
+                      >
+                        {diff}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         );
       }
 
-      // ---------------- 3. PROFIL & STATISTIKEN ----------------
+      // ---------------- 3. PROFIL & STATISTIKEN (MIT GESCHÜTZTEM NAMENS-EDITOR) ----------------
       if (screen === 'profile') {
         return (
           <div className="flex flex-col h-full max-w-md mx-auto p-4 justify-between bg-slate-950 overflow-y-auto">
@@ -470,9 +508,47 @@
               <div className="w-20 h-20 rounded-full border-2 border-sky-400 bg-slate-900 flex items-center justify-center text-3xl shadow-xl">
                 🧙‍♂️
               </div>
-              <div>
-                <h3 className="text-xl font-black text-sky-200">{profile.name}</h3>
-                <span className="text-xs font-bold text-amber-400">Level {profile.level} • Novize</span>
+
+              {/* Namensanzeige / Bearbeitungsmodus */}
+              <div className="w-full flex flex-col items-center">
+                {!isEditingName ? (
+                  <div className="flex items-center gap-2">
+                    <h3 className="text-xl font-black text-sky-200">{profile.name}</h3>
+                    <button 
+                      onClick={() => { setIsEditingName(true); setNameInput(profile.name); setNameError(''); }}
+                      className="text-xs text-sky-400 bg-slate-900 border border-sky-500/30 px-2 py-0.5 rounded-lg"
+                    >
+                      ✏️
+                    </button>
+                  </div>
+                ) : (
+                  <div className="w-full flex flex-col gap-2">
+                    <input
+                      type="text"
+                      value={nameInput}
+                      onChange={(e) => { setNameInput(e.target.value); setNameError(''); }}
+                      placeholder="Dein Name..."
+                      maxLength={16}
+                      className="w-full bg-slate-900 border border-sky-400 text-sky-100 p-2 rounded-xl text-center font-bold text-sm focus:outline-none"
+                    />
+                    {nameError && <span className="text-[10px] text-red-400 font-bold">{nameError}</span>}
+                    <div className="flex gap-2">
+                      <button 
+                        onClick={handleSaveName}
+                        className="flex-1 py-1.5 mythic-btn-primary text-white text-xs font-bold rounded-lg"
+                      >
+                        Speichern
+                      </button>
+                      <button 
+                        onClick={() => { setIsEditingName(false); setNameError(''); }}
+                        className="flex-1 py-1.5 bg-slate-800 text-slate-300 text-xs font-bold rounded-lg"
+                      >
+                        Abbrechen
+                      </button>
+                    </div>
+                  </div>
+                )}
+                <span className="text-xs font-bold text-amber-400 mt-1">Level {profile.level} • Novize</span>
               </div>
 
               <div className="w-full bg-slate-900 border border-slate-800 p-3 rounded-xl text-left space-y-2 text-xs">
