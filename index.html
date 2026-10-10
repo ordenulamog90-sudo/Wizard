@@ -644,7 +644,7 @@
         const nextRoundStarter = bestGuessers[Math.floor(Math.random() * bestGuessers.length)];
 
         setRoundSummary({
-          round: currentRoundNum, // EXAKTE DYNAMISCHE RUNDENNUMMER ÜBERGEBEN
+          round: currentRoundNum,
           calculatedPlayers: calculated,
           nextStarterId: nextRoundStarter
         });
@@ -656,7 +656,7 @@
 
         const updated = roundSummary.calculatedPlayers;
         const nextStarter = roundSummary.nextStarterId;
-        const nextR = roundSummary.round + 1; // SICHERE INKREMENTIERUNG
+        const nextR = roundSummary.round + 1;
 
         setPlayers(updated);
         setRoundSummary(null);
@@ -723,7 +723,7 @@
                 </button>
               </div>
 
-              <span className="text-[10px] text-center text-slate-600 block mt-2">Mythos Card Game v4.9 • Dynamic Round Count & Clean Next Starter Label</span>
+              <span className="text-[10px] text-center text-slate-600 block mt-2">Mythos Card Game v5.0 • Embedded Result Timer Button</span>
             </div>
           </div>
         );
@@ -983,49 +983,53 @@
             </div>
           )}
 
-          {/* RUNDENABRECHNUNG POPUP MIT EXAKTER RUNDENANZEIGE UND SAUBEREM VERLAUFSTEXT */}
+          {/* RUNDENABRECHNUNG POPUP MIT TIMER DIREKT IN DER INFOBOX UNTER DEM TEXT */}
           {roundSummary && (
             <div 
               onClick={proceedToNextRound}
-              className="absolute inset-0 bg-slate-950/95 backdrop-blur-md z-50 flex flex-col items-center justify-between p-4 cursor-pointer select-none overflow-y-auto"
+              className="absolute inset-0 bg-slate-950/95 backdrop-blur-md z-50 flex flex-col items-center justify-center p-4 cursor-pointer select-none overflow-y-auto"
             >
-              <h2 className="text-xl font-black text-sky-300 mt-2">Ergebnis Runde {roundSummary.round}</h2>
-              
-              <div className="w-full space-y-2 my-auto">
-                {roundSummary.calculatedPlayers.map(p => (
-                  <div key={p.id} className="bg-slate-900 border border-slate-800 p-3 rounded-xl flex justify-between items-center text-xs">
-                    <div>
-                      <div className="font-bold text-sky-200">{p.name}</div>
-                      <div className="text-[10px] text-slate-400">Stiche: {p.tricks} (Ansage: {p.bid})</div>
-                    </div>
-                    <div className="text-right">
-                      <div className={`font-extrabold ${p.pointsGained >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
-                        {p.pointsGained >= 0 ? `+${p.pointsGained}` : p.pointsGained} Ptn
+              <div className="w-full max-w-xs flex flex-col items-center gap-3 my-auto">
+                <h2 className="text-xl font-black text-sky-300">Ergebnis Runde {roundSummary.round}</h2>
+                
+                <div className="w-full space-y-2">
+                  {roundSummary.calculatedPlayers.map(p => (
+                    <div key={p.id} className="bg-slate-900 border border-slate-800 p-3 rounded-xl flex justify-between items-center text-xs">
+                      <div>
+                        <div className="font-bold text-sky-200">{p.name}</div>
+                        <div className="text-[10px] text-slate-400">Stiche: {p.tricks} (Ansage: {p.bid})</div>
                       </div>
-                      <div className="text-[10px] font-bold text-amber-300">Gesamt: {p.score}</div>
+                      <div className="text-right">
+                        <div className={`font-extrabold ${p.pointsGained >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
+                          {p.pointsGained >= 0 ? `+${p.pointsGained}` : p.pointsGained} Ptn
+                        </div>
+                        <div className="text-[10px] font-bold text-amber-300">Gesamt: {p.score}</div>
+                      </div>
+                    </div>
+                  ))}
+
+                  {/* INFOBOX MIT DIREKT EINGEBETTETEM BUTTON UND LIVE-TIMER */}
+                  <div className="bg-sky-950/80 border border-sky-400/50 p-3 rounded-2xl text-center text-xs text-sky-200 mt-3 font-bold space-y-2.5 shadow-2xl">
+                    <div>
+                      👑 {roundSummary.calculatedPlayers.find(p => p.id === roundSummary.nextStarterId)?.name} beginnt Runde {roundSummary.round + 1}!
+                    </div>
+
+                    <div className="pt-2 border-t border-sky-500/30 flex flex-col items-center gap-1">
+                      <button 
+                        onClick={(e) => { e.stopPropagation(); proceedToNextRound(); }}
+                        className="w-full py-2.5 mythic-btn-primary text-white font-black text-xs rounded-xl shadow-xl active:scale-95 transition-transform flex items-center justify-center gap-2"
+                      >
+                        <span>Nächste Runde starten ⚔️</span>
+                        <span className="bg-sky-950/90 border border-sky-400/60 px-2 py-0.5 rounded-md text-[11px] font-bold text-amber-300">
+                          ⏱️ {summaryTimer}s
+                        </span>
+                      </button>
+                      <span className="text-[10px] text-slate-400 font-bold">
+                        Automatisch weiter in {summaryTimer} Sekunden
+                      </span>
                     </div>
                   </div>
-                ))}
-
-                {/* NEU: SAUBERER TEXT OHNE "BESTER SCHÄTZER" */}
-                <div className="bg-sky-950/80 border border-sky-400/50 p-2.5 rounded-xl text-center text-xs text-sky-200 mt-3 font-bold">
-                  👑 {roundSummary.calculatedPlayers.find(p => p.id === roundSummary.nextStarterId)?.name} beginnt Runde {roundSummary.round + 1}!
                 </div>
-              </div>
-
-              <div className="w-full flex flex-col items-center gap-1.5 mb-3">
-                <button 
-                  onClick={(e) => { e.stopPropagation(); proceedToNextRound(); }}
-                  className="w-full py-4 mythic-btn-primary text-white font-black text-base rounded-2xl shadow-2xl active:scale-95 transition-transform flex items-center justify-center gap-2"
-                >
-                  <span>Nächste Runde starten ⚔️</span>
-                  <span className="bg-sky-950/80 border border-sky-400/60 px-2 py-0.5 rounded-lg text-xs font-bold text-amber-300">
-                    ⏱️ {summaryTimer}s
-                  </span>
-                </button>
-                <span className="text-[10px] text-slate-400 font-bold">
-                  Tippe irgendwo auf den Bildschirm oder warte {summaryTimer}s
-                </span>
               </div>
             </div>
           )}
