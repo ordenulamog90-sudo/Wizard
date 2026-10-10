@@ -232,8 +232,15 @@
       blue: { name: 'Blau', title: 'DER DOLCH', bg: 'from-blue-950 via-sky-950 to-slate-950', border: 'border-blue-400', art: CardArt.dagger }
     };
 
-    const AI_NAMES = ['Merlin', 'Morgana', 'Gandalf', 'Circe', 'Albus'];
-    const AVATARS = ['🧙‍♂️', '🧝‍♀️', '🧙‍♀️', '🧝‍♂️', '🔮', '👑'];
+    // ERWEITERTER MAGIER-POOL AUS POPKULTUR UND MEDIEN
+    const FAMOUS_WIZARDS = [
+      'Merlin', 'Gandalf', 'Yennefer', 'Elminster', 'Zabini', 'Ged', 'Raistlin',
+      'Howl', 'Dr. Strange', 'Zatanna', 'Bayonetta', 'Medivh', 'Khadgar', 'Tsukino',
+      'Voldemort', 'Jaina', 'Jafar', 'Prospero', 'Veigar', 'Rincewind', 'Glinda',
+      'Moiraine', 'Willow', 'Dumbledore', 'Saruman'
+    ];
+    
+    const AVATARS = ['🧙‍♂️', '🧝‍♀️', '🧙‍♀️', '🧝‍♂️', '🔮', '👑', '⚡', '🌙', '📜'];
 
     function CardBack({ size = "md" }) {
       const dim = size === "sm" ? "w-12 h-20" : size === "lg" ? "w-28 h-40" : "w-20 h-32";
@@ -490,14 +497,19 @@
       }, [victoryData, showExitConfirm]);
 
       const startNewGame = () => {
+        // ZUFÄLLIGE MAGIER-NAMEN UND AVATARE WÄHLEN
+        const shuffledNames = shuffleArray(FAMOUS_WIZARDS);
+        const shuffledAvatars = shuffleArray(AVATARS);
+
         const initialPlayers = [
           { id: 0, name: profile.name, avatar: profile.avatar || '🧙‍♂️', isHuman: true, bid: null, tricks: 0, score: 0, hand: [] }
         ];
+
         for (let i = 1; i < playerCount; i++) {
           initialPlayers.push({
             id: i,
-            name: `${AI_NAMES[i-1]} (KI)`,
-            avatar: AVATARS[i % AVATARS.length],
+            name: `${shuffledNames[i - 1]} (KI)`,
+            avatar: shuffledAvatars[i % shuffledAvatars.length],
             isHuman: false,
             bid: null,
             tricks: 0,
@@ -806,7 +818,7 @@
                 </button>
               </div>
 
-              <span className="text-[10px] text-center text-slate-600 block mt-2">Mythos Card Game v5.8 • Offline & Online Stats Separated</span>
+              <span className="text-[10px] text-center text-slate-600 block mt-2">Mythos Card Game v5.9 • Random Famous Wizard NPCs</span>
             </div>
           </div>
         );
@@ -884,7 +896,7 @@
         );
       }
 
-      // ---------------- 3. PROFIL & STATISTIKEN (MIT OFFLINE & ONLINE GETRENNT) ----------------
+      // ---------------- 3. PROFIL & STATISTIKEN ----------------
       if (screen === 'profile') {
         const offPlayed = profile.offlinePlayed || 0;
         const offWins = profile.offlineWins || 0;
@@ -904,7 +916,6 @@
             </div>
 
             <div className="mythic-card p-4 rounded-2xl flex flex-col gap-3 my-auto items-center text-center shadow-2xl">
-              {/* AVATAR & NAME */}
               <div className="w-16 h-16 rounded-full border-2 border-sky-400 bg-slate-900 flex items-center justify-center text-3xl shadow-xl">
                 {profile.avatar || '🧙‍♂️'}
               </div>
@@ -950,7 +961,6 @@
                 <span className="text-xs font-bold text-amber-400 mt-0.5">Level {profile.level} • {profile.xp || 0} XP</span>
               </div>
 
-              {/* OFFLINE DUELLE STATS */}
               <div className="w-full bg-slate-900/90 border border-slate-800 p-3 rounded-xl text-left space-y-1.5 text-xs shadow-inner">
                 <div className="font-extrabold text-sky-300 border-b border-slate-800 pb-1 flex justify-between items-center">
                   <span className="flex items-center gap-1.5">⚔️ Offline-Duelle (KI)</span>
@@ -961,7 +971,6 @@
                 <div className="flex justify-between"><span className="text-slate-400">Niederlagen:</span><span className="font-bold text-red-400">{offLosses}</span></div>
               </div>
 
-              {/* ONLINE DUELLE STATS */}
               <div className="w-full bg-purple-950/30 border border-purple-500/20 p-3 rounded-xl text-left space-y-1.5 text-xs shadow-inner">
                 <div className="font-extrabold text-purple-300 border-b border-purple-500/20 pb-1 flex justify-between items-center">
                   <span className="flex items-center gap-1.5">🌐 Online-Duelle</span>
