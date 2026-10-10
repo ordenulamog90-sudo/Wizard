@@ -279,7 +279,7 @@
       const [diceTimer, setDiceTimer] = useState(20);
       const [resultTimer, setResultTimer] = useState(10);
 
-      const [biddingTimer, setBiddingTimer] = useState(20); // AUF 20 SEKUNDEN ERHÖHT
+      const [biddingTimer, setBiddingTimer] = useState(20);
       const [turnTimer, setTurnTimer] = useState(20);
 
       const [roundSummary, setRoundSummary] = useState(null);
@@ -322,7 +322,7 @@
         return () => clearInterval(interval);
       }, [showDiceModal, diceRolls, isDiceRolling]);
 
-      // Timer 3: Stich-Ansage Timer (AUF 20 SEKUNDEN ANGEPASST)
+      // Timer 3: Stich-Ansage Timer (20s)
       useEffect(() => {
         let interval = null;
         if (screen === 'game' && phase === 'bidding' && !showDiceModal && !roundSummary && !victoryData) {
@@ -435,7 +435,6 @@
         setResultTimer(10);
       };
 
-      // GARANTIERT DYNAMISCHES CRYPTO-ZUFALLSWÜRFELN
       const handleUserRollDice = () => {
         if (isDiceRolling || diceRolls) return;
 
@@ -481,7 +480,7 @@
         setTurn(startingPlayerIdx);
         isEvaluatingRef.current = false;
         isProcessingClickRef.current = false;
-        setBiddingTimer(20); // NEU: 20 SEKUNDEN
+        setBiddingTimer(20);
         setTurnTimer(20);
 
         let rawDeck = [];
@@ -604,7 +603,7 @@
 
           const human = updated[0];
           if (human.hand.length === 0) {
-            setTimeout(() => handleRoundEnd(updated), 400);
+            setTimeout(() => handleRoundEnd(updated, stateRef.current.round), 400);
           } else {
             setTurn(winnerId);
             setTurnTimer(20);
@@ -614,7 +613,7 @@
         });
       };
 
-      const handleRoundEnd = (currentPlayers) => {
+      const handleRoundEnd = (currentPlayers, currentRoundNum) => {
         let bestGuessers = [];
         let minDiff = 999;
 
@@ -645,7 +644,7 @@
         const nextRoundStarter = bestGuessers[Math.floor(Math.random() * bestGuessers.length)];
 
         setRoundSummary({
-          round,
+          round: currentRoundNum, // EXAKTE DYNAMISCHE RUNDENNUMMER ÜBERGEBEN
           calculatedPlayers: calculated,
           nextStarterId: nextRoundStarter
         });
@@ -657,7 +656,7 @@
 
         const updated = roundSummary.calculatedPlayers;
         const nextStarter = roundSummary.nextStarterId;
-        const nextR = round + 1;
+        const nextR = roundSummary.round + 1; // SICHERE INKREMENTIERUNG
 
         setPlayers(updated);
         setRoundSummary(null);
@@ -724,7 +723,7 @@
                 </button>
               </div>
 
-              <span className="text-[10px] text-center text-slate-600 block mt-2">Mythos Card Game v4.8 • 20s Bidding Timer Update</span>
+              <span className="text-[10px] text-center text-slate-600 block mt-2">Mythos Card Game v4.9 • Dynamic Round Count & Clean Next Starter Label</span>
             </div>
           </div>
         );
@@ -984,7 +983,7 @@
             </div>
           )}
 
-          {/* RUNDENABRECHNUNG POPUP */}
+          {/* RUNDENABRECHNUNG POPUP MIT EXAKTER RUNDENANZEIGE UND SAUBEREM VERLAUFSTEXT */}
           {roundSummary && (
             <div 
               onClick={proceedToNextRound}
@@ -1008,8 +1007,9 @@
                   </div>
                 ))}
 
+                {/* NEU: SAUBERER TEXT OHNE "BESTER SCHÄTZER" */}
                 <div className="bg-sky-950/80 border border-sky-400/50 p-2.5 rounded-xl text-center text-xs text-sky-200 mt-3 font-bold">
-                  👑 Bester Schätzer: {roundSummary.calculatedPlayers.find(p => p.id === roundSummary.nextStarterId)?.name} beginnt Runde {roundSummary.round + 1}!
+                  👑 {roundSummary.calculatedPlayers.find(p => p.id === roundSummary.nextStarterId)?.name} beginnt Runde {roundSummary.round + 1}!
                 </div>
               </div>
 
