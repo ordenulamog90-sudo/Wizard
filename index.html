@@ -796,7 +796,7 @@
               </div>
 
               <span className="text-[9px] text-center text-slate-300 font-bold block mt-2 drop-shadow bg-slate-950/70 py-1 rounded-full backdrop-blur-md border border-sky-500/30">
-                MYTHOS CARD GAME V7.7
+                MYTHOS CARD GAME V7.8
               </span>
             </div>
           </div>
@@ -889,7 +889,7 @@
 
         const activeSuitKey = profile.activeSuit || 'red';
         
-        // Globale Account-Werte (ohne /999 und ohne Element-Klammer)
+        // Globale Account-Werte (nur "Level X")
         const globalLevel = profile.level || 1;
         const globalXp = profile.xp || 0;
         const xpNeededForNextGlobal = getXpNeededForGlobalLevel(globalLevel);
@@ -1012,8 +1012,8 @@
                   </div>
                 )}
                 
-                {/* SAUBERE GESAMT-LEVEL ANZEIGE OHNE /999 UND OHNE KLAMMER */}
-                <span className="text-xs font-bold text-amber-400 mt-0.5">Gesamt-Level {globalLevel}</span>
+                {/* SAUBERE LEVEL-ANZEIGE OHNE 'GESAMT-' */}
+                <span className="text-xs font-bold text-amber-400 mt-0.5">Level {globalLevel}</span>
                 
                 <div className="w-full bg-slate-900 border border-slate-800 p-2 rounded-xl mt-2 text-left space-y-1">
                   <div className="flex justify-between text-[10px] text-slate-400 font-bold">
