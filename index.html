@@ -70,16 +70,18 @@
       animation: elementPodiumGlow 2.5s infinite ease-in-out;
     }
 
-    /* Elementare Podeste */
+    /* NEUES GESCHWUNGENES WELLEN-WASSER-PODEST */
     .podium-water {
-      background: linear-gradient(to bottom, rgba(2, 132, 199, 0.85), rgba(3, 7, 18, 0.95));
+      background: linear-gradient(135deg, rgba(3, 105, 161, 0.95), rgba(2, 132, 199, 0.9), rgba(3, 7, 18, 0.98));
       border: 2px solid #38bdf8;
-      border-radius: 2.5rem 2.5rem 1rem 1rem;
-      background-image: radial-gradient(circle, rgba(56, 189, 248, 0.25) 15%, transparent 15%);
-      background-size: 16px 16px;
+      clip-path: polygon(10% 15%, 30% 0%, 50% 15%, 70% 0%, 90% 15%, 100% 35%, 95% 100%, 5% 100%, 0% 35%);
+      background-image: 
+        radial-gradient(circle at 50% 30%, rgba(186, 230, 253, 0.35) 0%, transparent 60%),
+        repeating-linear-gradient(-30deg, rgba(56, 189, 248, 0.2) 0px, rgba(56, 189, 248, 0.2) 10px, transparent 10px, transparent 20px);
+      background-size: 100% 100%, 100% 100%;
     }
 
-    /* NEUES LODERNDES FEUER-PODEST */
+    /* LODERNDES FEUER-PODEST */
     .podium-fire {
       background: linear-gradient(135deg, rgba(220, 38, 38, 0.95), rgba(185, 28, 28, 0.9), rgba(3, 7, 18, 0.98));
       border: 2px solid #ef4444;
@@ -293,13 +295,10 @@
         primaryColor: '#ef4444', 
         glowColor: 'rgba(239, 68, 68, 0.85)', 
         podiumClass: 'podium-fire', 
-        // NEUE LODERNDE FLAMMEN-KRINE (Dynamische Flammenzungen und lodernder Kern)
         crownSvg: (
           <svg viewBox="0 0 140 60" className="w-28 h-12 drop-shadow-[0_0_20px_#ef4444] animate-pulse">
-            {/* Äußere Flammenzungen */}
             <path d="M 15 45 Q 25 15 35 30 Q 20 20 15 45 Z" fill="#f59e0b" opacity="0.85" />
             <path d="M 125 45 Q 115 15 105 30 Q 120 20 125 45 Z" fill="#f59e0b" opacity="0.85" />
-            {/* Große lodernde Zentrale Flamme */}
             <path d="M 30 50 Q 38 10 55 25 Q 70 -2 85 25 Q 102 10 110 50 Q 90 35 70 48 Q 50 35 30 50 Z" fill="url(#fireGrad)" stroke="#fca5a5" strokeWidth="2" />
             <defs>
               <linearGradient id="fireGrad" x1="0%" y1="100%" x2="0%" y2="0%">
@@ -308,7 +307,6 @@
                 <stop offset="100%" stopColor="#f59e0b" />
               </linearGradient>
             </defs>
-            {/* Glühender Kern / Funken */}
             <circle cx="70" cy="22" r="5" fill="#fef08a" />
             <circle cx="50" cy="30" r="2.5" fill="#fef08a" />
             <circle cx="90" cy="30" r="2.5" fill="#fef08a" />
@@ -348,12 +346,38 @@
           </svg>
         ) 
       },
-      blue: { key: 'blue', name: 'Blau', title: 'WASSER', bg: 'from-blue-950 via-sky-950 to-slate-950', border: 'border-blue-400', art: CardArt.dagger, primaryColor: '#0284c7', glowColor: 'rgba(2, 132, 199, 0.7)', podiumClass: 'podium-water', crownSvg: (
-        <svg viewBox="0 0 100 40" className="w-20 h-10 drop-shadow-[0_0_10px_#38bdf8]">
-          <path d="M 10 32 Q 30 10 50 28 Q 70 10 90 32 Z" fill="#0284c7" stroke="#38bdf8" strokeWidth="2" />
-          <circle cx="50" cy="18" r="5" fill="#bae6fd" />
-        </svg>
-      ) },
+      blue: { 
+        key: 'blue', 
+        name: 'Blau', 
+        title: 'WASSER', 
+        bg: 'from-blue-950 via-sky-950 to-slate-950', 
+        border: 'border-blue-400', 
+        art: CardArt.dagger, 
+        primaryColor: '#0284c7', 
+        glowColor: 'rgba(2, 132, 199, 0.85)', 
+        podiumClass: 'podium-water', 
+        // NEUE GESCHWUNGENE WELLEN-WASSER-KRONE (Fließende Wellenlinien und Perle)
+        crownSvg: (
+          <svg viewBox="0 0 140 60" className="w-28 h-12 drop-shadow-[0_0_20px_#38bdf8] animate-pulse">
+            {/* Fließende Nebenwellen */}
+            <path d="M 10 42 Q 25 20 40 40 Q 25 50 10 42 Z" fill="#7dd3fc" opacity="0.8" />
+            <path d="M 130 42 Q 115 20 100 40 Q 115 50 130 42 Z" fill="#7dd3fc" opacity="0.8" />
+            {/* Große zentrale Welle */}
+            <path d="M 25 45 Q 40 10 70 30 Q 95 10 115 45 Q 90 35 70 45 Q 50 35 25 45 Z" fill="url(#waterGrad)" stroke="#bae6fd" strokeWidth="2" />
+            <defs>
+              <linearGradient id="waterGrad" x1="0%" y1="100%" x2="0%" y2="0%">
+                <stop offset="0%" stopColor="#0369a1" />
+                <stop offset="50%" stopColor="#0284c7" />
+                <stop offset="100%" stopColor="#38bdf8" />
+              </linearGradient>
+            </defs>
+            {/* Schimmernde Wassertropfen / Perle */}
+            <circle cx="70" cy="18" r="4" fill="#fef08a" />
+            <circle cx="45" cy="28" r="2" fill="#e0f2fe" />
+            <circle cx="95" cy="28" r="2" fill="#e0f2fe" />
+          </svg>
+        ) 
+      },
       wizard: { key: 'wizard', name: 'Zauberer', title: 'ARKAN', bg: 'from-purple-950 via-indigo-950 to-slate-950', border: 'border-purple-400', art: CardArt.wizard, primaryColor: '#a855f7', glowColor: 'rgba(168, 85, 247, 0.7)', podiumClass: 'podium-water', crownSvg: (
         <svg viewBox="0 0 100 40" className="w-20 h-10 drop-shadow-[0_0_10px_#a855f7]">
           <polygon points="50,2 62,25 90,28 68,42 75,68 50,52 25,68 32,42 10,28 38,25" fill="#a855f7" stroke="#fde047" strokeWidth="2" />
@@ -1074,7 +1098,7 @@
               </div>
 
               <span className="text-[9px] text-center text-slate-300 font-bold block mt-2 drop-shadow bg-slate-950/70 py-1 rounded-full backdrop-blur-md border border-sky-500/30">
-                MYTHOS CARD GAME V10.11 (FIRE FLAME & PODIUM UPDATE)
+                MYTHOS CARD GAME V10.12 (WATER WAVE & CROWN UPDATE)
               </span>
             </div>
           </div>
@@ -1523,7 +1547,7 @@
                       </div>
                     </div>
                     
-                    {/* ELEMENT-PODEST (FEUER, DIAMANT, TORNADO ODER STANDARD) */}
+                    {/* ELEMENT-PODEST (WASSER-WELLEN, FEUER, DIAMANT, TORNADO ODER STANDARD) */}
                     <div 
                       className={`w-48 h-20 mt-[-16px] flex flex-col items-center justify-center element-podium-active z-10 ${suitTheme.podiumClass} ${winnerSuitKey === 'yellow' ? 'animate-tornado' : ''}`}
                       style={{ '--glow-color': suitTheme.glowColor }}
