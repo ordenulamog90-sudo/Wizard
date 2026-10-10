@@ -63,7 +63,7 @@
 
     @keyframes podiumGlow {
       0%, 100% { box-shadow: 0 0 20px rgba(234, 179, 8, 0.4), inset 0 0 15px rgba(234, 179, 8, 0.2); }
-      50% { shadow: 0 0 40px rgba(234, 179, 8, 0.8), inset 0 0 25px rgba(234, 179, 8, 0.5); }
+      50% { box-shadow: 0 0 40px rgba(234, 179, 8, 0.8), inset 0 0 25px rgba(234, 179, 8, 0.5); }
     }
     .podium-active {
       animation: podiumGlow 2s infinite ease-in-out;
@@ -724,7 +724,7 @@
                 </button>
               </div>
 
-              <span className="text-[10px] text-center text-slate-600 block mt-2">Mythos Card Game v4.6 • Mobile Scroll & Crypto Random Fix</span>
+              <span className="text-[10px] text-center text-slate-600 block mt-2">Mythos Card Game v4.7 • Embedded Dice Timer & Result Button</span>
             </div>
           </div>
         );
@@ -919,20 +919,20 @@
       return (
         <div className="flex flex-col h-full max-w-md mx-auto p-2 justify-between bg-slate-950 relative overflow-hidden">
           
-          {/* INTERAKTIVES WÜRFEL MODAL MIT SCROLLING & IMMER SICHTBAREM TIMER BUTTON */}
+          {/* INTERAKTIVES WÜRFEL MODAL */}
           {showDiceModal && (
             <div 
               onClick={handleDiceOverlayClick}
-              className="absolute inset-0 bg-slate-950/95 backdrop-blur-md z-50 flex flex-col items-center justify-between p-3 text-center cursor-pointer select-none overflow-y-auto"
+              className="absolute inset-0 bg-slate-950/95 backdrop-blur-md z-50 flex flex-col items-center justify-center p-4 text-center cursor-pointer select-none overflow-y-auto"
             >
-              <div className="shrink-0 mt-1">
-                <h2 className="text-lg font-black text-sky-300">Duell-Eröffnung</h2>
-                <p className="text-[11px] text-slate-400">Wer schlägt das erste Kapitel auf?</p>
-              </div>
+              <div className="w-full max-w-xs flex flex-col items-center gap-3 my-auto">
+                <div>
+                  <h2 className="text-xl font-black text-sky-300">Duell-Eröffnung</h2>
+                  <p className="text-xs text-slate-400 mt-0.5">Wer schlägt das erste Kapitel auf?</p>
+                </div>
 
-              <div className="my-2 flex flex-col items-center gap-2 w-full max-w-xs shrink-0">
                 <div
-                  className={`w-20 h-20 rounded-2xl bg-gradient-to-b from-sky-500 to-sky-800 border-2 border-sky-300 shadow-2xl flex items-center justify-center text-4xl transition-transform ${isDiceRolling ? 'animate-dice-active' : 'shadow-sky-500/30'}`}
+                  className={`w-24 h-24 rounded-3xl bg-gradient-to-b from-sky-500 to-sky-800 border-2 border-sky-300 shadow-2xl flex items-center justify-center text-5xl my-1 transition-transform ${isDiceRolling ? 'animate-dice-active' : 'shadow-sky-500/30'}`}
                 >
                   {isDiceRolling ? '🎲' : diceRolls ? `🎲 ${diceRolls[0]}` : '🎲'}
                 </div>
@@ -942,50 +942,47 @@
                     <span className="text-xs font-black text-amber-400 animate-pulse">
                       👉 Tippe auf den Bildschirm zum Würfeln!
                     </span>
-                    <span className="text-[10px] text-sky-400 font-extrabold bg-sky-950 px-3 py-0.5 rounded-full border border-sky-500/30">
+                    <span className="text-[11px] text-sky-400 font-extrabold bg-sky-950 px-3 py-1 rounded-full border border-sky-500/30">
                       ⏱️ Auto-Würfeln in {diceTimer}s
                     </span>
                   </div>
                 )}
 
+                {/* DIGITALE INFOBOX MIT DIREKT EINGEBETTETEM BUTTON UND TIMER */}
                 {diceRolls && (
-                  <div className="w-full bg-slate-900 border border-slate-800 p-2.5 rounded-xl space-y-1.5 text-xs animate-fadeIn">
-                    <div className="font-bold text-sky-300 border-b border-slate-800 pb-1 text-[11px]">Augenzahlen aller Spieler:</div>
-                    <div className="grid grid-cols-2 gap-1.5">
+                  <div className="w-full bg-slate-900 border border-slate-800 p-3 rounded-2xl space-y-2 text-xs shadow-2xl animate-fadeIn">
+                    <div className="font-bold text-sky-300 border-b border-slate-800 pb-1 text-xs">Augenzahlen aller Spieler:</div>
+                    <div className="grid grid-cols-2 gap-2">
                       {players.map((p, idx) => (
-                        <div key={p.id} className={`p-1.5 rounded-lg flex justify-between items-center ${diceWinner === idx ? 'bg-sky-950 border border-sky-400 text-sky-200' : 'bg-slate-950/60 text-slate-400'}`}>
-                          <span className="font-bold truncate text-[11px]">{p.name}:</span>
+                        <div key={p.id} className={`p-1.5 rounded-xl flex justify-between items-center ${diceWinner === idx ? 'bg-sky-950 border border-sky-400 text-sky-200' : 'bg-slate-950/60 text-slate-400'}`}>
+                          <span className="font-bold truncate text-xs">{p.name}:</span>
                           <span className="font-black text-amber-400 text-xs">🎲 {diceRolls[idx]}</span>
                         </div>
                       ))}
                     </div>
 
-                    <div className="bg-emerald-950/80 border border-emerald-500/50 p-2 rounded-lg text-center text-[11px] text-emerald-300 mt-2 font-bold">
+                    <div className="bg-emerald-950/80 border border-emerald-500/50 p-2 rounded-xl text-center text-xs text-emerald-300 mt-2 font-bold">
                       🏆 {players[diceWinner]?.name} gewinnt und beginnt Runde 1!
+                    </div>
+
+                    {/* BUTTON MIT DIREKT KOPPELTEM COUNTDOWN-TIMER DIREKT UNTER DEM ERGEBNIS */}
+                    <div className="pt-2 flex flex-col items-center gap-1 border-t border-slate-800 mt-2">
+                      <button
+                        onClick={(e) => { e.stopPropagation(); startRoundAfterDice(); }}
+                        className="w-full py-3 mythic-btn-primary text-white font-black text-xs rounded-xl shadow-2xl active:scale-95 transition-transform flex items-center justify-center gap-2"
+                      >
+                        <span>Weiter zum Spiel ⚔️</span>
+                        <span className="bg-sky-950/80 border border-sky-400/60 px-2 py-0.5 rounded-md text-[11px] font-bold text-amber-300">
+                          ⏱️ {resultTimer}s
+                        </span>
+                      </button>
+                      <span className="text-[10px] text-slate-400 font-bold">
+                        Automatisch weiter in {resultTimer} Sekunden
+                      </span>
                     </div>
                   </div>
                 )}
               </div>
-
-              {/* IMMER SICHTBARER TIMER-BUTTON NACH DEM WÜRFELN */}
-              {diceRolls ? (
-                <div className="w-full max-w-xs flex flex-col items-center gap-1 mb-2 shrink-0 z-10">
-                  <button
-                    onClick={(e) => { e.stopPropagation(); startRoundAfterDice(); }}
-                    className="w-full py-3 mythic-btn-primary text-white font-black text-sm rounded-xl shadow-2xl active:scale-95 transition-transform flex items-center justify-center gap-2"
-                  >
-                    <span>Weiter zum Spiel ⚔️</span>
-                    <span className="bg-sky-950/80 border border-sky-400/60 px-2 py-0.5 rounded-md text-xs font-bold text-amber-300">
-                      ⏱️ {resultTimer}s
-                    </span>
-                  </button>
-                  <span className="text-[10px] text-slate-400 font-bold">
-                    Tippe auf den Bildschirm oder warte {resultTimer}s
-                  </span>
-                </div>
-              ) : (
-                <div className="h-6 shrink-0"></div>
-              )}
             </div>
           )}
 
