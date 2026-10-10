@@ -9,11 +9,19 @@
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    body { background-color: #0b0f19; color: white; font-family: sans-serif; user-select: none; }
+    body { background-color: #070a12; color: white; font-family: sans-serif; user-select: none; }
+    /* Authentische Stein-Magma-Rückseite mit WIZARD Logo */
     .stone-card-back {
-      background: radial-gradient(circle at center, #2a201b 0%, #110c0a 100%);
-      border: 2px solid #3a2e2b;
-      box-shadow: inset 0 0 15px #000;
+      background: radial-gradient(circle at center, #3d2218 0%, #170d0a 70%, #080403 100%);
+      border: 3px solid #854d0e;
+      box-shadow: inset 0 0 20px #000, 0 4px 10px rgba(0,0,0,0.8);
+      position: relative;
+    }
+    .magma-crack {
+      background: linear-gradient(90deg, transparent, #f97316, #ef4444, #f97316, transparent);
+      height: 2px;
+      width: 80%;
+      filter: blur(0.5px);
     }
   </style>
 </head>
@@ -23,65 +31,101 @@
   <script type="text/babel">
     const { useState, useEffect } = React;
 
+    // Zuordnung der Völker mit authentischen Farben, Symbolen und Zunft-Illustrationen
     const SUITS = {
-      yellow: { name: 'Gelb', title: 'die standarte', symbol: '🗝️', bg: 'from-amber-950 via-yellow-900 to-amber-950', border: 'border-yellow-500' },
-      red: { name: 'Rot', title: 'die axt', symbol: '🪓', bg: 'from-red-950 via-rose-900 to-red-950', border: 'border-red-500' },
-      green: { name: 'Grün', title: 'der bogen', symbol: '🏹', bg: 'from-emerald-950 via-green-900 to-emerald-950', border: 'border-emerald-500' },
-      blue: { name: 'Blau', title: 'der dolch', symbol: '🗡️', bg: 'from-blue-950 via-indigo-900 to-blue-950', border: 'border-blue-500' }
+      yellow: { 
+        name: 'Gelb', title: 'DIE STANDARTE', 
+        bg: 'from-amber-900 via-yellow-950 to-slate-950', border: 'border-amber-400', 
+        color: '#f59e0b',
+        img: 'https://img.icons8.com/color/96/banner.png'
+      },
+      red: { 
+        name: 'Rot', title: 'DIE AXT', 
+        bg: 'from-red-950 via-rose-950 to-slate-950', border: 'border-red-500', 
+        color: '#ef4444',
+        img: 'https://img.icons8.com/color/96/battle-axe.png'
+      },
+      green: { 
+        name: 'Grün', title: 'DER BOGEN', 
+        bg: 'from-emerald-950 via-green-950 to-slate-950', border: 'border-emerald-400', 
+        color: '#10b981',
+        img: 'https://img.icons8.com/color/96/bow-and-arrow.png'
+      },
+      blue: { 
+        name: 'Blau', title: 'DER DOLCH', 
+        bg: 'from-blue-950 via-sky-950 to-slate-950', border: 'border-blue-400', 
+        color: '#3b82f6',
+        img: 'https://img.icons8.com/color/96/dagger.png'
+      }
     };
 
     function CardBack({ size = "md" }) {
-      const dim = size === "sm" ? "w-16 h-24" : size === "lg" ? "w-28 h-40" : "w-20 h-32";
+      const dim = size === "sm" ? "w-16 h-24" : size === "lg" ? "w-28 h-44" : "w-20 h-32";
       return (
-        <div class={`${dim} stone-card-back rounded-xl p-2 flex flex-col justify-between items-center relative overflow-hidden shadow-2xl`}>
-          <span class="text-[11px] font-black tracking-widest text-amber-500 drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">WIZARD</span>
-          <div class="grid grid-cols-2 gap-1.5 my-auto text-sm opacity-90">
-            <span class="text-emerald-400">🏹</span>
-            <span class="text-blue-400">🗡️</span>
-            <span class="text-yellow-400">🗝️</span>
-            <span class="text-red-400">🪓</span>
+        <div class={`${dim} stone-card-back rounded-xl p-2 flex flex-col justify-between items-center overflow-hidden`}>
+          <div class="magma-crack mt-2"></div>
+          
+          <div class="flex flex-col items-center gap-1 my-auto">
+            <span class="text-xs font-black tracking-widest text-amber-500 drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)]">WIZARD</span>
+            <div class="grid grid-cols-2 gap-2 opacity-80 my-1">
+              <img src={SUITS.red.img} class="w-4 h-4 object-contain" />
+              <img src={SUITS.yellow.img} class="w-4 h-4 object-contain" />
+              <img src={SUITS.green.img} class="w-4 h-4 object-contain" />
+              <img src={SUITS.blue.img} class="w-4 h-4 object-contain" />
+            </div>
           </div>
-          <div class="w-full h-2 bg-gradient-to-r from-orange-600 via-red-500 to-amber-600 blur-[1px] rounded-full"></div>
+
+          <div class="magma-crack mb-2"></div>
         </div>
       );
     }
 
     function CardFace({ card, size = "md", onClick, disabled }) {
-      const dim = size === "sm" ? "w-16 h-24 text-xs" : size === "lg" ? "w-28 h-40 text-base" : "w-20 h-32 text-sm";
+      const dim = size === "sm" ? "w-16 h-24" : size === "lg" ? "w-28 h-44" : "w-20 h-32";
       if (!card) return null;
 
-      const isSpecial = card.type === 'wizard' || card.type === 'jester';
+      const isWizard = card.type === 'wizard';
+      const isJester = card.type === 'jester';
       const suitInfo = SUITS[card.suit] || {};
 
-      const bgClass = isSpecial 
-        ? (card.type === 'wizard' ? 'from-purple-950 via-indigo-900 to-slate-950 border-purple-500' : 'from-slate-900 via-zinc-800 to-slate-950 border-slate-500')
+      const cornerText = isWizard ? 'Z' : isJester ? 'N' : card.value;
+      const titleText = isWizard ? 'ZAUBERER' : isJester ? 'NARR' : suitInfo.title;
+
+      const cardImg = isWizard 
+        ? 'https://img.icons8.com/color/96/wizard.png'
+        : isJester 
+        ? 'https://img.icons8.com/color/96/jester.png'
+        : suitInfo.img;
+
+      const bgStyle = isWizard
+        ? 'from-purple-950 via-indigo-950 to-slate-950 border-amber-300'
+        : isJester
+        ? 'from-slate-900 via-zinc-900 to-slate-950 border-slate-400'
         : `${suitInfo.bg} ${suitInfo.border}`;
 
       return (
         <div 
           onClick={!disabled ? onClick : undefined}
-          class={`${dim} rounded-xl bg-gradient-to-b ${bgClass} border-2 p-1.5 flex flex-col justify-between items-center relative shadow-xl cursor-pointer hover:-translate-y-1 transition-all`}
+          class={`${dim} rounded-xl bg-gradient-to-b ${bgStyle} border-2 p-1.5 flex flex-col justify-between items-center relative shadow-2xl cursor-pointer active:scale-95 transition-transform`}
         >
-          {/* Ecken-Zahlen Oben */}
-          <div class="w-full flex justify-between font-extrabold text-amber-300 drop-shadow">
-            <span>{card.type === 'number' ? card.value : (card.type === 'wizard' ? 'Z' : 'N')}</span>
-            <span>{card.type === 'number' ? card.value : (card.type === 'wizard' ? 'Z' : 'N')}</span>
+          {/* Ecken-Zahlen Oben (Goldener Retro-Look) */}
+          <div class="w-full flex justify-between font-black text-amber-300 text-sm drop-shadow-[0_1px_2px_rgba(0,0,0,1)]">
+            <span>{cornerText}</span>
+            <span>{cornerText}</span>
           </div>
 
-          {/* Symbol & Titel */}
-          <div class="flex flex-col items-center">
-            <span class="text-2xl drop-shadow-md">
-              {card.type === 'wizard' ? '🧙‍♂️' : card.type === 'jester' ? '🃏' : suitInfo.symbol}
-            </span>
-            <span class="text-[8px] font-serif text-amber-200/80 tracking-tight leading-none uppercase mt-0.5">
-              {card.type === 'wizard' ? 'Zauberer' : card.type === 'jester' ? 'Narr' : suitInfo.title}
+          {/* Mittleres Bild & Titel */}
+          <div class="flex flex-col items-center justify-center my-auto">
+            <img src={cardImg} class={`${size === 'lg' ? 'w-16 h-16' : 'w-10 h-10'} object-contain drop-shadow-[0_4px_6px_rgba(0,0,0,0.6)]`} />
+            <span class="text-[8px] font-bold text-amber-200 tracking-tighter uppercase mt-1 drop-shadow">
+              {titleText}
             </span>
           </div>
 
           {/* Ecken-Zahlen Unten (Auf dem Kopf) */}
-          <div class="w-full flex justify-between font-extrabold text-amber-300 drop-shadow rotate-180">
-            <span>{card.type === 'number' ? card.value : (card.type === 'wizard' ? 'Z' : 'N')}</span>
-            <span>{card.type === 'number' ? card.value : (card.type === 'wizard' ? 'Z' : 'N')}</span>
+          <div class="w-full flex justify-between font-black text-amber-300 text-sm drop-shadow-[0_1px_2px_rgba(0,0,0,1)] rotate-180">
+            <span>{cornerText}</span>
+            <span>{cornerText}</span>
           </div>
         </div>
       );
@@ -89,7 +133,7 @@
 
     function App() {
       const [round, setRound] = useState(1);
-      const [phase, setPhase] = useState('bidding'); // bidding, playing
+      const [phase, setPhase] = useState('bidding');
       const [playerHand, setPlayerHand] = useState([
         { type: 'number', value: 13, suit: 'yellow' },
         { type: 'wizard', value: 14 },
@@ -100,31 +144,26 @@
 
       return (
         <div class="flex flex-col h-full max-w-md mx-auto p-3 justify-between bg-slate-950">
-          {/* Status-Leiste */}
-          <div class="flex justify-between items-center bg-slate-900/80 p-2.5 rounded-xl border border-slate-800">
+          <div class="flex justify-between items-center bg-slate-900/90 p-3 rounded-xl border border-amber-500/30 shadow-lg">
             <span class="font-bold text-amber-400 text-sm">Runde {round} / 15</span>
-            <span class="text-xs text-slate-300">Phase: {phase === 'bidding' ? 'Stich-Ansage' : 'Spiel'}</span>
+            <span class="text-xs text-amber-200/80 font-medium">Phase: {phase === 'bidding' ? 'Stich-Ansage' : 'Spielrunde'}</span>
           </div>
 
-          {/* Spielfeld / Tisch */}
-          <div class="flex-1 my-3 rounded-2xl bg-slate-900/40 border border-slate-800/80 p-4 flex flex-col justify-between items-center relative">
-            
-            {/* Trumpf-Bereich */}
-            <div class="flex flex-col items-center gap-1">
-              <span class="text-[11px] font-medium text-amber-400/80 uppercase tracking-wider">Aufgedeckte Trumpfkarte</span>
+          <div class="flex-1 my-3 rounded-2xl bg-slate-900/50 border border-slate-800 p-4 flex flex-col justify-between items-center relative shadow-inner">
+            <div class="flex flex-col items-center gap-1.5">
+              <span class="text-[11px] font-bold text-amber-400/90 tracking-widest uppercase">Aufgedeckte Trumpfkarte</span>
               {trumpCard ? <CardFace card={trumpCard} size="lg" disabled /> : <CardBack size="lg" />}
             </div>
 
-            {/* Stich-Ansage Overlay über dem Tisch */}
             {phase === 'bidding' && (
-              <div class="w-full bg-slate-900/95 border border-amber-500/40 p-3 rounded-2xl flex flex-col items-center gap-2 shadow-2xl backdrop-blur-md">
-                <span class="text-xs font-semibold text-amber-300">Wie viele Stiche wirst du machen?</span>
+              <div class="w-full bg-slate-900/95 border border-amber-500/50 p-3 rounded-2xl flex flex-col items-center gap-2 shadow-2xl backdrop-blur-md">
+                <span class="text-xs font-bold text-amber-300">Stiche für diese Runde vorhersagen:</span>
                 <div class="flex gap-2 flex-wrap justify-center">
                   {Array.from({ length: round + 1 }, (_, i) => (
                     <button
                       key={i}
                       onClick={() => { setMyBid(i); setPhase('playing'); }}
-                      class="w-11 h-11 rounded-full bg-amber-600 hover:bg-amber-500 text-white font-extrabold text-lg shadow-lg active:scale-90 transition-transform"
+                      class="w-11 h-11 rounded-full bg-gradient-to-b from-amber-500 to-amber-700 hover:from-amber-400 hover:to-amber-600 text-slate-950 font-black text-lg shadow-lg border border-amber-300 active:scale-90 transition-transform"
                     >
                       {i}
                     </button>
@@ -134,11 +173,10 @@
             )}
           </div>
 
-          {/* Handkarten des Spielers */}
-          <div class="bg-slate-900 p-3 rounded-2xl border border-slate-800">
+          <div class="bg-slate-900 p-3 rounded-2xl border border-slate-800 shadow-xl">
             <div class="flex justify-between items-center mb-2 px-1">
-              <span class="text-xs text-slate-400 font-medium">Deine Handkarten:</span>
-              {myBid !== null && <span class="text-xs font-bold text-amber-400">Vorhersage: {myBid} Stich(e)</span>}
+              <span class="text-xs font-bold text-slate-400">Deine Handkarten:</span>
+              {myBid !== null && <span class="text-xs font-bold text-amber-400">Ansage: {myBid} Stich(e)</span>}
             </div>
             <div class="flex gap-2 overflow-x-auto pb-1 justify-center">
               {playerHand.map((card, i) => (
