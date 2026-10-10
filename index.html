@@ -70,17 +70,6 @@
       animation: elementPodiumGlow 2.5s infinite ease-in-out;
     }
 
-    /* ARKANES ZAUBERER-PODEST */
-    .podium-wizard {
-      background: linear-gradient(135deg, rgba(88, 28, 135, 0.95), rgba(76, 29, 149, 0.9), rgba(3, 7, 18, 0.98));
-      border: 2px solid #a855f7;
-      clip-path: polygon(20% 0%, 80% 0%, 100% 30%, 90% 100%, 10% 100%, 0% 30%);
-      background-image: 
-        radial-gradient(circle at 50% 20%, rgba(253, 224, 71, 0.4) 0%, transparent 60%),
-        repeating-linear-gradient(135deg, rgba(168, 85, 247, 0.2) 0px, rgba(168, 85, 247, 0.2) 10px, transparent 10px, transparent 20px);
-      background-size: 100% 100%, 100% 100%;
-    }
-
     /* GESCHWUNGENES WELLEN-WASSER-PODEST */
     .podium-water {
       background: linear-gradient(135deg, rgba(3, 105, 161, 0.95), rgba(2, 132, 199, 0.9), rgba(3, 7, 18, 0.98));
@@ -384,35 +373,6 @@
             <circle cx="95" cy="28" r="2" fill="#e0f2fe" />
           </svg>
         ) 
-      },
-      wizard: { 
-        key: 'wizard', 
-        name: 'Zauberer', 
-        title: 'ARKAN', 
-        bg: 'from-purple-950 via-indigo-950 to-slate-950', 
-        border: 'border-purple-400', 
-        art: CardArt.wizard, 
-        primaryColor: '#a855f7', 
-        glowColor: 'rgba(168, 85, 247, 0.85)', 
-        podiumClass: 'podium-wizard', 
-        crownSvg: (
-          <svg viewBox="0 0 140 60" className="w-28 h-12 drop-shadow-[0_0_22px_#a855f7] animate-pulse">
-            <polygon points="20,40 28,25 36,40 28,50" fill="#c084fc" stroke="#fde047" strokeWidth="1" />
-            <polygon points="120,40 112,25 104,40 112,50" fill="#c084fc" stroke="#fde047" strokeWidth="1" />
-            <path d="M 35 50 Q 50 25 65 8 L 70 2 L 75 8 Q 90 25 105 50 Q 85 40 70 48 Q 55 40 35 50 Z" fill="url(#wizardCrownGrad)" stroke="#fde047" strokeWidth="2" />
-            <defs>
-              <linearGradient id="wizardCrownGrad" x1="0%" y1="100%" x2="0%" y2="0%">
-                <stop offset="0%" stopColor="#581c87" />
-                <stop offset="50%" stopColor="#7e22ce" />
-                <stop offset="100%" stopColor="#9333ea" />
-              </linearGradient>
-            </defs>
-            <circle cx="70" cy="5" r="4.5" fill="#fde047" />
-            <circle cx="70" cy="25" r="3" fill="#38bdf8" />
-            <circle cx="55" cy="38" r="2" fill="#fde047" />
-            <circle cx="85" cy="38" r="2" fill="#fde047" />
-          </svg>
-        ) 
       }
     };
 
@@ -657,8 +617,7 @@
             red: { level: 1, xp: 0 },
             blue: { level: 1, xp: 0 },
             green: { level: 1, xp: 0 },
-            yellow: { level: 1, xp: 0 },
-            wizard: { level: 1, xp: 0 }
+            yellow: { level: 1, xp: 0 }
           },
           offlinePlayed: 3,
           offlineWins: 0,
@@ -667,6 +626,9 @@
         };
         if (!saved) return defaultProf;
         const parsed = JSON.parse(saved);
+        if (parsed.elementLevels && parsed.elementLevels.wizard) {
+          delete parsed.elementLevels.wizard;
+        }
         return {
           ...defaultProf,
           ...parsed,
@@ -674,7 +636,7 @@
           xp: parsed.xp ?? 0,
           elementLevels: parsed.elementLevels || defaultProf.elementLevels,
           selectedAvatar: parsed.selectedAvatar || defaultProf.selectedAvatar,
-          activeSuit: parsed.activeSuit || defaultProf.activeSuit,
+          activeSuit: (parsed.activeSuit === 'wizard' ? 'red' : parsed.activeSuit) || defaultProf.activeSuit,
           offlinePlayed: parsed.offlinePlayed ?? 0,
           offlineWins: parsed.offlineWins ?? 0,
           onlinePlayed: parsed.onlinePlayed ?? 0,
@@ -843,7 +805,7 @@
             randomAvatarObj = { 
               type: 'number', 
               value: randomVal, 
-              suit: (randomVal >= 1 && randomVal <= 9) ? 'blue' : (randomSuit === 'wizard' ? 'blue' : randomSuit), 
+              suit: (randomVal >= 1 && randomVal <= 9) ? 'blue' : randomSuit, 
               label: randomVal === 1 ? 'Blau 1' : randomVal === 2 ? 'Blau 2' : randomVal === 3 ? 'Blau 3' : randomVal === 4 ? 'Blau 4' : randomVal === 5 ? 'Blau 5' : randomVal === 6 ? 'Blau 6' : randomVal === 7 ? 'Blau 7' : randomVal === 8 ? 'Blau 8' : randomVal === 9 ? 'Blau 9' : `Karte ${randomVal}` 
             };
           }
@@ -1311,26 +1273,21 @@
 
       const getAvailableAvatarsForSuit = (suitKey, currentLevel) => {
         const list = [];
-        if (suitKey === 'wizard') {
-          list.push({ type: 'wizard', suit: 'wizard', label: 'Zauberer', unlocked: currentLevel >= 1 });
-          return list;
-        }
-        if (suitKey === 'blue') {
-          list.push({ type: 'number', value: 1, suit: 'blue', label: 'Blau 1', unlocked: currentLevel >= 2 });
-          list.push({ type: 'number', value: 2, suit: 'blue', label: 'Blau 2', unlocked: currentLevel >= 3 });
-          list.push({ type: 'number', value: 3, suit: 'blue', label: 'Blau 3', unlocked: currentLevel >= 4 });
-          list.push({ type: 'number', value: 4, suit: 'blue', label: 'Blau 4', unlocked: currentLevel >= 5 });
-          list.push({ type: 'number', value: 5, suit: 'blue', label: 'Blau 5', unlocked: currentLevel >= 6 });
-          list.push({ type: 'number', value: 6, suit: 'blue', label: 'Blau 6', unlocked: currentLevel >= 7 });
-          list.push({ type: 'number', value: 7, suit: 'blue', label: 'Blau 7', unlocked: currentLevel >= 8 });
-          list.push({ type: 'number', value: 8, suit: 'blue', label: 'Blau 8', unlocked: currentLevel >= 9 });
-          list.push({ type: 'number', value: 9, suit: 'blue', label: 'Blau 9', unlocked: currentLevel >= 10 });
-        }
-        list.push({ type: 'jester', suit: 'blue', label: 'Blauer Narr', unlocked: currentLevel >= 1 });
+        
+        // 1. Narr von Anfang an (Level 1) freigeschaltet
+        const suitNameDE = suitKey === 'blue' ? 'Blauer Narr' : suitKey === 'red' ? 'Roter Narr' : suitKey === 'green' ? 'Grüner Narr' : 'Gelber Narr';
+        list.push({ type: 'jester', suit: suitKey, label: suitNameDE, unlocked: currentLevel >= 1 });
+
+        // 2. Karten 1 bis 13 (schalten sich nacheinander frei ab Level 2 bis 14)
         for (let v = 1; v <= 13; v++) {
-          if (suitKey === 'blue' && (v >= 1 && v <= 9)) continue;
-          list.push({ type: 'number', value: v, suit: suitKey, label: `Karte ${v}`, unlocked: currentLevel >= (v + 1) });
+          let label = suitKey === 'blue' && v <= 9 ? `Blau ${v}` : `Karte ${v}`;
+          list.push({ type: 'number', value: v, suit: suitKey, label: label, unlocked: currentLevel >= (v + 1) });
         }
+
+        // 3. Zauberer des Elements erst auf Level 15 (letztes Level)
+        const wizardNameDE = suitKey === 'blue' ? 'Blauer Zauberer' : suitKey === 'red' ? 'Roter Zauberer' : suitKey === 'green' ? 'Grüner Zauberer' : 'Gelber Zauberer';
+        list.push({ type: 'wizard', suit: suitKey, label: wizardNameDE, unlocked: currentLevel >= 15 });
+
         return list;
       };
 
@@ -1373,7 +1330,7 @@
               </div>
 
               <span className="text-[9px] text-center text-slate-300 font-bold block mt-2 drop-shadow bg-slate-950/70 py-1 rounded-full backdrop-blur-md border border-sky-500/30">
-                MYTHOS CARD GAME V10.27 (FIXED TABLE BG)
+                MYTHOS CARD GAME V10.29 (ELEMENTS ONLY)
               </span>
             </div>
           </div>
@@ -1493,10 +1450,10 @@
 
                 <div className="space-y-4 pb-4">
                   <div className="text-[11px] text-slate-400">
-                    Wähle dein aktives Element oder den Zauberer-Pfad. Jedes gewonnene Spiel levelt dein gewähltes Element auf!
+                    Wähle dein aktives Element. Jedes gewonnene Spiel levelt dein gewähltes Element auf!
                   </div>
 
-                  <div className="grid grid-cols-5 gap-1.5">
+                  <div className="grid grid-cols-4 gap-2">
                     {Object.values(SUITS).map(s => {
                       const isSelected = profile.activeSuit === s.key;
                       const lvl = profile.elementLevels?.[s.key]?.level || 1;
@@ -1505,16 +1462,13 @@
                           key={s.key}
                           onClick={() => {
                             const updated = { ...profile, activeSuit: s.key };
-                            if (s.key === 'wizard') {
-                              updated.selectedAvatar = { type: 'wizard', suit: 'wizard', label: 'Zauberer' };
-                            }
                             setProfile(updated);
                             localStorage.setItem('wizard_profile', JSON.stringify(updated));
                           }}
-                          className={`p-2 rounded-xl border flex flex-col items-center gap-1 text-[10px] font-bold transition-all ${isSelected ? 'border-sky-400 bg-sky-950 text-sky-200 shadow-lg' : 'border-slate-800 bg-slate-900 text-slate-400'}`}
+                          className={`p-2.5 rounded-xl border flex flex-col items-center gap-1 text-xs font-bold transition-all ${isSelected ? 'border-sky-400 bg-sky-950 text-sky-200 shadow-lg' : 'border-slate-800 bg-slate-900 text-slate-400'}`}
                         >
                           <span className="truncate">{s.name}</span>
-                          <span className="text-amber-400">Lvl {lvl}</span>
+                          <span className="text-amber-400 text-[10px]">Lvl {lvl}</span>
                         </button>
                       );
                     })}
@@ -1522,13 +1476,13 @@
 
                   <div className="bg-slate-900/80 border border-slate-800 p-3 rounded-2xl space-y-2">
                     <div className="text-xs font-bold text-sky-300 flex justify-between items-center">
-                      <span>Pfad für: {SUITS[activeSuitKey]?.title || 'ARKAN'}</span>
+                      <span>Pfad für: {SUITS[activeSuitKey]?.title || 'FEUER'}</span>
                       <span className="text-[10px] text-amber-300">Level {elementLevel} / 15</span>
                     </div>
 
                     <div className="bg-slate-950 border border-slate-800 p-2 rounded-xl space-y-1">
                       <div className="flex justify-between text-[10px] text-slate-400 font-bold">
-                        <span>Element-XP ({SUITS[activeSuitKey]?.name || 'Zauberer'})</span>
+                        <span>Element-XP ({SUITS[activeSuitKey]?.name || 'Rot'})</span>
                         <span className="text-amber-400">{elementLevel >= 15 ? 'MAX' : `${elementXp} / ${xpNeededForNextElement} XP`}</span>
                       </div>
                       <div className="w-full h-2 bg-slate-900 rounded-full overflow-hidden border border-slate-800">
