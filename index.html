@@ -63,71 +63,76 @@
 
     @keyframes podiumGlow {
       0%, 100% { box-shadow: 0 0 20px rgba(234, 179, 8, 0.4), inset 0 0 15px rgba(234, 179, 8, 0.2); }
-      50% { box-shadow: 0 0 40px rgba(234, 179, 8, 0.8), inset 0 0 25px rgba(234, 179, 8, 0.5); }
+      50% { shadow: 0 0 40px rgba(234, 179, 8, 0.8), inset 0 0 25px rgba(234, 179, 8, 0.5); }
     }
     .podium-active {
       animation: podiumGlow 2s infinite ease-in-out;
     }
 
-    /* MAGISCHE KARTEN-FLUG ANIMATION (PUNKTGENAU 2,0 SEKUNDEN) */
-    @keyframes cardFlySpecialPlayer2s {
+    /* FLÜSSIGER FLUG MIT HARTEM "KNALL-IMPAKT" BEIM AUFLEGEN (2,0s) */
+    @keyframes cardSmoothFlyAndSlamPlayer {
       0% {
-        transform: translateY(220px) scale(1.5) rotate(-20deg);
+        transform: translateY(220px) scale(1.4) rotate(-10deg);
         opacity: 0;
-        box-shadow: 0 0 0px rgba(56, 189, 248, 0);
       }
-      25% {
-        transform: translateY(100px) scale(1.35) rotate(-10deg);
-        opacity: 0.8;
-        box-shadow: 0 0 40px rgba(56, 189, 248, 0.9), 0 0 20px rgba(251, 191, 36, 0.8);
-      }
-      50% {
-        transform: translateY(-25px) scale(1.2) rotate(8deg);
+      20% {
         opacity: 1;
-        box-shadow: 0 0 35px rgba(56, 189, 248, 0.9), 0 0 25px rgba(56, 189, 248, 0.8);
       }
-      75% {
-        transform: translateY(-5px) scale(1.05) rotate(-2deg);
-        box-shadow: 0 0 20px rgba(56, 189, 248, 0.6);
+      82% {
+        /* Butterweicher Flug bis kurz über das Ziel */
+        transform: translateY(-8px) scale(1.15) rotate(2deg);
+        box-shadow: 0 10px 30px rgba(56, 189, 248, 0.6);
       }
-      90% {
-        transform: translateY(2px) scale(0.98) rotate(0deg);
+      88% {
+        /* Der harte Aufprall (Knall) */
+        transform: translateY(3px) scale(0.92) rotate(-2deg);
+        box-shadow: 0 0 45px rgba(56, 189, 248, 1), 0 0 20px rgba(255, 255, 255, 0.9);
+      }
+      94% {
+        /* Rückstoß-Vibration */
+        transform: translateY(-1px) scale(1.03) rotate(1deg);
       }
       100% {
+        /* Fester Sitz auf dem Tisch */
         transform: translateY(0) scale(1) rotate(0deg);
         opacity: 1;
-        box-shadow: 0 0 10px rgba(56, 189, 248, 0.3);
+        box-shadow: 0 0 12px rgba(56, 189, 248, 0.3);
       }
     }
 
-    @keyframes cardFlySpecialAI2s {
+    @keyframes cardSmoothFlyAndSlamAI {
       0% {
-        transform: translateY(-180px) scale(0.5) rotate(15deg);
+        transform: translateY(-180px) scale(0.6) rotate(10deg);
         opacity: 0;
-        box-shadow: 0 0 0px rgba(168, 85, 247, 0);
       }
-      50% {
-        transform: translateY(20px) scale(1.2) rotate(-8deg);
-        opacity: 0.95;
-        box-shadow: 0 0 35px rgba(168, 85, 247, 0.9), 0 0 15px rgba(56, 189, 248, 0.8);
+      20% {
+        opacity: 1;
       }
-      80% {
-        transform: translateY(-3px) scale(1.05) rotate(2deg);
+      82% {
+        transform: translateY(8px) scale(1.15) rotate(-2deg);
+        box-shadow: 0 10px 30px rgba(168, 85, 247, 0.6);
+      }
+      88% {
+        transform: translateY(-3px) scale(0.92) rotate(2deg);
+        box-shadow: 0 0 45px rgba(168, 85, 247, 1), 0 0 20px rgba(255, 255, 255, 0.9);
+      }
+      94% {
+        transform: translateY(1px) scale(1.03) rotate(-1deg);
       }
       100% {
         transform: translateY(0) scale(1) rotate(0deg);
         opacity: 1;
-        box-shadow: 0 0 10px rgba(168, 85, 247, 0.3);
+        box-shadow: 0 0 12px rgba(168, 85, 247, 0.3);
       }
     }
 
     .animate-fly-player-special {
-      animation: cardFlySpecialPlayer2s 2.0s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      animation: cardSmoothFlyAndSlamPlayer 2.0s cubic-bezier(0.25, 0.1, 0.25, 1) forwards;
       z-index: 30;
     }
 
     .animate-fly-ai-special {
-      animation: cardFlySpecialAI2s 2.0s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      animation: cardSmoothFlyAndSlamAI 2.0s cubic-bezier(0.25, 0.1, 0.25, 1) forwards;
       z-index: 30;
     }
   </style>
@@ -608,7 +613,7 @@
 
         if (newPlayed.length === currentPlayers.length) {
           isEvaluatingRef.current = true;
-          setTimeout(() => evaluateTrick(newPlayed), 2200); // 2,2s AUSWERTUNGS-PAUSE FÜR DIE VOLLSTÄNDIGE 2s ANIMATION
+          setTimeout(() => evaluateTrick(newPlayed), 2200);
         } else {
           setTurn((playerIdx + 1) % currentPlayers.length);
           setTurnTimer(20);
@@ -783,7 +788,7 @@
                 </button>
               </div>
 
-              <span className="text-[10px] text-center text-slate-600 block mt-2">Mythos Card Game v5.4 • Exact 2.0s Player Flying Special Effect</span>
+              <span className="text-[10px] text-center text-slate-600 block mt-2">Mythos Card Game v5.5 • Smooth Flight with Impact Slam Animation</span>
             </div>
           </div>
         );
