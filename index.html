@@ -523,6 +523,14 @@
       
       const isBlueJester = isJester && card.suit === 'blue';
       const isBlueOne = card.type === 'number' && card.suit === 'blue' && card.value === 1;
+      const isBlueTwo = card.type === 'number' && card.suit === 'blue' && card.value === 2;
+      const isBlueThree = card.type === 'number' && card.suit === 'blue' && card.value === 3;
+      const isBlueFour = card.type === 'number' && card.suit === 'blue' && card.value === 4;
+      const isBlueFive = card.type === 'number' && card.suit === 'blue' && card.value === 5;
+      const isBlueSix = card.type === 'number' && card.suit === 'blue' && card.value === 6;
+      const isBlueSeven = card.type === 'number' && card.suit === 'blue' && card.value === 7;
+      const isBlueEight = card.type === 'number' && card.suit === 'blue' && card.value === 8;
+      const isBlueNine = card.type === 'number' && card.suit === 'blue' && card.value === 9;
 
       const artComponent = isWizard ? CardArt.wizard : isJester ? CardArt.jester : suitInfo.art;
 
@@ -551,12 +559,68 @@
             </div>
           )}
 
+          {isBlueTwo && (
+            <div className="absolute inset-0 z-0 overflow-hidden">
+              <img src="./1791660928323.jpg" alt="Blau 2" className="w-full h-full object-cover" />
+              <div className="absolute inset-0 bg-blue-950/15 backdrop-brightness-95"></div>
+            </div>
+          )}
+
+          {isBlueThree && (
+            <div className="absolute inset-0 z-0 overflow-hidden">
+              <img src="./1791661070842.jpg" alt="Blau 3" className="w-full h-full object-cover" />
+              <div className="absolute inset-0 bg-blue-950/15 backdrop-brightness-95"></div>
+            </div>
+          )}
+
+          {isBlueFour && (
+            <div className="absolute inset-0 z-0 overflow-hidden">
+              <img src="./1791661097582.jpg" alt="Blau 4" className="w-full h-full object-cover" />
+              <div className="absolute inset-0 bg-blue-950/15 backdrop-brightness-95"></div>
+            </div>
+          )}
+
+          {isBlueFive && (
+            <div className="absolute inset-0 z-0 overflow-hidden">
+              <img src="./1791661133492.jpg" alt="Blau 5" className="w-full h-full object-cover" />
+              <div className="absolute inset-0 bg-blue-950/15 backdrop-brightness-95"></div>
+            </div>
+          )}
+
+          {isBlueSix && (
+            <div className="absolute inset-0 z-0 overflow-hidden">
+              <img src="./1791661210907.jpg" alt="Blau 6" className="w-full h-full object-cover" />
+              <div className="absolute inset-0 bg-blue-950/15 backdrop-brightness-95"></div>
+            </div>
+          )}
+
+          {isBlueSeven && (
+            <div className="absolute inset-0 z-0 overflow-hidden">
+              <img src="./1791661243460.jpg" alt="Blau 7" className="w-full h-full object-cover" />
+              <div className="absolute inset-0 bg-blue-950/15 backdrop-brightness-95"></div>
+            </div>
+          )}
+
+          {isBlueEight && (
+            <div className="absolute inset-0 z-0 overflow-hidden">
+              <img src="./1791661280244.jpg" alt="Blau 8" className="w-full h-full object-cover" />
+              <div className="absolute inset-0 bg-blue-950/15 backdrop-brightness-95"></div>
+            </div>
+          )}
+
+          {isBlueNine && (
+            <div className="absolute inset-0 z-0 overflow-hidden">
+              <img src="./1791661311268.jpg" alt="Blau 9" className="w-full h-full object-cover" />
+              <div className="absolute inset-0 bg-blue-950/15 backdrop-brightness-95"></div>
+            </div>
+          )}
+
           <div className="w-full flex justify-between font-black text-amber-300 text-xs drop-shadow z-10">
             <span>{cornerText}</span>
             <span>{cornerText}</span>
           </div>
 
-          {!isBlueJester && !isBlueOne ? (
+          {!isBlueJester && !isBlueOne && !isBlueTwo && !isBlueThree && !isBlueFour && !isBlueFive && !isBlueSix && !isBlueSeven && !isBlueEight && !isBlueNine ? (
             <div className="card-art-box w-full flex-1 my-0.5 rounded-lg p-0.5 flex flex-col items-center justify-center relative overflow-hidden z-10">
               <div className="w-full h-full flex items-center justify-center">
                 {artComponent}
@@ -776,7 +840,12 @@
             randomAvatarObj = { type: 'wizard', suit: 'wizard', label: 'Zauberer' };
           } else {
             const randomVal = Math.floor(Math.random() * 13) + 1;
-            randomAvatarObj = { type: 'number', value: randomVal, suit: randomVal === 1 ? 'blue' : (randomSuit === 'wizard' ? 'blue' : randomSuit), label: randomVal === 1 ? 'Blau 1' : `Karte ${randomVal}` };
+            randomAvatarObj = { 
+              type: 'number', 
+              value: randomVal, 
+              suit: (randomVal >= 1 && randomVal <= 9) ? 'blue' : (randomSuit === 'wizard' ? 'blue' : randomSuit), 
+              label: randomVal === 1 ? 'Blau 1' : randomVal === 2 ? 'Blau 2' : randomVal === 3 ? 'Blau 3' : randomVal === 4 ? 'Blau 4' : randomVal === 5 ? 'Blau 5' : randomVal === 6 ? 'Blau 6' : randomVal === 7 ? 'Blau 7' : randomVal === 8 ? 'Blau 8' : randomVal === 9 ? 'Blau 9' : `Karte ${randomVal}` 
+            };
           }
 
           initialPlayers.push({
@@ -1073,6 +1142,14 @@
         const suitInfo = SUITS[avatarObj.suit] || SUITS.red;
         const isBlueJesterAvatar = avatarObj.type === 'jester' && avatarObj.suit === 'blue';
         const isBlueOneAvatar = avatarObj.type === 'number' && avatarObj.suit === 'blue' && avatarObj.value === 1;
+        const isBlueTwoAvatar = avatarObj.type === 'number' && avatarObj.suit === 'blue' && avatarObj.value === 2;
+        const isBlueThreeAvatar = avatarObj.type === 'number' && avatarObj.suit === 'blue' && avatarObj.value === 3;
+        const isBlueFourAvatar = avatarObj.type === 'number' && avatarObj.suit === 'blue' && avatarObj.value === 4;
+        const isBlueFiveAvatar = avatarObj.type === 'number' && avatarObj.suit === 'blue' && avatarObj.value === 5;
+        const isBlueSixAvatar = avatarObj.type === 'number' && avatarObj.suit === 'blue' && avatarObj.value === 6;
+        const isBlueSevenAvatar = avatarObj.type === 'number' && avatarObj.suit === 'blue' && avatarObj.value === 7;
+        const isBlueEightAvatar = avatarObj.type === 'number' && avatarObj.suit === 'blue' && avatarObj.value === 8;
+        const isBlueNineAvatar = avatarObj.type === 'number' && avatarObj.suit === 'blue' && avatarObj.value === 9;
 
         if (isBlueJesterAvatar) {
           return (
@@ -1093,6 +1170,110 @@
               <img 
                 src="./1791660858583.jpg" 
                 alt="Blau 1 Avatar" 
+                className="w-full h-full object-cover" 
+                style={{ objectPosition: 'center 20%' }} 
+              />
+            </div>
+          );
+        }
+
+        if (isBlueTwoAvatar) {
+          return (
+            <div className={`${sizeClass} rounded-full bg-slate-900 border-2 border-blue-400 flex items-center justify-center shadow-xl relative overflow-hidden`}>
+              <img 
+                src="./1791660928323.jpg" 
+                alt="Blau 2 Avatar" 
+                className="w-full h-full object-cover" 
+                style={{ objectPosition: 'center 20%' }} 
+              />
+            </div>
+          );
+        }
+
+        if (isBlueThreeAvatar) {
+          return (
+            <div className={`${sizeClass} rounded-full bg-slate-900 border-2 border-blue-400 flex items-center justify-center shadow-xl relative overflow-hidden`}>
+              <img 
+                src="./1791661070842.jpg" 
+                alt="Blau 3 Avatar" 
+                className="w-full h-full object-cover" 
+                style={{ objectPosition: 'center 20%' }} 
+              />
+            </div>
+          );
+        }
+
+        if (isBlueFourAvatar) {
+          return (
+            <div className={`${sizeClass} rounded-full bg-slate-900 border-2 border-blue-400 flex items-center justify-center shadow-xl relative overflow-hidden`}>
+              <img 
+                src="./1791661097582.jpg" 
+                alt="Blau 4 Avatar" 
+                className="w-full h-full object-cover" 
+                style={{ objectPosition: 'center 20%' }} 
+              />
+            </div>
+          );
+        }
+
+        if (isBlueFiveAvatar) {
+          return (
+            <div className={`${sizeClass} rounded-full bg-slate-900 border-2 border-blue-400 flex items-center justify-center shadow-xl relative overflow-hidden`}>
+              <img 
+                src="./1791661133492.jpg" 
+                alt="Blau 5 Avatar" 
+                className="w-full h-full object-cover" 
+                style={{ objectPosition: 'center 20%' }} 
+              />
+            </div>
+          );
+        }
+
+        if (isBlueSixAvatar) {
+          return (
+            <div className={`${sizeClass} rounded-full bg-slate-900 border-2 border-blue-400 flex items-center justify-center shadow-xl relative overflow-hidden`}>
+              <img 
+                src="./1791661210907.jpg" 
+                alt="Blau 6 Avatar" 
+                className="w-full h-full object-cover" 
+                style={{ objectPosition: 'center 20%' }} 
+              />
+            </div>
+          );
+        }
+
+        if (isBlueSevenAvatar) {
+          return (
+            <div className={`${sizeClass} rounded-full bg-slate-900 border-2 border-blue-400 flex items-center justify-center shadow-xl relative overflow-hidden`}>
+              <img 
+                src="./1791661243460.jpg" 
+                alt="Blau 7 Avatar" 
+                className="w-full h-full object-cover" 
+                style={{ objectPosition: 'center 20%' }} 
+              />
+            </div>
+          );
+        }
+
+        if (isBlueEightAvatar) {
+          return (
+            <div className={`${sizeClass} rounded-full bg-slate-900 border-2 border-blue-400 flex items-center justify-center shadow-xl relative overflow-hidden`}>
+              <img 
+                src="./1791661280244.jpg" 
+                alt="Blau 8 Avatar" 
+                className="w-full h-full object-cover" 
+                style={{ objectPosition: 'center 20%' }} 
+              />
+            </div>
+          );
+        }
+
+        if (isBlueNineAvatar) {
+          return (
+            <div className={`${sizeClass} rounded-full bg-slate-900 border-2 border-blue-400 flex items-center justify-center shadow-xl relative overflow-hidden`}>
+              <img 
+                src="./1791661311268.jpg" 
+                alt="Blau 9 Avatar" 
                 className="w-full h-full object-cover" 
                 style={{ objectPosition: 'center 20%' }} 
               />
@@ -1136,10 +1317,18 @@
         }
         if (suitKey === 'blue') {
           list.push({ type: 'number', value: 1, suit: 'blue', label: 'Blau 1', unlocked: currentLevel >= 2 });
+          list.push({ type: 'number', value: 2, suit: 'blue', label: 'Blau 2', unlocked: currentLevel >= 3 });
+          list.push({ type: 'number', value: 3, suit: 'blue', label: 'Blau 3', unlocked: currentLevel >= 4 });
+          list.push({ type: 'number', value: 4, suit: 'blue', label: 'Blau 4', unlocked: currentLevel >= 5 });
+          list.push({ type: 'number', value: 5, suit: 'blue', label: 'Blau 5', unlocked: currentLevel >= 6 });
+          list.push({ type: 'number', value: 6, suit: 'blue', label: 'Blau 6', unlocked: currentLevel >= 7 });
+          list.push({ type: 'number', value: 7, suit: 'blue', label: 'Blau 7', unlocked: currentLevel >= 8 });
+          list.push({ type: 'number', value: 8, suit: 'blue', label: 'Blau 8', unlocked: currentLevel >= 9 });
+          list.push({ type: 'number', value: 9, suit: 'blue', label: 'Blau 9', unlocked: currentLevel >= 10 });
         }
         list.push({ type: 'jester', suit: 'blue', label: 'Blauer Narr', unlocked: currentLevel >= 1 });
         for (let v = 1; v <= 13; v++) {
-          if (suitKey === 'blue' && v === 1) continue;
+          if (suitKey === 'blue' && (v >= 1 && v <= 9)) continue;
           list.push({ type: 'number', value: v, suit: suitKey, label: `Karte ${v}`, unlocked: currentLevel >= (v + 1) });
         }
         return list;
@@ -1184,7 +1373,7 @@
               </div>
 
               <span className="text-[9px] text-center text-slate-300 font-bold block mt-2 drop-shadow bg-slate-950/70 py-1 rounded-full backdrop-blur-md border border-sky-500/30">
-                MYTHOS CARD GAME V10.17 (NO CARD NAMES UPDATE)
+                MYTHOS CARD GAME V10.26 (TABLE BACKGROUND UPDATE)
               </span>
             </div>
           </div>
@@ -1698,17 +1887,23 @@
             })}
           </div>
 
-          <div className="flex-1 my-2 rounded-2xl bg-slate-900/50 border border-slate-800 p-2 flex flex-col justify-between items-center relative overflow-hidden">
-            <div className="flex items-center gap-2">
-              <span className="text-[10px] font-bold text-sky-400 uppercase">Trumpf:</span>
+          <!-- ZENTRALER SPIELTISCH MIT NEUEM HINTERGRUNDBILD -->
+          <div className="flex-1 my-2 rounded-2xl border border-sky-500/40 p-2 flex flex-col justify-between items-center relative overflow-hidden shadow-2xl">
+            <div className="absolute inset-0 z-0">
+              <img src="./1791660049147.jpg" alt="Spieltisch Hintergrund" className="w-full h-full object-cover" />
+              <div className="absolute inset-0 bg-slate-950/50 backdrop-brightness-90"></div>
+            </div>
+
+            <div className="flex items-center gap-2 z-10">
+              <span className="text-[10px] font-bold text-sky-300 uppercase drop-shadow">Trumpf:</span>
               {trumpCard ? <CardFace card={trumpCard} size="sm" disabled /> : <CardBack size="sm" />}
             </div>
 
-            <div className="w-full flex-1 flex items-center justify-center p-2 relative">
+            <div className="w-full flex-1 flex items-center justify-center p-2 relative z-10">
               <div className={`grid grid-cols-2 gap-4 items-center justify-items-center ${collectingWinnerId !== null ? (collectingWinnerId === 0 ? 'animate-fly-to-bottom' : 'animate-fly-to-top') : ''}`}>
                 {playedCards.map((pc, i) => (
                   <div key={i} className="flex flex-col items-center">
-                    <span className="text-[9px] text-sky-300 mb-0.5">{players[pc.playerId]?.name}</span>
+                    <span className="text-[9px] text-sky-200 mb-0.5 drop-shadow">{players[pc.playerId]?.name}</span>
                     <CardFace card={pc.card} size="sm" disabled />
                   </div>
                 ))}
@@ -1716,7 +1911,7 @@
 
               {/* TCG ELEMENT-ANIMATION */}
               {animatingCardId && animatingCardObj && (
-                <div className="absolute inset-0 flex flex-col items-center justify-center z-40 bg-black/55 backdrop-blur-[2px]">
+                <div className="absolute inset-0 flex flex-col items-center justify-center z-40 bg-black/60 backdrop-blur-[2px]">
                   <div className="relative flex flex-col items-center">
                     {renderTcgElementAnimation(animatingCardObj)}
                     <CardFace card={animatingCardObj} size="md" disabled className="animate-tcglike-slam mt-2" />
