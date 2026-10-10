@@ -716,6 +716,10 @@
         }, 750);
       };
 
+      // AUSWERTUNGS-LOGIK: 
+      // 1. Erster gespielter Zauberer gewinnt immer.
+      // 2. Ist der Trumpf auf dem Tisch ein Zauberer (oder keine Farbe), bestimmt die ERSTE ausgespielte Zahlenkarte die Leitfarbe.
+      // 3. Höherer Wert in Leitfarbe oder Trumpffarbe gewinnt.
       const evaluateTrick = (cardsOnTable) => {
         let winningCardObj = cardsOnTable[0];
 
@@ -728,6 +732,8 @@
             winningCardObj = cardsOnTable[0];
           } else {
             const trumpSuit = (trumpCard && trumpCard.type === 'number') ? trumpCard.suit : null;
+            
+            // Die Leitfarbe wird durch die ERSTE ausgespielte Zahlenkarte auf dem Tisch definiert
             const leadCardObj = cardsOnTable.find(c => c.card.type === 'number');
             const leadSuit = leadCardObj ? leadCardObj.card.suit : null;
 
@@ -948,7 +954,7 @@
               </div>
 
               <span className="text-[9px] text-center text-slate-300 font-bold block mt-2 drop-shadow bg-slate-950/70 py-1 rounded-full backdrop-blur-md border border-sky-500/30">
-                MYTHOS CARD GAME V9.9 (ELEMENT CROWN & SHAPED PODIUM)
+                MYTHOS CARD GAME V10.3 (LEAD SUIT & WIZARD TRUMP FIX)
               </span>
             </div>
           </div>
@@ -1247,12 +1253,12 @@
             </div>
             <div className="space-y-3 text-xs text-slate-300 leading-relaxed">
               <div className="bg-slate-900 p-3 rounded-xl border border-slate-800">
-                <h3 className="font-bold text-sky-300 mb-1">1. Trumpf & Leitfarbe</h3>
-                <p>Die aufliegende Trumpfkarte hat immer absoluten Vorrang. Die zuerst ausgespielte Zahlenkarte gibt die Leitfarbe vor. Fehlfarben stechen niemals!</p>
+                <h3 className="font-bold text-sky-300 mb-1">1. Leitfarbe & Trumpf</h3>
+                <p>Ist der Trumpf ein Zauberer, hat er keine Farbe. Die erste ausgespielte Zahlenkarte bestimmt die Leitfarbe. Höhere Werte gewinnen.</p>
               </div>
               <div className="bg-slate-900 p-3 rounded-xl border border-slate-800">
                 <h3 className="font-bold text-sky-300 mb-1">2. Zauberer & Narren</h3>
-                <p>Der erste Zauberer gewinnt immer. Narren verlieren in jedem Fall, es sei denn, es werden ausschließlich Narren ausgespielt (dann gewinnt der erste Narr).</p>
+                <p>Der erste Zauberer gewinnt immer. Narren verlieren, es sei denn, es liegen ausschließlich Narren auf dem Tisch.</p>
               </div>
             </div>
             <button onClick={() => setScreen('menu')} className="mt-4 w-full py-3 mythic-btn-primary text-white font-bold rounded-xl">Zurück zum Menü</button>
