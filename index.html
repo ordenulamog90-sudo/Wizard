@@ -10,7 +10,6 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     body { background-color: #070a12; color: white; font-family: system-ui, -apple-system, sans-serif; user-select: none; }
-    /* Authentische Stein-Magma-Rückseite mit WIZARD Logo */
     .stone-card-back {
       background: radial-gradient(circle at center, #3d2218 0%, #170d0a 70%, #080403 100%);
       border: 3px solid #854d0e;
@@ -23,65 +22,118 @@
       width: 80%;
       filter: blur(0.5px);
     }
+    .card-art-box {
+      background: radial-gradient(circle at center, rgba(255,255,255,0.1) 0%, rgba(0,0,0,0.6) 100%);
+      border: 1px solid rgba(251, 191, 36, 0.4);
+    }
   </style>
 </head>
 <body class="h-screen overflow-hidden">
   <div id="root" class="h-full"></div>
 
   <script type="text/babel">
-    const { useState, useEffect } = React;
+    const { useState } = React;
 
-    // Zuordnung der Völker mit authentischen Farben, Titeln und zuverlässigen Inlined-Symbolen
+    // Vektor-Illustrationen im düsteren Fantasy-Stil
+    const CardArt = {
+      wizard: (
+        <svg viewBox="0 0 100 120" className="w-full h-full drop-shadow-md">
+          {/* Hintergrund-Aura */}
+          <circle cx="50" cy="50" r="38" fill="#581c87" opacity="0.4" />
+          {/* Zauberer-Gewand */}
+          <path d="M 30 110 L 50 45 L 70 110 Z" fill="#3b0764" stroke="#a855f7" strokeWidth="2" />
+          {/* Bart */}
+          <path d="M 40 55 Q 50 90 60 55 C 55 75 45 75 40 55 Z" fill="#e2e8f0" />
+          {/* Gesicht */}
+          <circle cx="50" cy="48" r="10" fill="#fde047" opacity="0.8" />
+          {/* Zauberhut */}
+          <path d="M 25 45 L 50 10 L 75 45 Z" fill="#6b21a8" stroke="#f59e0b" strokeWidth="2" />
+          <path d="M 20 45 C 35 40 65 40 80 45 C 65 48 35 48 20 45 Z" fill="#f59e0b" />
+          <path d="M 48 25 L 52 25 L 50 20 Z" fill="#fef08a" />
+          {/* Zauberstab & Magie */}
+          <line x1="20" y1="100" x2="35" y2="40" stroke="#78350f" strokeWidth="3" strokeLinecap="round" />
+          <circle cx="35" cy="40" r="5" fill="#38bdf8" />
+          <circle cx="35" cy="40" r="8" fill="#e0f2fe" opacity="0.5" />
+        </svg>
+      ),
+      jester: (
+        <svg viewBox="0 0 100 120" className="w-full h-full drop-shadow-md">
+          <circle cx="50" cy="50" r="38" fill="#831843" opacity="0.4" />
+          {/* Kragen */}
+          <path d="M 25 75 L 35 60 L 50 80 L 65 60 L 75 75 L 50 105 Z" fill="#be185d" stroke="#f472b6" strokeWidth="1.5" />
+          {/* Narrenkappe */}
+          <path d="M 30 48 Q 15 25 10 35 Q 25 50 35 45 Z" fill="#e11d48" stroke="#fecdd3" strokeWidth="1.5" />
+          <path d="M 70 48 Q 85 25 90 35 Q 75 50 65 45 Z" fill="#0284c7" stroke="#bae6fd" strokeWidth="1.5" />
+          <circle cx="10" cy="35" r="4" fill="#fef08a" />
+          <circle cx="90" cy="35" r="4" fill="#fef08a" />
+          {/* Gesicht & Maske */}
+          <circle cx="50" cy="48" r="14" fill="#fde047" opacity="0.8" />
+          <path d="M 40 45 Q 50 35 60 45 Q 50 58 40 45 Z" fill="#0f172a" />
+        </svg>
+      ),
+      bow: (
+        <svg viewBox="0 0 100 120" className="w-full h-full drop-shadow-md">
+          <path d="M 25 100 C 50 80 80 50 65 20" fill="none" stroke="#15803d" strokeWidth="6" strokeLinecap="round" />
+          <path d="M 25 100 L 65 20" stroke="#cbd5e1" strokeWidth="1.5" strokeDasharray="4 2" />
+          {/* Pfeil */}
+          <line x1="20" y1="90" x2="75" y2="25" stroke="#78350f" strokeWidth="3" />
+          <path d="M 75 25 L 65 28 L 72 35 Z" fill="#ef4444" />
+          <path d="M 20 90 L 26 95 M 23 87 L 29 92" stroke="#f8fafc" strokeWidth="2" />
+        </svg>
+      ),
+      axe: (
+        <svg viewBox="0 0 100 120" className="w-full h-full drop-shadow-md">
+          <line x1="25" y1="95" x2="75" y2="25" stroke="#78350f" strokeWidth="7" strokeLinecap="round" />
+          {/* Axtblatt */}
+          <path d="M 55 30 C 70 15 85 25 80 50 C 65 45 55 40 50 35 Z" fill="#94a3b8" stroke="#f8fafc" strokeWidth="2" />
+          <path d="M 45 40 C 30 25 15 35 20 60 C 35 55 45 50 50 45 Z" fill="#64748b" stroke="#f8fafc" strokeWidth="2" />
+        </svg>
+      ),
+      dagger: (
+        <svg viewBox="0 0 100 120" className="w-full h-full drop-shadow-md">
+          <line x1="30" y1="90" x2="70" y2="30" stroke="#38bdf8" strokeWidth="5" strokeLinecap="round" />
+          <path d="M 70 30 L 85 15 L 75 35 L 55 55 Z" fill="#cbd5e1" stroke="#f8fafc" strokeWidth="1.5" />
+          <path d="M 25 95 L 35 85" stroke="#f59e0b" strokeWidth="8" strokeLinecap="round" />
+          <circle cx="22" cy="98" r="5" fill="#f59e0b" />
+        </svg>
+      ),
+      banner: (
+        <svg viewBox="0 0 100 120" className="w-full h-full drop-shadow-md">
+          <line x1="30" y1="15" x2="30" y2="105" stroke="#78350f" strokeWidth="6" strokeLinecap="round" />
+          <path d="M 30 25 L 80 25 L 65 45 L 80 65 L 30 65 Z" fill="#f59e0b" stroke="#fef08a" strokeWidth="2" />
+          <circle cx="30" cy="12" r="5" fill="#fef08a" />
+        </svg>
+      )
+    };
+
     const SUITS = {
-      yellow: { 
-        name: 'Gelb', title: 'DIE STANDARTE', 
-        bg: 'from-amber-950 via-yellow-950 to-slate-950', border: 'border-amber-400', 
-        color: '#f59e0b',
-        symbol: '🚩'
-      },
-      red: { 
-        name: 'Rot', title: 'DIE AXT', 
-        bg: 'from-red-950 via-rose-950 to-slate-950', border: 'border-red-500', 
-        color: '#ef4444',
-        symbol: '🪓'
-      },
-      green: { 
-        name: 'Grün', title: 'DER BOGEN', 
-        bg: 'from-emerald-950 via-green-950 to-slate-950', border: 'border-emerald-400', 
-        color: '#10b981',
-        symbol: '🏹'
-      },
-      blue: { 
-        name: 'Blau', title: 'DER DOLCH', 
-        bg: 'from-blue-950 via-sky-950 to-slate-950', border: 'border-blue-400', 
-        color: '#3b82f6',
-        symbol: '🗡️'
-      }
+      yellow: { name: 'Gelb', title: 'DIE STANDARTE', bg: 'from-amber-950 via-yellow-950 to-slate-950', border: 'border-amber-400', art: CardArt.banner },
+      red: { name: 'Rot', title: 'DIE AXT', bg: 'from-red-950 via-rose-950 to-slate-950', border: 'border-red-500', art: CardArt.axe },
+      green: { name: 'Grün', title: 'DER BOGEN', bg: 'from-emerald-950 via-green-950 to-slate-950', border: 'border-emerald-400', art: CardArt.bow },
+      blue: { name: 'Blau', title: 'DER DOLCH', bg: 'from-blue-950 via-sky-950 to-slate-950', border: 'border-blue-400', art: CardArt.dagger }
     };
 
     function CardBack({ size = "md" }) {
       const dim = size === "sm" ? "w-16 h-24" : size === "lg" ? "w-28 h-44" : "w-20 h-32";
       return (
-        <div class={`${dim} stone-card-back rounded-xl p-2 flex flex-col justify-between items-center overflow-hidden`}>
-          <div class="magma-crack mt-2"></div>
-          
-          <div class="flex flex-col items-center gap-1 my-auto">
-            <span class="text-xs font-black tracking-widest text-amber-500 drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)]">WIZARD</span>
-            <div class="grid grid-cols-2 gap-1.5 opacity-90 my-1 text-sm">
-              <span>🪓</span>
-              <span>🚩</span>
-              <span>🏹</span>
-              <span>🗡️</span>
+        <div className={`${dim} stone-card-back rounded-xl p-2 flex flex-col justify-between items-center overflow-hidden`}>
+          <div className="magma-crack mt-2"></div>
+          <div className="flex flex-col items-center gap-1 my-auto">
+            <span className="text-xs font-black tracking-widest text-amber-500 drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)]">WIZARD</span>
+            <div className="grid grid-cols-2 gap-1 w-10 h-10 opacity-80 my-1">
+              {CardArt.axe}
+              {CardArt.banner}
+              {CardArt.bow}
+              {CardArt.dagger}
             </div>
           </div>
-
-          <div class="magma-crack mb-2"></div>
+          <div className="magma-crack mb-2"></div>
         </div>
       );
     }
 
     function CardFace({ card, size = "md", onClick, disabled }) {
-      const dim = size === "sm" ? "w-16 h-24" : size === "lg" ? "w-28 h-44" : "w-20 h-32";
+      const dim = size === "sm" ? "w-16 h-24" : size === "lg" ? "w-32 h-48" : "w-24 h-36";
       if (!card) return null;
 
       const isWizard = card.type === 'wizard';
@@ -91,7 +143,7 @@
       const cornerText = isWizard ? 'Z' : isJester ? 'N' : card.value;
       const titleText = isWizard ? 'ZAUBERER' : isJester ? 'NARR' : suitInfo.title;
 
-      const cardSymbol = isWizard ? '🧙‍♂️' : isJester ? '🃏' : suitInfo.symbol;
+      const artComponent = isWizard ? CardArt.wizard : isJester ? CardArt.jester : suitInfo.art;
 
       const bgStyle = isWizard
         ? 'from-purple-950 via-indigo-950 to-slate-950 border-amber-300'
@@ -102,26 +154,26 @@
       return (
         <div 
           onClick={!disabled ? onClick : undefined}
-          class={`${dim} rounded-xl bg-gradient-to-b ${bgStyle} border-2 p-1.5 flex flex-col justify-between items-center relative shadow-2xl cursor-pointer active:scale-95 transition-transform`}
+          className={`${dim} rounded-xl bg-gradient-to-b ${bgStyle} border-2 p-1.5 flex flex-col justify-between items-center relative shadow-2xl cursor-pointer active:scale-95 transition-transform overflow-hidden`}
         >
           {/* Ecken-Zahlen Oben */}
-          <div class="w-full flex justify-between font-black text-amber-300 text-sm drop-shadow-[0_1px_2px_rgba(0,0,0,1)]">
+          <div className="w-full flex justify-between font-black text-amber-300 text-sm drop-shadow z-10">
             <span>{cornerText}</span>
             <span>{cornerText}</span>
           </div>
 
-          {/* Mittleres Symbol & Titel */}
-          <div class="flex flex-col items-center justify-center my-auto">
-            <span class={`${size === 'lg' ? 'text-4xl' : 'text-2xl'} drop-shadow-[0_4px_6px_rgba(0,0,0,0.8)]`}>
-              {cardSymbol}
-            </span>
-            <span class="text-[8px] font-bold text-amber-200 tracking-tighter uppercase mt-1 drop-shadow">
+          {/* Detaillierter Kunstrahmen & Illustration */}
+          <div className="card-art-box w-full flex-1 my-1 rounded-lg p-1 flex flex-col items-center justify-center relative overflow-hidden">
+            <div className="w-full h-full flex items-center justify-center">
+              {artComponent}
+            </div>
+            <span className="absolute bottom-0.5 text-[7px] font-bold text-amber-200 tracking-tighter uppercase drop-shadow bg-black/60 px-1 rounded">
               {titleText}
             </span>
           </div>
 
           {/* Ecken-Zahlen Unten (Auf dem Kopf) */}
-          <div class="w-full flex justify-between font-black text-amber-300 text-sm drop-shadow-[0_1px_2px_rgba(0,0,0,1)] rotate-180">
+          <div className="w-full flex justify-between font-black text-amber-300 text-sm drop-shadow rotate-180 z-10">
             <span>{cornerText}</span>
             <span>{cornerText}</span>
           </div>
@@ -130,38 +182,38 @@
     }
 
     function App() {
-      const [round, setRound] = useState(1);
+      const [round] = useState(1);
       const [phase, setPhase] = useState('bidding');
-      const [playerHand, setPlayerHand] = useState([
+      const [playerHand] = useState([
         { type: 'number', value: 13, suit: 'yellow' },
         { type: 'wizard', value: 14 },
         { type: 'number', value: 5, suit: 'red' }
       ]);
-      const [trumpCard, setTrumpCard] = useState({ type: 'number', value: 8, suit: 'green' });
+      const [trumpCard] = useState({ type: 'number', value: 8, suit: 'green' });
       const [myBid, setMyBid] = useState(null);
 
       return (
-        <div class="flex flex-col h-full max-w-md mx-auto p-3 justify-between bg-slate-950">
-          <div class="flex justify-between items-center bg-slate-900/90 p-3 rounded-xl border border-amber-500/30 shadow-lg">
-            <span class="font-bold text-amber-400 text-sm">Runde {round} / 15</span>
-            <span class="text-xs text-amber-200/80 font-medium">Phase: {phase === 'bidding' ? 'Stich-Ansage' : 'Spielrunde'}</span>
+        <div className="flex flex-col h-full max-w-md mx-auto p-3 justify-between bg-slate-950">
+          <div className="flex justify-between items-center bg-slate-900/90 p-3 rounded-xl border border-amber-500/30 shadow-lg">
+            <span className="font-bold text-amber-400 text-sm">Runde {round} / 15</span>
+            <span className="text-xs text-amber-200/80 font-medium">Phase: {phase === 'bidding' ? 'Stich-Ansage' : 'Spielrunde'}</span>
           </div>
 
-          <div class="flex-1 my-3 rounded-2xl bg-slate-900/50 border border-slate-800 p-4 flex flex-col justify-between items-center relative shadow-inner">
-            <div class="flex flex-col items-center gap-1.5">
-              <span class="text-[11px] font-bold text-amber-400/90 tracking-widest uppercase">Aufgedeckte Trumpfkarte</span>
-              {trumpCard ? <CardFace card={trumpCard} size="lg" disabled /> : <CardBack size="lg" />}
+          <div className="flex-1 my-3 rounded-2xl bg-slate-900/50 border border-slate-800 p-4 flex flex-col justify-between items-center relative shadow-inner">
+            <div className="flex flex-col items-center gap-1.5">
+              <span className="text-[11px] font-bold text-amber-400/90 tracking-widest uppercase">Aufgedeckte Trumpfkarte</span>
+              {trumpCard && <CardFace card={trumpCard} size="lg" disabled />}
             </div>
 
             {phase === 'bidding' && (
-              <div class="w-full bg-slate-900/95 border border-amber-500/50 p-3 rounded-2xl flex flex-col items-center gap-2 shadow-2xl backdrop-blur-md">
-                <span class="text-xs font-bold text-amber-300">Stiche für diese Runde vorhersagen:</span>
-                <div class="flex gap-2 flex-wrap justify-center">
+              <div className="w-full bg-slate-900/95 border border-amber-500/50 p-3 rounded-2xl flex flex-col items-center gap-2 shadow-2xl backdrop-blur-md">
+                <span className="text-xs font-bold text-amber-300">Stiche für diese Runde vorhersagen:</span>
+                <div className="flex gap-2 flex-wrap justify-center">
                   {Array.from({ length: round + 1 }, (_, i) => (
                     <button
                       key={i}
                       onClick={() => { setMyBid(i); setPhase('playing'); }}
-                      class="w-11 h-11 rounded-full bg-gradient-to-b from-amber-500 to-amber-700 hover:from-amber-400 hover:to-amber-600 text-slate-950 font-black text-lg shadow-lg border border-amber-300 active:scale-90 transition-transform"
+                      className="w-11 h-11 rounded-full bg-gradient-to-b from-amber-500 to-amber-700 text-slate-950 font-black text-lg shadow-lg border border-amber-300 active:scale-90 transition-transform"
                     >
                       {i}
                     </button>
@@ -171,12 +223,12 @@
             )}
           </div>
 
-          <div class="bg-slate-900 p-3 rounded-2xl border border-slate-800 shadow-xl">
-            <div class="flex justify-between items-center mb-2 px-1">
-              <span class="text-xs font-bold text-slate-400">Deine Handkarten:</span>
-              {myBid !== null && <span class="text-xs font-bold text-amber-400">Ansage: {myBid} Stich(e)</span>}
+          <div className="bg-slate-900 p-3 rounded-2xl border border-slate-800 shadow-xl">
+            <div className="flex justify-between items-center mb-2 px-1">
+              <span className="text-xs font-bold text-slate-400">Deine Handkarten:</span>
+              {myBid !== null && <span className="text-xs font-bold text-amber-400">Ansage: {myBid} Stich(e)</span>}
             </div>
-            <div class="flex gap-2 overflow-x-auto pb-1 justify-center">
+            <div className="flex gap-2 overflow-x-auto pb-1 justify-center">
               {playerHand.map((card, i) => (
                 <CardFace key={i} card={card} size="md" />
               ))}
