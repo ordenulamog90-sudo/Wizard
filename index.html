@@ -51,7 +51,7 @@
       transform: scale(1.05);
     }
 
-    /* Würfel Animation CSS */
+    /* Animations */
     @keyframes rollDiceAction {
       0% { transform: rotate(0deg) scale(0.6); }
       50% { transform: rotate(720deg) scale(1.3); }
@@ -60,13 +60,21 @@
     .animate-dice-active {
       animation: rollDiceAction 0.8s cubic-bezier(0.25, 1, 0.5, 1) forwards;
     }
+
+    @keyframes podiumGlow {
+      0%, 100% { box-shadow: 0 0 20px rgba(234, 179, 8, 0.4), inset 0 0 15px rgba(234, 179, 8, 0.2); }
+      50% { box-shadow: 0 0 40px rgba(234, 179, 8, 0.8), inset 0 0 25px rgba(234, 179, 8, 0.5); }
+    }
+    .podium-active {
+      animation: podiumGlow 2s infinite ease-in-out;
+    }
   </style>
 </head>
 <body class="h-screen w-screen overflow-hidden">
   <div id="root" class="h-full w-full"></div>
 
   <script type="text/babel">
-    const { useState, useEffect, useRef } = React;
+    const { useState, useEffect } = React;
 
     const BANNED_WORDS = [
       'arsch', 'idiot', 'scheisse', 'scheiße', 'wichser', 'hurensohn', 'spast', 'depp',
@@ -147,6 +155,7 @@
     };
 
     const AI_NAMES = ['Merlin', 'Morgana', 'Gandalf', 'Circe', 'Albus'];
+    const AVATARS = ['🧙‍♂️', '🧝‍♀️', '🧙‍♀️', '🧝‍♂️', '🔮', '👑'];
 
     function CardBack({ size = "md" }) {
       const dim = size === "sm" ? "w-12 h-20" : size === "lg" ? "w-28 h-40" : "w-20 h-32";
@@ -208,7 +217,7 @@
       
       const [profile, setProfile] = useState(() => {
         const saved = localStorage.getItem('wizard_profile');
-        return saved ? JSON.parse(saved) : { name: 'Erzmagier', level: 1, xp: 0, gamesPlayed: 0, wins: 0 };
+        return saved ? JSON.parse(saved) : { name: 'Erzmagier', level: 1, xp: 0, gamesPlayed: 0, wins: 0, avatar: '🧙‍♂️' };
       });
 
       const [isEditingName, setIsEditingName] = useState(false);
@@ -246,16 +255,23 @@
       const [diceWinner, setDiceWinner] = useState(null);
       const [diceTimer, setDiceTimer] = useState(20);
       const [resultTimer, setResultTimer] = useState(10);
-      const [roundSummary, setRoundSummary] = useState(null);
 
-      // Timer für Auto-Würfeln (20s)
+      // RUNDENERGEBNIS TIMING
+      const [roundSummary, setRoundSummary] = useState(null);
+      const [summaryTimer, setSummaryTimer] = useState(10);
+
+      // SIEGER POPUP (PODEST) TIMING
+      const [victoryData, setVictoryData] = useState(null);
+      const [victoryTimer, setVictoryTimer] = useState(20);
+
+      // Timer 1: Auto-Würfeln (20s)
       useEffect(() => {
         let interval = null;
         if (showDiceModal && !diceRolls && !isDiceRolling) {
           interval = setInterval(() => {
             setDiceTimer(prev => {
               if (prev <= 1) {
-                handleUserRollDice(); // Auto-Würfeln bei 0s
+                handleUserRollDice();
                 return 0;
               }
               return prev - 1;
@@ -265,14 +281,14 @@
         return () => clearInterval(interval);
       }, [showDiceModal, diceRolls, isDiceRolling]);
 
-      // Timer für Auto-Weiterleitung bei Ergebnis (10s)
+      // Timer 2: Auto-Weiter nach Würfeln (10s)
       useEffect(() => {
         let interval = null;
         if (showDiceModal && diceRolls && !isDiceRolling) {
           interval = setInterval(() => {
             setResultTimer(prev => {
               if (prev <= 1) {
-                startRoundAfterDice(); // Auto-Start bei 0s
+                startRoundAfterDice();
                 return 0;
               }
               return prev - 1;
@@ -282,14 +298,49 @@
         return () => clearInterval(interval);
       }, [showDiceModal, diceRolls, isDiceRolling]);
 
+      // Timer 3: Auto-Weiter bei Rundenabrechnung (10s)
+      useEffect(() => {
+        let interval = null;
+        if (roundSummary) {
+          interval = setInterval(() => {
+            setSummaryTimer(prev => {
+              if (prev <= 1) {
+                proceedToNextRound();
+                return 0;
+              }
+              return prev - 1;
+            });
+          }, 1000);
+        }
+        return () => clearInterval(interval);
+      }, [roundSummary]);
+
+      // Timer 4: Auto-Schließen bei Siegerehrung (20s)
+      useEffect(() => {
+        let interval = null;
+        if (victoryData) {
+          interval = setInterval(() => {
+            setVictoryTimer(prev => {
+              if (prev <= 1) {
+                finishGameAndGoMenu();
+                return 0;
+              }
+              return prev - 1;
+            });
+          }, 1000);
+        }
+        return () => clearInterval(interval);
+      }, [victoryData]);
+
       const startNewGame = () => {
         const initialPlayers = [
-          { id: 0, name: profile.name, isHuman: true, bid: null, tricks: 0, score: 0, hand: [] }
+          { id: 0, name: profile.name, avatar: profile.avatar || '🧙‍♂️', isHuman: true, bid: null, tricks: 0, score: 0, hand: [] }
         ];
         for (let i = 1; i < playerCount; i++) {
           initialPlayers.push({
             id: i,
             name: `${AI_NAMES[i-1]} (KI)`,
+            avatar: AVATARS[i % AVATARS.length],
             isHuman: false,
             bid: null,
             tricks: 0,
@@ -332,12 +383,10 @@
         }, 800);
       };
 
-      const handleOverlayClick = () => {
+      const handleDiceOverlayClick = () => {
         if (!diceRolls && !isDiceRolling) {
-          // Vor dem Würfeln: Tippen auf Bildschirm löst Würfeln aus
           handleUserRollDice();
         } else if (diceRolls && !isDiceRolling) {
-          // Nach dem Würfeln: Tippen auf Bildschirm startet direkt Runde 1
           startRoundAfterDice();
         }
       };
@@ -407,7 +456,7 @@
       };
 
       useEffect(() => {
-        if (screen === 'game' && phase === 'playing' && turn !== 0 && playedCards.length < players.length && !showDiceModal && !roundSummary) {
+        if (screen === 'game' && phase === 'playing' && turn !== 0 && playedCards.length < players.length && !showDiceModal && !roundSummary && !victoryData) {
           const timer = setTimeout(() => {
             const ki = players[turn];
             if (ki && ki.hand.length > 0) {
@@ -416,7 +465,7 @@
           }, 800);
           return () => clearTimeout(timer);
         }
-      }, [screen, phase, turn, playedCards, showDiceModal, roundSummary]);
+      }, [screen, phase, turn, playedCards, showDiceModal, roundSummary, victoryData]);
 
       const evaluateTrick = (cardsOnTable) => {
         let winningCardObj = cardsOnTable[0];
@@ -500,6 +549,7 @@
           calculatedPlayers: calculated,
           nextStarterId: nextRoundStarter
         });
+        setSummaryTimer(10);
       };
 
       const proceedToNextRound = () => {
@@ -515,12 +565,27 @@
         if (nextR <= maxRounds) {
           startRound(nextR, updated, nextStarter);
         } else {
-          alert("Spiel beendet! Danke fürs Spielen.");
-          const updatedProfile = { ...profile, gamesPlayed: profile.gamesPlayed + 1, xp: profile.xp + 50 };
+          // SPIEL BEENDET -> SIEGER PODEST ANZEIGEN
+          const sortedFinal = [...updated].sort((a, b) => b.score - a.score);
+          setVictoryData(sortedFinal);
+          setVictoryTimer(20);
+
+          // XP / Stats Updaten
+          const isHumanWinner = sortedFinal[0].isHuman;
+          const updatedProfile = { 
+            ...profile, 
+            gamesPlayed: profile.gamesPlayed + 1, 
+            wins: isHumanWinner ? profile.wins + 1 : profile.wins,
+            xp: profile.xp + (isHumanWinner ? 150 : 50) 
+          };
           setProfile(updatedProfile);
           localStorage.setItem('wizard_profile', JSON.stringify(updatedProfile));
-          setScreen('menu');
         }
+      };
+
+      const finishGameAndGoMenu = () => {
+        setVictoryData(null);
+        setScreen('menu');
       };
 
       // ---------------- 1. HAUPTMENÜ ----------------
@@ -561,7 +626,7 @@
                 </button>
               </div>
 
-              <span className="text-[10px] text-center text-slate-600 block mt-2">Mythos Card Game v3.4 • Touch Anywhere & Timers</span>
+              <span className="text-[10px] text-center text-slate-600 block mt-2">Mythos Card Game v3.5 • Victory Podiums</span>
             </div>
           </div>
         );
@@ -649,8 +714,8 @@
             </div>
 
             <div className="mythic-card p-5 rounded-2xl flex flex-col gap-4 my-auto items-center text-center">
-              <div className="w-20 h-20 rounded-full border-2 border-sky-400 bg-slate-900 flex items-center justify-center text-3xl shadow-xl">
-                🧙‍♂️
+              <div className="w-20 h-20 rounded-full border-2 border-sky-400 bg-slate-900 flex items-center justify-center text-4xl shadow-xl">
+                {profile.avatar || '🧙‍♂️'}
               </div>
 
               <div className="w-full flex flex-col items-center">
@@ -759,10 +824,10 @@
       return (
         <div className="flex flex-col h-full max-w-md mx-auto p-2 justify-between bg-slate-950 relative overflow-hidden">
           
-          {/* INTERAKTIVES WÜRFEL MODAL MIT SCHIRMFULL-TAP & TIMER */}
+          {/* INTERAKTIVES WÜRFEL MODAL */}
           {showDiceModal && (
             <div 
-              onClick={handleOverlayClick}
+              onClick={handleDiceOverlayClick}
               className="absolute inset-0 bg-slate-950/95 backdrop-blur-md z-50 flex flex-col items-center justify-between p-5 text-center cursor-pointer select-none"
             >
               <div>
@@ -771,7 +836,6 @@
               </div>
 
               <div className="my-auto flex flex-col items-center gap-4 w-full">
-                {/* WÜRFEL ANZEIGE */}
                 <div
                   className={`w-28 h-28 rounded-3xl bg-gradient-to-b from-sky-500 to-sky-800 border-2 border-sky-300 shadow-2xl flex items-center justify-center text-5xl transition-transform ${isDiceRolling ? 'animate-dice-active' : 'shadow-sky-500/30'}`}
                 >
@@ -789,7 +853,6 @@
                   </div>
                 )}
 
-                {/* DIGITALE WÜRFELERGEBNISSE DER KI */}
                 {diceRolls && (
                   <div className="w-full bg-slate-900 border border-slate-800 p-3 rounded-2xl space-y-2 text-xs mt-2 animate-fadeIn">
                     <div className="font-bold text-sky-300 mb-1 border-b border-slate-800 pb-1">Augenzahlen aller Spieler:</div>
@@ -827,9 +890,12 @@
             </div>
           )}
 
-          {/* RUNDENABRECHNUNG POPUP */}
+          {/* RUNDENABRECHNUNG POPUP (KLICK UBERALL & 10S TIMER) */}
           {roundSummary && (
-            <div className="absolute inset-0 bg-slate-950/95 backdrop-blur-md z-50 flex flex-col items-center justify-between p-4">
+            <div 
+              onClick={proceedToNextRound}
+              className="absolute inset-0 bg-slate-950/95 backdrop-blur-md z-50 flex flex-col items-center justify-between p-4 cursor-pointer select-none"
+            >
               <h2 className="text-xl font-black text-sky-300 mt-2">Ergebnis Runde {roundSummary.round}</h2>
               
               <div className="w-full space-y-2 my-auto">
@@ -849,16 +915,76 @@
                 ))}
 
                 <div className="bg-sky-950/80 border border-sky-400/50 p-2.5 rounded-xl text-center text-xs text-sky-200 mt-3 font-bold">
-                  👑 Bester Schätzer: {roundSummary.calculatedPlayers.find(p => p.id === roundSummary.nextStarterId)?.name} beginnt Runde {round + 1}!
+                  👑 Bester Schätzer: {roundSummary.calculatedPlayers.find(p => p.id === roundSummary.nextStarterId)?.name} beginnt Runde {roundSummary.round + 1}!
                 </div>
               </div>
 
-              <button 
-                onClick={proceedToNextRound} 
-                className="w-full py-3.5 mythic-btn-primary text-white font-black text-sm rounded-2xl shadow-2xl active:scale-95 transition-transform mb-2"
-              >
-                Nächste Runde starten ⚔️
-              </button>
+              <div className="w-full flex flex-col items-center gap-1 mb-2">
+                <button 
+                  onClick={proceedToNextRound} 
+                  className="w-full py-3.5 mythic-btn-primary text-white font-black text-sm rounded-2xl shadow-2xl active:scale-95 transition-transform"
+                >
+                  Nächste Runde starten ⚔️
+                </button>
+                <span className="text-[10px] text-slate-400 font-bold">
+                  Tippe irgendwo oder warte {summaryTimer}s
+                </span>
+              </div>
+            </div>
+          )}
+
+          {/* MAGISCHES SIEGER-PODEST AM SPIELENDE (20S TIMER / TAP ANYWHERE) */}
+          {victoryData && (
+            <div 
+              onClick={finishGameAndGoMenu}
+              className="absolute inset-0 bg-slate-950/95 backdrop-blur-md z-50 flex flex-col items-center justify-between p-4 cursor-pointer select-none overflow-y-auto"
+            >
+              <div className="text-center mt-2">
+                <h2 className="text-2xl font-black text-amber-300 drop-shadow">👑 SIEGEREHRUNG 👑</h2>
+                <p className="text-xs text-sky-300 font-bold mt-0.5">Das große Turniergefecht ist zu Ende!</p>
+              </div>
+
+              {/* MAGISCHES PODEST */}
+              <div className="my-auto flex flex-col items-center w-full">
+                <div className="relative flex flex-col items-center mb-3">
+                  <div className="text-5xl mb-1 drop-shadow-lg animate-bounce">👑</div>
+                  <div className="w-20 h-20 rounded-full border-4 border-amber-400 bg-slate-900 flex items-center justify-center text-4xl shadow-2xl z-10">
+                    {victoryData[0]?.avatar || '🧙‍♂️'}
+                  </div>
+                  <div className="w-36 h-20 bg-gradient-to-b from-amber-500 via-amber-600 to-amber-900 border-2 border-amber-300 rounded-t-2xl mt-[-10px] flex flex-col items-center justify-center podium-active">
+                    <span className="text-xs font-black text-amber-100 uppercase tracking-wider">{victoryData[0]?.name}</span>
+                    <span className="text-sm font-black text-white">{victoryData[0]?.score} Ptn</span>
+                    <span className="text-[10px] text-amber-200 font-bold">Platz 1</span>
+                  </div>
+                </div>
+
+                {/* SCOREBOARD DER GESAMTEN PARTIE */}
+                <div className="w-full bg-slate-900 border border-slate-800 p-3 rounded-2xl space-y-2 text-xs">
+                  <div className="font-bold text-sky-300 mb-1 border-b border-slate-800 pb-1 text-center">Finale Rangliste:</div>
+                  {victoryData.map((p, idx) => (
+                    <div key={p.id} className={`p-2 rounded-xl flex justify-between items-center ${idx === 0 ? 'bg-amber-950/60 border border-amber-500/50 text-amber-200' : 'bg-slate-950/60 text-slate-300'}`}>
+                      <div className="flex items-center gap-2">
+                        <span className="font-black text-xs text-sky-400 w-4">#{idx + 1}</span>
+                        <span className="text-base">{p.avatar}</span>
+                        <span className="font-bold truncate">{p.name}</span>
+                      </div>
+                      <span className="font-black text-amber-400">{p.score} Ptn</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="w-full flex flex-col items-center gap-1 mb-2">
+                <button 
+                  onClick={finishGameAndGoMenu} 
+                  className="w-full py-3.5 mythic-btn-primary text-white font-black text-sm rounded-2xl shadow-2xl active:scale-95 transition-transform"
+                >
+                  Zurück zum Hauptmenü 🏰
+                </button>
+                <span className="text-[10px] text-slate-400 font-bold">
+                  Tippe auf den Schirm oder warte {victoryTimer}s
+                </span>
+              </div>
             </div>
           )}
 
@@ -895,7 +1021,7 @@
               ))}
             </div>
 
-            {phase === 'bidding' && !showDiceModal && !roundSummary && (
+            {phase === 'bidding' && !showDiceModal && !roundSummary && !victoryData && (
               <div className="w-full bg-slate-900/95 border border-sky-500/50 p-3 rounded-2xl flex flex-col items-center gap-2 shadow-2xl backdrop-blur-md z-20">
                 <span className="text-xs font-bold text-sky-300">Deine Stich-Ansage für Runde {round}:</span>
                 <div className="flex gap-2 flex-wrap justify-center">
