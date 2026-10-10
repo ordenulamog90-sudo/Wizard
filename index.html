@@ -205,7 +205,13 @@
       'Moiraine', 'Willow', 'Dumbledore', 'Saruman'
     ];
 
-    const getXpNeededForLevel = (lvl) => {
+    // Globale XP-Formel bis Level 999 (wächst mit jedem Level an)
+    const getXpNeededForGlobalLevel = (lvl) => {
+      return 150 + (lvl - 1) * 50; 
+    };
+
+    // Element-XP Formel (bleibt bei max 15 für Freischaltungen)
+    const getXpNeededForElementLevel = (lvl) => {
       if (lvl <= 3) return 150;
       if (lvl <= 8) return 400;
       return 1000 + (lvl * 300);
@@ -653,40 +659,39 @@
 
           const isHumanWinner = sortedFinal[0].isHuman;
           const activeSuit = profile.activeSuit || 'red';
-
-          // 1. Element-Fortschritt aktualisieren
-          const currentSuitData = profile.elementLevels[activeSuit] || { level: 1, xp: 0 };
           let earnedXp = isHumanWinner ? 150 : 50;
+
+          // 1. Element-Fortschritt (bis max Level 15)
+          const currentSuitData = profile.elementLevels[activeSuit] || { level: 1, xp: 0 };
           let newSuitXp = currentSuitData.xp + earnedXp;
           let newSuitLevel = currentSuitData.level;
-
-          let xpNeededSuit = getXpNeededForLevel(newSuitLevel);
+          let xpNeededSuit = getXpNeededForElementLevel(newSuitLevel);
           while (newSuitLevel < 15 && newSuitXp >= xpNeededSuit) {
             newSuitXp -= xpNeededSuit;
             newSuitLevel += 1;
-            xpNeededSuit = getXpNeededForLevel(newSuitLevel);
+            xpNeededSuit = getXpNeededForElementLevel(newSuitLevel);
           }
           if (newSuitLevel >= 15) {
             newSuitLevel = 15;
             newSuitXp = Math.min(newSuitXp, xpNeededSuit);
           }
-
           const updatedElementLevels = {
             ...profile.elementLevels,
             [activeSuit]: { level: newSuitLevel, xp: newSuitXp }
           };
 
-          // 2. Globales Account-Level aktualisieren (unabhängig vom Element)
+          // 2. Globales Spieler-Level (bis max 999 mit sauberer Level-Aufstiegsschleife)
           let globalLevel = profile.level || 1;
           let globalXp = (profile.xp || 0) + earnedXp;
-          let xpNeededGlobal = getXpNeededForLevel(globalLevel);
-          while (globalLevel < 15 && globalXp >= xpNeededGlobal) {
+
+          let xpNeededGlobal = getXpNeededForGlobalLevel(globalLevel);
+          while (globalLevel < 999 && globalXp >= xpNeededGlobal) {
             globalXp -= xpNeededGlobal;
             globalLevel += 1;
-            xpNeededGlobal = getXpNeededForLevel(globalLevel);
+            xpNeededGlobal = getXpNeededForGlobalLevel(globalLevel);
           }
-          if (globalLevel >= 15) {
-            globalLevel = 15;
+          if (globalLevel >= 999) {
+            globalLevel = 999;
             globalXp = Math.min(globalXp, xpNeededGlobal);
           }
 
@@ -791,7 +796,7 @@
               </div>
 
               <span className="text-[9px] text-center text-slate-300 font-bold block mt-2 drop-shadow bg-slate-950/70 py-1 rounded-full backdrop-blur-md border border-sky-500/30">
-                MYTHOS CARD GAME V7.5
+                MYTHOS CARD GAME V7.6
               </span>
             </div>
           </div>
@@ -884,11 +889,11 @@
 
         const activeSuitKey = profile.activeSuit || 'red';
         
-        // Globale Account-Werte für das Profil
+        // Globale Account-Werte (bis Level 999)
         const globalLevel = profile.level || 1;
         const globalXp = profile.xp || 0;
-        const xpNeededForNextGlobal = getXpNeededForLevel(globalLevel);
-        const xpProgressPercent = globalLevel >= 15 ? 100 : Math.min(100, Math.round((globalXp / xpNeededForNextGlobal) * 100));
+        const xpNeededForNextGlobal = getXpNeededForGlobalLevel(globalLevel);
+        const xpProgressPercent = globalLevel >= 999 ? 100 : Math.min(100, Math.round((globalXp / xpNeededForNextGlobal) * 100));
 
         return (
           <div className="flex flex-col h-full max-w-md mx-auto p-4 justify-between bg-slate-950 overflow-y-auto">
@@ -1007,13 +1012,13 @@
                   </div>
                 )}
                 
-                {/* HIER WIRD JETZT DAS GLOBALE ACCOUNT-LEVEL ANGEZEIGT */}
-                <span className="text-xs font-bold text-amber-400 mt-0.5">Gesamt-Level {globalLevel} / 15 (Aktives Element: {SUITS[activeSuitKey].name})</span>
+                {/* SPIELER-GESAMT-LEVEL BIS 999 */}
+                <span className="text-xs font-bold text-amber-400 mt-0.5">Gesamt-Level {globalLevel} / 999 (Aktives Element: {SUITS[activeSuitKey].name})</span>
                 
                 <div className="w-full bg-slate-900 border border-slate-800 p-2 rounded-xl mt-2 text-left space-y-1">
                   <div className="flex justify-between text-[10px] text-slate-400 font-bold">
                     <span>Gesamt-XP</span>
-                    <span className="text-amber-400">{globalLevel >= 15 ? 'MAX' : `${globalXp} / ${xpNeededForNextGlobal} XP`}</span>
+                    <span className="text-amber-400">{globalLevel >= 999 ? 'MAX' : `${globalXp} / ${xpNeededForNextGlobal} XP`}</span>
                   </div>
                   <div className="w-full h-2 bg-slate-950 rounded-full overflow-hidden border border-slate-800">
                     <div className="h-full bg-gradient-to-r from-amber-500 to-sky-400 transition-all duration-500" style={{ width: `${xpProgressPercent}%` }}></div>
