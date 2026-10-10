@@ -70,7 +70,18 @@
       animation: elementPodiumGlow 2.5s infinite ease-in-out;
     }
 
-    /* NEUES GESCHWUNGENES WELLEN-WASSER-PODEST */
+    /* ARKANES ZAUBERER-PODEST */
+    .podium-wizard {
+      background: linear-gradient(135deg, rgba(88, 28, 135, 0.95), rgba(76, 29, 149, 0.9), rgba(3, 7, 18, 0.98));
+      border: 2px solid #a855f7;
+      clip-path: polygon(20% 0%, 80% 0%, 100% 30%, 90% 100%, 10% 100%, 0% 30%);
+      background-image: 
+        radial-gradient(circle at 50% 20%, rgba(253, 224, 71, 0.4) 0%, transparent 60%),
+        repeating-linear-gradient(135deg, rgba(168, 85, 247, 0.2) 0px, rgba(168, 85, 247, 0.2) 10px, transparent 10px, transparent 20px);
+      background-size: 100% 100%, 100% 100%;
+    }
+
+    /* GESCHWUNGENES WELLEN-WASSER-PODEST */
     .podium-water {
       background: linear-gradient(135deg, rgba(3, 105, 161, 0.95), rgba(2, 132, 199, 0.9), rgba(3, 7, 18, 0.98));
       border: 2px solid #38bdf8;
@@ -356,13 +367,10 @@
         primaryColor: '#0284c7', 
         glowColor: 'rgba(2, 132, 199, 0.85)', 
         podiumClass: 'podium-water', 
-        // NEUE GESCHWUNGENE WELLEN-WASSER-KRONE (Fließende Wellenlinien und Perle)
         crownSvg: (
           <svg viewBox="0 0 140 60" className="w-28 h-12 drop-shadow-[0_0_20px_#38bdf8] animate-pulse">
-            {/* Fließende Nebenwellen */}
             <path d="M 10 42 Q 25 20 40 40 Q 25 50 10 42 Z" fill="#7dd3fc" opacity="0.8" />
             <path d="M 130 42 Q 115 20 100 40 Q 115 50 130 42 Z" fill="#7dd3fc" opacity="0.8" />
-            {/* Große zentrale Welle */}
             <path d="M 25 45 Q 40 10 70 30 Q 95 10 115 45 Q 90 35 70 45 Q 50 35 25 45 Z" fill="url(#waterGrad)" stroke="#bae6fd" strokeWidth="2" />
             <defs>
               <linearGradient id="waterGrad" x1="0%" y1="100%" x2="0%" y2="0%">
@@ -371,18 +379,45 @@
                 <stop offset="100%" stopColor="#38bdf8" />
               </linearGradient>
             </defs>
-            {/* Schimmernde Wassertropfen / Perle */}
             <circle cx="70" cy="18" r="4" fill="#fef08a" />
             <circle cx="45" cy="28" r="2" fill="#e0f2fe" />
             <circle cx="95" cy="28" r="2" fill="#e0f2fe" />
           </svg>
         ) 
       },
-      wizard: { key: 'wizard', name: 'Zauberer', title: 'ARKAN', bg: 'from-purple-950 via-indigo-950 to-slate-950', border: 'border-purple-400', art: CardArt.wizard, primaryColor: '#a855f7', glowColor: 'rgba(168, 85, 247, 0.7)', podiumClass: 'podium-water', crownSvg: (
-        <svg viewBox="0 0 100 40" className="w-20 h-10 drop-shadow-[0_0_10px_#a855f7]">
-          <polygon points="50,2 62,25 90,28 68,42 75,68 50,52 25,68 32,42 10,28 38,25" fill="#a855f7" stroke="#fde047" strokeWidth="2" />
-        </svg>
-      ) }
+      wizard: { 
+        key: 'wizard', 
+        name: 'Zauberer', 
+        title: 'ARKAN', 
+        bg: 'from-purple-950 via-indigo-950 to-slate-950', 
+        border: 'border-purple-400', 
+        art: CardArt.wizard, 
+        primaryColor: '#a855f7', 
+        glowColor: 'rgba(168, 85, 247, 0.85)', 
+        podiumClass: 'podium-wizard', 
+        // NEUE MAJESTÄTISCHE ZAUBERER-KRONE (Spitzhut-Form mit magischen Sternen, Runen & schwebenden Arkan-Sphären)
+        crownSvg: (
+          <svg viewBox="0 0 140 60" className="w-28 h-12 drop-shadow-[0_0_22px_#a855f7] animate-pulse">
+            {/* Kleine schwebende Zauber-Edelsteine an den Seiten */}
+            <polygon points="20,40 28,25 36,40 28,50" fill="#c084fc" stroke="#fde047" strokeWidth="1" />
+            <polygon points="120,40 112,25 104,40 112,50" fill="#c084fc" stroke="#fde047" strokeWidth="1" />
+            {/* Großer Magischer Spitzhut / Zaubererkrone */}
+            <path d="M 35 50 Q 50 25 65 8 L 70 2 L 75 8 Q 90 25 105 50 Q 85 40 70 48 Q 55 40 35 50 Z" fill="url(#wizardCrownGrad)" stroke="#fde047" strokeWidth="2" />
+            <defs>
+              <linearGradient id="wizardCrownGrad" x1="0%" y1="100%" x2="0%" y2="0%">
+                <stop offset="0%" stopColor="#581c87" />
+                <stop offset="50%" stopColor="#7e22ce" />
+                <stop offset="100%" stopColor="#9333ea" />
+              </linearGradient>
+            </defs>
+            {/* Magischer Kristall / Arkan-Stern an der Hutspitze & Runen */}
+            <circle cx="70" cy="5" r="4.5" fill="#fde047" />
+            <circle cx="70" cy="25" r="3" fill="#38bdf8" />
+            <circle cx="55" cy="38" r="2" fill="#fde047" />
+            <circle cx="85" cy="38" r="2" fill="#fde047" />
+          </svg>
+        ) 
+      }
     };
 
     const renderTcgElementAnimation = (card) => {
@@ -542,7 +577,8 @@
             red: { level: 1, xp: 0 },
             blue: { level: 1, xp: 0 },
             green: { level: 1, xp: 0 },
-            yellow: { level: 1, xp: 0 }
+            yellow: { level: 1, xp: 0 },
+            wizard: { level: 1, xp: 0 }
           },
           offlinePlayed: 3,
           offlineWins: 0,
@@ -697,7 +733,7 @@
 
       const startNewGame = () => {
         const shuffledNames = shuffleArray(FAMOUS_WIZARDS);
-        const suitKeys = Object.keys(SUITS).filter(k => k !== 'wizard');
+        const suitKeys = Object.keys(SUITS);
 
         const initialPlayers = [
           { 
@@ -719,12 +755,12 @@
           
           let randomAvatarObj;
           if (chosenType === 'jester') {
-            randomAvatarObj = { type: 'jester', suit: randomSuit, label: 'Narr' };
+            randomAvatarObj = { type: 'jester', suit: randomSuit === 'wizard' ? 'red' : randomSuit, label: 'Narr' };
           } else if (chosenType === 'wizard') {
-            randomAvatarObj = { type: 'wizard', suit: randomSuit, label: 'Zauberer' };
+            randomAvatarObj = { type: 'wizard', suit: 'wizard', label: 'Zauberer' };
           } else {
             const randomVal = Math.floor(Math.random() * 13) + 1;
-            randomAvatarObj = { type: 'number', value: randomVal, suit: randomSuit, label: `Karte ${randomVal}` };
+            randomAvatarObj = { type: 'number', value: randomVal, suit: randomSuit === 'wizard' ? 'blue' : randomSuit, label: `Karte ${randomVal}` };
           }
 
           initialPlayers.push({
@@ -1051,11 +1087,14 @@
 
       const getAvailableAvatarsForSuit = (suitKey, currentLevel) => {
         const list = [];
+        if (suitKey === 'wizard') {
+          list.push({ type: 'wizard', suit: 'wizard', label: 'Zauberer', unlocked: currentLevel >= 1 });
+          return list;
+        }
         list.push({ type: 'jester', suit: suitKey, label: 'Narr', unlocked: currentLevel >= 1 });
         for (let v = 1; v <= 13; v++) {
           list.push({ type: 'number', value: v, suit: suitKey, label: `Karte ${v}`, unlocked: currentLevel >= (v + 1) });
         }
-        list.push({ type: 'wizard', suit: suitKey, label: 'Zauberer', unlocked: currentLevel >= 15 });
         return list;
       };
 
@@ -1098,7 +1137,7 @@
               </div>
 
               <span className="text-[9px] text-center text-slate-300 font-bold block mt-2 drop-shadow bg-slate-950/70 py-1 rounded-full backdrop-blur-md border border-sky-500/30">
-                MYTHOS CARD GAME V10.12 (WATER WAVE & CROWN UPDATE)
+                MYTHOS CARD GAME V10.13 (WIZARD CROWN & PODIUM UPDATE)
               </span>
             </div>
           </div>
@@ -1218,11 +1257,11 @@
 
                 <div className="space-y-4 pb-4">
                   <div className="text-[11px] text-slate-400">
-                    Wähle dein aktives Element. Jedes gewonnene Spiel levelt dein gewähltes Element auf!
+                    Wähle dein aktives Element oder den Zauberer-Pfad. Jedes gewonnene Spiel levelt dein gewähltes Element auf!
                   </div>
 
-                  <div className="grid grid-cols-4 gap-1.5">
-                    {Object.values(SUITS).filter(s => s.key !== 'wizard').map(s => {
+                  <div className="grid grid-cols-5 gap-1.5">
+                    {Object.values(SUITS).map(s => {
                       const isSelected = profile.activeSuit === s.key;
                       const lvl = profile.elementLevels?.[s.key]?.level || 1;
                       return (
@@ -1230,6 +1269,9 @@
                           key={s.key}
                           onClick={() => {
                             const updated = { ...profile, activeSuit: s.key };
+                            if (s.key === 'wizard') {
+                              updated.selectedAvatar = { type: 'wizard', suit: 'wizard', label: 'Zauberer' };
+                            }
                             setProfile(updated);
                             localStorage.setItem('wizard_profile', JSON.stringify(updated));
                           }}
@@ -1244,13 +1286,13 @@
 
                   <div className="bg-slate-900/80 border border-slate-800 p-3 rounded-2xl space-y-2">
                     <div className="text-xs font-bold text-sky-300 flex justify-between items-center">
-                      <span>Pfad für: {SUITS[activeSuitKey]?.title || 'FEUER'}</span>
+                      <span>Pfad für: {SUITS[activeSuitKey]?.title || 'ARKAN'}</span>
                       <span className="text-[10px] text-amber-300">Level {elementLevel} / 15</span>
                     </div>
 
                     <div className="bg-slate-950 border border-slate-800 p-2 rounded-xl space-y-1">
                       <div className="flex justify-between text-[10px] text-slate-400 font-bold">
-                        <span>Element-XP ({SUITS[activeSuitKey]?.name || 'Rot'})</span>
+                        <span>Element-XP ({SUITS[activeSuitKey]?.name || 'Zauberer'})</span>
                         <span className="text-amber-400">{elementLevel >= 15 ? 'MAX' : `${elementXp} / ${xpNeededForNextElement} XP`}</span>
                       </div>
                       <div className="w-full h-2 bg-slate-900 rounded-full overflow-hidden border border-slate-800">
@@ -1547,7 +1589,7 @@
                       </div>
                     </div>
                     
-                    {/* ELEMENT-PODEST (WASSER-WELLEN, FEUER, DIAMANT, TORNADO ODER STANDARD) */}
+                    {/* ELEMENT-PODEST (ARANES WIZARD-PODEST, WASSER, FEUER, DIAMANT, TORNADO ODER STANDARD) */}
                     <div 
                       className={`w-48 h-20 mt-[-16px] flex flex-col items-center justify-center element-podium-active z-10 ${suitTheme.podiumClass} ${winnerSuitKey === 'yellow' ? 'animate-tornado' : ''}`}
                       style={{ '--glow-color': suitTheme.glowColor }}
