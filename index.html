@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Wizard Card Game</title>
+  <title>Mythos Card Game</title>
   <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
@@ -58,7 +58,6 @@
   <script type="text/babel">
     const { useState, useEffect } = React;
 
-    // Filter-Liste für unangebrachte Namen (Schimpfwörter DE/EN)
     const BANNED_WORDS = [
       'arsch', 'idiot', 'scheisse', 'scheiße', 'wichser', 'hurensohn', 'spast', 'depp',
       'fick', 'fucker', 'fuck', 'bitch', 'asshole', 'bastard', 'nazi', 'hitler', 'cunt',
@@ -202,7 +201,6 @@
         return saved ? JSON.parse(saved) : { name: 'Erzmagier', level: 1, xp: 0, gamesPlayed: 0, wins: 0 };
       });
 
-      // Profil-Namensänderung States
       const [isEditingName, setIsEditingName] = useState(false);
       const [nameInput, setNameInput] = useState(profile.name);
       const [nameError, setNameError] = useState('');
@@ -272,6 +270,7 @@
           return { ...p, hand, bid: null, tricks: 0 };
         });
 
+        // Aufgedeckte Trumpfkarte vorbereiten
         const trump = deck.length > 0 ? deck[0] : null;
 
         newPlayers.forEach(p => {
@@ -322,6 +321,7 @@
         }
       }, [screen, phase, turn, playedCards]);
 
+      // KORRIGIERTE STICH-LOGIK: Aufgedeckter Trumpf bleibt immer die stärkste Farbe!
       const evaluateTrick = (cardsOnTable) => {
         let winningCardObj = cardsOnTable[0];
 
@@ -331,6 +331,8 @@
         } else {
           const leadCardObj = cardsOnTable.find(c => c.card.type === 'number');
           const leadSuit = leadCardObj ? leadCardObj.card.suit : null;
+          
+          // Trumpffarbe von der aufgedeckten Karte
           const trumpSuit = (trumpCard && trumpCard.type === 'number') ? trumpCard.suit : null;
 
           let highestRank = -1;
@@ -339,11 +341,16 @@
             const card = c.card;
             if (card.type === 'number') {
               let rank = 0;
+              // Trumpf schlägt alles (Rang 200+)
               if (trumpSuit && card.suit === trumpSuit) {
                 rank = 200 + card.value;
-              } else if (leadSuit && card.suit === leadSuit) {
+              } 
+              // Angespielte Farbe bedient (Rang 100+)
+              else if (leadSuit && card.suit === leadSuit) {
                 rank = 100 + card.value;
-              } else {
+              } 
+              // Abgeworfen (Rang < 100, verliert)
+              else {
                 rank = card.value;
               }
 
@@ -417,7 +424,7 @@
                 </button>
               </div>
 
-              <span className="text-[10px] text-center text-slate-600 block mt-2">Wizard Digital v2.6 • Protected Profile</span>
+              <span className="text-[10px] text-center text-slate-600 block mt-2">Mythos Card Game v3.1</span>
             </div>
           </div>
         );
@@ -436,13 +443,6 @@
                 <h2 className="text-lg font-black text-sky-300 flex items-center gap-2"><span>⚔️</span> Einzelspiel</h2>
                 <button onClick={() => setScreen('menu')} className="text-xs bg-slate-900 border border-slate-800 text-sky-300 px-3 py-1.5 rounded-lg font-bold">Zurück</button>
               </div>
-
-              <button
-                onClick={startNewGame}
-                className="w-full py-3.5 rounded-2xl mythic-btn-primary text-white font-black text-base active:scale-95 transition-transform shrink-0 shadow-2xl"
-              >
-                Duell beginnen ⚔️
-              </button>
 
               <div className="mythic-card p-3 rounded-2xl flex flex-col gap-3">
                 <div>
@@ -490,12 +490,19 @@
                   </div>
                 </div>
               </div>
+
+              <button
+                onClick={startNewGame}
+                className="w-full py-3.5 rounded-2xl mythic-btn-primary text-white font-black text-base active:scale-95 transition-transform shrink-0 shadow-2xl"
+              >
+                Duell beginnen ⚔️
+              </button>
             </div>
           </div>
         );
       }
 
-      // ---------------- 3. PROFIL & STATISTIKEN (MIT GESCHÜTZTEM NAMENS-EDITOR) ----------------
+      // ---------------- 3. PROFIL & STATISTIKEN ----------------
       if (screen === 'profile') {
         return (
           <div className="flex flex-col h-full max-w-md mx-auto p-4 justify-between bg-slate-950 overflow-y-auto">
@@ -509,7 +516,6 @@
                 🧙‍♂️
               </div>
 
-              {/* Namensanzeige / Bearbeitungsmodus */}
               <div className="w-full flex flex-col items-center">
                 {!isEditingName ? (
                   <div className="flex items-center gap-2">
@@ -594,19 +600,19 @@
             <div className="space-y-3 text-xs text-slate-300 leading-relaxed">
               <div className="bg-slate-900 p-3 rounded-xl border border-slate-800">
                 <h3 className="font-bold text-sky-300 mb-1">1. Vorhersage & Stich-Ansage</h3>
-                <p>In jeder Runde sagst du voraus, wie viele Stiche du mit deinen Handkarten erzielen wirst.</p>
+                <p>Sage in jeder Runde voraus, wie viele Stiche du mit deinen Handkarten erzielen wirst.</p>
               </div>
               <div className="bg-slate-900 p-3 rounded-xl border border-slate-800">
-                <h3 className="font-bold text-sky-300 mb-1">2. Die Zauberer (Z)</h3>
-                <p>Der Zauberer gewinnt immer den Stich, egal welche Farbe oder Zahl gespielt wurde.</p>
+                <h3 className="font-bold text-sky-300 mb-1">2. Die Aufgedeckte Trumpffarbe</h3>
+                <p>Die aufgedeckte Karte bestimmt die Trumpffarbe der Runde. Diese Farbe sticht alle anderen Farben aus – auch wenn eine andere Farbe angespielt wurde!</p>
               </div>
               <div className="bg-slate-900 p-3 rounded-xl border border-slate-800">
-                <h3 className="font-bold text-sky-300 mb-1">3. Die Narren (N)</h3>
-                <p>Der Narr verliert immer den Stich. Er hat den Wert Null und kann keinen Stich gewinnen.</p>
+                <h3 className="font-bold text-sky-300 mb-1">3. Die Zauberer (Z)</h3>
+                <p>Ein Zauberer gewinnt immer den Stich, egal welche Farbe zuvor ausgespielt wurde.</p>
               </div>
               <div className="bg-slate-900 p-3 rounded-xl border border-slate-800">
-                <h3 className="font-bold text-sky-300 mb-1">4. Bedienen & Trumpf</h3>
-                <p>Die zuerst ausgespielte Farbe muss bedient werden. Hast du diese Farbe nicht, darfst du Trumpf oder eine beliebige andere Karte legen.</p>
+                <h3 className="font-bold text-sky-300 mb-1">4. Die Narren (N)</h3>
+                <p>Der Narr verliert immer den Stich (Wert 0).</p>
               </div>
             </div>
             <button onClick={() => setScreen('menu')} className="mt-4 w-full py-3 mythic-btn-primary text-white font-bold rounded-xl">Zurück zum Menü</button>
