@@ -36,7 +36,7 @@
       box-shadow: 0 0 15px rgba(56, 189, 248, 0.35);
     }
     .mythic-btn-menu {
-      background: linear-gradient(135deg, rgba(15, 23, 42, 0.9) 0%, rgba(30, 41, 59, 0.9) 100%);
+      background: linear-gradient(135deg, rgba(15, 23, 42, 0.85) 0%, rgba(30, 41, 59, 0.85) 100%);
       border: 1px solid rgba(56, 189, 248, 0.3);
       box-shadow: inset 0 0 10px rgba(56, 189, 248, 0.1);
       backdrop-filter: blur(8px);
@@ -70,7 +70,6 @@
       animation: podiumGlow 2s infinite ease-in-out;
     }
 
-    /* FLÜSSIGER, SCHNELLER FLUG MIT HARTEM AUFKNALLEN (0,7 SEKUNDEN) */
     @keyframes cardFastFlyAndSlamPlayer {
       0% {
         transform: translateY(220px) scale(1.4) rotate(-10deg);
@@ -233,7 +232,6 @@
       blue: { name: 'Blau', title: 'DER DOLCH', bg: 'from-blue-950 via-sky-950 to-slate-950', border: 'border-blue-400', art: CardArt.dagger }
     };
 
-    // ERWEITERTER MAGIER-POOL AUS POPKULTUR UND MEDIEN
     const FAMOUS_WIZARDS = [
       'Merlin', 'Gandalf', 'Yennefer', 'Elminster', 'Zabini', 'Ged', 'Raistlin',
       'Howl', 'Dr. Strange', 'Zatanna', 'Bayonetta', 'Medivh', 'Khadgar', 'Tsukino',
@@ -243,11 +241,12 @@
     
     const AVATARS = ['🧙‍♂️', '🧝‍♀️', '🧙‍♀️', '🧝‍♂️', '🔮', '👑', '⚡', '🌙', '📜'];
 
+    // KARTENRÜCKEN MIT DEINEM DEUTLICHEN BILD
     function CardBack({ size = "md" }) {
       const dim = size === "sm" ? "w-12 h-20" : size === "lg" ? "w-28 h-40" : "w-20 h-32";
       return (
         <div className={`${dim} rounded-xl border-2 border-sky-400/60 overflow-hidden shadow-2xl relative bg-slate-950`}>
-          <img src="./1791625015038.jpg" alt="Kartenrücken" className="w-full h-full object-cover" />
+          <img src="./1791640361452.jpg" alt="Kartenrücken" className="w-full h-full object-cover" />
         </div>
       );
     }
@@ -780,35 +779,29 @@
         setScreen('menu');
       };
 
-      // ---------------- 1. HAUPTMENÜ (VOLLFLÄCHIGES BILD INKLUSIVE "MYTHOS" VOLL SICHTBAR) ----------------
+      // ---------------- 1. HAUPTMENÜ ----------------
       if (screen === 'menu') {
         return (
-          <div className="relative w-full h-full bg-slate-950 flex flex-col justify-between items-center p-4 overflow-hidden">
-            {/* HINTERGRUNDBILD GESAMT VOLLFLÄCHIG (OBJECT-CONTAIN VERHINDERT ABSCHNEIDEN) */}
-            <div className="absolute inset-0 z-0 flex items-center justify-center p-2">
+          <div className="relative w-full h-full bg-slate-950 flex items-center justify-center p-4 overflow-hidden">
+            <div className="absolute inset-0 z-0 flex items-center justify-center">
               <img 
                 src="./1791625015038.jpg" 
                 alt="Mythos Background" 
-                className="w-full h-full object-contain drop-shadow-2xl" 
+                className="w-full h-full object-cover sm:object-contain drop-shadow-2xl" 
               />
             </div>
 
-            <div className="relative z-10 w-full pt-4 text-center">
-              {/* Freier Platz oben damit das Mythos Logo strahlt */}
-            </div>
-
-            {/* BUTTONS UNTEN ÜBER DEM BILD */}
-            <div className="relative z-10 w-full max-w-sm flex flex-col gap-2.5 mb-2">
+            <div className="relative z-10 w-full max-w-sm flex flex-col gap-3 my-auto">
               <button
                 onClick={() => setScreen('game_setup')}
-                className="w-full py-3.5 rounded-2xl mythic-btn-primary text-white font-black text-base active:scale-95 transition-transform flex items-center justify-center gap-2 shadow-2xl"
+                className="w-full py-4 rounded-2xl mythic-btn-primary text-white font-black text-lg active:scale-95 transition-transform flex items-center justify-center gap-2 shadow-2xl"
               >
                 <span>⚔️</span> Spiel starten
               </button>
 
               <button
                 onClick={() => setScreen('multiplayer')}
-                className="w-full py-3 rounded-2xl mythic-btn-menu text-sky-200 font-bold text-sm active:scale-95 transition-transform flex items-center justify-center gap-2 shadow-xl"
+                className="w-full py-3.5 rounded-2xl mythic-btn-menu text-sky-200 font-bold text-base active:scale-95 transition-transform flex items-center justify-center gap-2 shadow-xl"
               >
                 <span>🌐</span> Online-Lobby
               </button>
@@ -816,20 +809,20 @@
               <div className="flex gap-2">
                 <button
                   onClick={() => setScreen('profile')}
-                  className="flex-1 py-2.5 rounded-2xl mythic-btn-menu text-sky-300 font-bold text-xs active:scale-95 transition-transform flex items-center justify-center gap-1 shadow-lg"
+                  className="flex-1 py-3 rounded-2xl mythic-btn-menu text-sky-300 font-bold text-xs active:scale-95 transition-transform flex items-center justify-center gap-1 shadow-lg"
                 >
                   <span>👤</span> Profil & Stats
                 </button>
                 <button
                   onClick={() => setScreen('rules')}
-                  className="flex-1 py-2.5 rounded-2xl mythic-btn-menu text-sky-300 font-bold text-xs active:scale-95 transition-transform flex items-center justify-center gap-1 shadow-lg"
+                  className="flex-1 py-3 rounded-2xl mythic-btn-menu text-sky-300 font-bold text-xs active:scale-95 transition-transform flex items-center justify-center gap-1 shadow-lg"
                 >
                   <span>📜</span> Regeln
                 </button>
               </div>
 
-              <span className="text-[9px] text-center text-slate-400 font-bold block mt-1 drop-shadow bg-slate-950/60 py-0.5 rounded-full backdrop-blur-sm border border-slate-800/40">
-                MYTHOS CARD GAME V6.0 • FULLSCREEN COVER
+              <span className="text-[9px] text-center text-slate-300 font-bold block mt-2 drop-shadow bg-slate-950/70 py-1 rounded-full backdrop-blur-md border border-sky-500/30">
+                MYTHOS CARD GAME V6.3
               </span>
             </div>
           </div>
