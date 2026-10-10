@@ -523,7 +523,7 @@
 
       const startNewGame = () => {
         const shuffledNames = shuffleArray(FAMOUS_WIZARDS);
-        const randomAvatars = ['🧙‍♂️', '🔮', '⚡', '🌙'];
+        const suitKeys = Object.keys(SUITS);
 
         const initialPlayers = [
           { 
@@ -539,10 +539,24 @@
         ];
 
         for (let i = 1; i < playerCount; i++) {
+          const randomSuit = suitKeys[Math.floor(Math.random() * suitKeys.length)];
+          const avatarTypes = ['jester', 'number', 'wizard'];
+          const chosenType = avatarTypes[Math.floor(Math.random() * avatarTypes.length)];
+          
+          let randomAvatarObj;
+          if (chosenType === 'jester') {
+            randomAvatarObj = { type: 'jester', suit: randomSuit, label: 'Narr' };
+          } else if (chosenType === 'wizard') {
+            randomAvatarObj = { type: 'wizard', suit: randomSuit, label: 'Zauberer' };
+          } else {
+            const randomVal = Math.floor(Math.random() * 13) + 1;
+            randomAvatarObj = { type: 'number', value: randomVal, suit: randomSuit, label: `Karte ${randomVal}` };
+          }
+
           initialPlayers.push({
             id: i,
             name: `${shuffledNames[i - 1]} (KI)`,
-            avatarEmoji: randomAvatars[i % randomAvatars.length],
+            avatarObj: randomAvatarObj,
             isHuman: false,
             bid: null,
             tricks: 0,
@@ -676,16 +690,13 @@
         }, 750);
       };
 
-      // KORRIGIERTE & PRÄZISE ZAUBERER-REGEL AUSWERTUNG
       const evaluateTrick = (cardsOnTable) => {
         let winningCardObj = cardsOnTable[0];
 
-        // 1. Regel: Der erste Zauberer gewinnt immer sofort
         const firstWizard = cardsOnTable.find(c => c.card.type === 'wizard');
         if (firstWizard) {
           winningCardObj = firstWizard;
         } else {
-          // Keine Zauberer im Stich -> Ermittle Leitfarbe & Trumpffarbe
           const leadCardObj = cardsOnTable.find(c => c.card.type === 'number' || c.card.type === 'jester');
           const leadSuit = leadCardObj ? leadCardObj.card.suit : null;
           const trumpSuit = (trumpCard && trumpCard.type === 'number') ? trumpCard.suit : null;
@@ -696,17 +707,11 @@
             const card = c.card;
             if (card.type === 'number') {
               let currentRank = -1;
-
-              // 2. Regel: Trumpffarbe sticht alles außer Zauberer
               if (trumpSuit && card.suit === trumpSuit) {
-                currentRank = 1000 + card.value; // Trumpf hat höchste Priorität
-              } 
-              // 3. Regel: Leitfarbe (Ausspiel-Farbe) sticht Fehlfarben
-              else if (leadSuit && card.suit === leadSuit) {
-                currentRank = 500 + card.value;  // Leitfarbe hat mittlere Priorität
-              } 
-              // 4. Regel: Andere Fehlfarben können niemals stechen (Wert bleibt niedrig)
-              else {
+                currentRank = 1000 + card.value;
+              } else if (leadSuit && card.suit === leadSuit) {
+                currentRank = 500 + card.value;
+              } else {
                 currentRank = card.value;
               }
 
@@ -714,18 +719,11 @@
                 bestRank = currentRank;
                 winningCardObj = c;
               }
-            } else if (card.type === 'jester' && bestRank === -1) {
-              // Narr zählt als 0, gewinnt nur wenn bisher nur Narren da waren
-              if (winningCardObj.card.type === 'jester') {
-                // Behalte den allerersten gespielten Narren
-              }
             }
           });
         }
 
         const winnerId = winningCardObj.playerId;
-
-        // Karten schweben zum Gewinner
         setCollectingWinnerId(winnerId);
 
         setTimeout(() => {
@@ -918,7 +916,7 @@
               </div>
 
               <span className="text-[9px] text-center text-slate-300 font-bold block mt-2 drop-shadow bg-slate-950/70 py-1 rounded-full backdrop-blur-md border border-sky-500/30">
-                MYTHOS CARD GAME V9.0 (RULES FIXED)
+                MYTHOS CARD GAME V9.1 (NPC AVATARS)
               </span>
             </div>
           </div>
@@ -1389,15 +1387,20 @@
             <button onClick={() => setShowExitConfirm(true)} className="text-[10px] bg-slate-800 hover:bg-slate-700 active:scale-95 text-sky-300 border border-sky-500/30 px-2.5 py-1 rounded-lg font-bold transition-all shadow">Menü</button>
           </div>
 
-          <div className="grid grid-cols-3 gap-1">
+          <div className="grid grid-cols-3 gap-1.5">
             {players.filter(p => !p.isHuman).map(p => {
               const isCurrentTurn = (turn === p.id);
               const isWinnerCollecting = (collectingWinnerId === p.id);
               return (
-                <div key={p.id} className={`p-1.5 rounded-lg border text-center text-xs transition-all ${isCurrentTurn ? 'border-sky-400 bg-slate-800 shadow-lg shadow-sky-500/20' : 'border-slate-800 bg-slate-900/60'} ${isWinnerCollecting ? 'ring-2 ring-amber-400 bg-amber-950/40 shadow-[0_0_15px_#f59e0b]' : ''}`}>
-                  <div className={`font-bold truncate ${isCurrentTurn ? 'text-sky-300' : 'text-slate-300'}`}>{isCurrentTurn ? `▶ ${p.name}` : p.name}</div>
-                  <div className="text-[10px] font-bold text-amber-400">{p.score} Ptn</div>
-                  <div className="text-[9px] text-slate-300">Ansage: {p.bid !== null ? p.bid : '?'} | Stiche: {p.tricks}</div>
+                <div key={p.id} className={`p-1.5 rounded-xl border flex items-center gap-2 text-xs transition-all ${isCurrentTurn ? 'border-sky-400 bg-slate-800 shadow-lg shadow-sky-500/20' : 'border-slate-800 bg-slate-900/60'} ${isWinnerCollecting ? 'ring-2 ring-amber-400 bg-amber-950/40 shadow-[0_0_15px_#f59e0b]' : ''}`}>
+                  <div className="shrink-0 scale-75 origin-left">
+                    {renderAvatarIcon(p.avatarObj, "w-10 h-10 text-base")}
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <div className={`font-bold truncate text-[11px] ${isCurrentTurn ? 'text-sky-300' : 'text-slate-300'}`}>{isCurrentTurn ? `▶ ${p.name}` : p.name}</div>
+                    <div className="text-[10px] font-bold text-amber-400">{p.score} Ptn</div>
+                    <div className="text-[9px] text-slate-300">Ansage: {p.bid !== null ? p.bid : '?'} | Stiche: {p.tricks}</div>
+                  </div>
                 </div>
               );
             })}
@@ -1448,6 +1451,9 @@
           <div className={`p-2 rounded-2xl border transition-all ${isHumanTurn && phase === 'playing' ? 'border-sky-400 bg-slate-800/90 shadow-xl shadow-sky-500/20 ring-1 ring-sky-400/50' : 'border-slate-800 bg-slate-900'} ${collectingWinnerId === 0 ? 'ring-2 ring-amber-400 bg-amber-950/40 shadow-[0_0_20px_#f59e0b]' : ''}`}>
             <div className="flex justify-between items-center mb-1 px-1">
               <div className="flex items-center gap-2">
+                <div className="shrink-0 scale-75 origin-left">
+                  {renderAvatarIcon(humanPlayer.avatarObj || profile.selectedAvatar, "w-8 h-8 text-sm")}
+                </div>
                 <span className={`text-xs font-bold ${isHumanTurn && phase === 'playing' ? 'text-sky-300 animate-pulse' : 'text-slate-300'}`}>
                   {isHumanTurn && phase === 'playing' ? '▶ DEINE HAND:' : 'DEINE HAND:'}
                 </span>
