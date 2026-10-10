@@ -63,8 +63,8 @@
     }
 
     @keyframes elementPodiumGlow {
-      0%, 100% { box-shadow: 0 0 30px var(--glow-color), inset 0 0 20px var(--glow-color); }
-      50% { box-shadow: 0 0 55px var(--glow-color), inset 0 0 35px var(--glow-color); }
+      0%, 100% { box-shadow: 0 0 35px var(--glow-color), inset 0 0 20px var(--glow-color); }
+      50% { box-shadow: 0 0 60px var(--glow-color), inset 0 0 35px var(--glow-color); }
     }
     .element-podium-active {
       animation: elementPodiumGlow 2.5s infinite ease-in-out;
@@ -84,15 +84,20 @@
       clip-path: polygon(10% 0%, 90% 0%, 100% 20%, 95% 100%, 5% 100%, 0% 20%);
       background-image: repeating-linear-gradient(45deg, rgba(252, 165, 165, 0.2) 0, rgba(252, 165, 165, 0.2) 10px, transparent 10px, transparent 20px);
     }
+
+    /* ECHTES DIAMANTEN-KRISTALL-PODEST */
     .podium-diamond {
-      background: linear-gradient(to bottom, rgba(16, 185, 129, 0.85), rgba(3, 7, 18, 0.95));
-      border: 2px solid #10b981;
-      clip-path: polygon(20% 0%, 80% 0%, 100% 25%, 100% 100%, 0% 100%, 0% 25%);
-      background-image: linear-gradient(135deg, rgba(110, 231, 183, 0.25) 25%, transparent 25%), linear-gradient(225deg, rgba(110, 231, 183, 0.25) 25%, transparent 25%);
-      background-size: 12px 12px;
+      background: linear-gradient(135deg, rgba(5, 150, 105, 0.95), rgba(4, 120, 87, 0.9), rgba(3, 7, 18, 0.98));
+      border: 2px solid #34d399;
+      clip-path: polygon(15% 0%, 85% 0%, 100% 30%, 95% 100%, 5% 100%, 0% 30%);
+      background-image: 
+        linear-gradient(60deg, rgba(167, 243, 208, 0.25) 25%, transparent 25%), 
+        linear-gradient(120deg, rgba(167, 243, 208, 0.25) 25%, transparent 25%),
+        linear-gradient(180deg, rgba(5, 150, 105, 0.4) 0%, rgba(3, 7, 18, 0.8) 100%);
+      background-size: 20px 20px, 20px 20px, 100% 100%;
     }
 
-    /* NEUES TORNADO-WIND-PODEST */
+    /* TORNADO-WIND-PODEST */
     .podium-wind {
       background: linear-gradient(to bottom, rgba(217, 119, 6, 0.9), rgba(15, 23, 42, 0.98));
       border: 2px solid #f59e0b;
@@ -255,13 +260,10 @@
         primaryColor: '#f59e0b', 
         glowColor: 'rgba(245, 158, 11, 0.75)', 
         podiumClass: 'podium-wind', 
-        // NEUE STÜRMISCHE WIND-KRONE (Tornado- & Bogen-Design mit wirbelnden Windböen)
         crownSvg: (
           <svg viewBox="0 0 140 60" className="w-28 h-12 drop-shadow-[0_0_15px_#f59e0b] animate-pulse">
-            {/* Wirbelnde Windböen links und rechts */}
             <path d="M 10 40 Q 25 15 45 30 Q 30 50 15 45 Z" fill="#fef08a" opacity="0.8" />
             <path d="M 130 40 Q 115 15 95 30 Q 110 50 125 45 Z" fill="#fef08a" opacity="0.8" />
-            {/* Zentrale Tornadokrone */}
             <path d="M 25 48 Q 35 15 50 30 Q 60 5 70 25 Q 80 5 90 30 Q 105 15 115 48 Z" fill="url(#windGrad)" stroke="#fef08a" strokeWidth="2" />
             <defs>
               <linearGradient id="windGrad" x1="0%" y1="0%" x2="100%" y2="100%">
@@ -270,7 +272,6 @@
                 <stop offset="100%" stopColor="#d97706" />
               </linearGradient>
             </defs>
-            {/* Energie-Sterne / Funken im Sturm */}
             <circle cx="70" cy="12" r="3" fill="#fff" />
             <circle cx="42" cy="22" r="2" fill="#fff" />
             <circle cx="98" cy="22" r="2" fill="#fff" />
@@ -283,12 +284,43 @@
           <path d="M 50 12 Q 55 22 50 28 Q 45 22 50 12 Z" fill="#fef08a" />
         </svg>
       ) },
-      green: { key: 'green', name: 'Grün', title: 'DIAMANTEN', bg: 'from-emerald-950 via-green-950 to-slate-950', border: 'border-emerald-400', art: CardArt.bow, primaryColor: '#10b981', glowColor: 'rgba(16, 185, 129, 0.7)', podiumClass: 'podium-diamond', crownSvg: (
-        <svg viewBox="0 0 100 40" className="w-20 h-10 drop-shadow-[0_0_10px_#10b981]">
-          <polygon points="10,35 25,12 50,30 75,12 90,35" fill="#10b981" stroke="#6ee7b7" strokeWidth="2" />
-          <polygon points="50,10 60,22 50,34 40,22" fill="#a7f3d0" />
-        </svg>
-      ) },
+      green: { 
+        key: 'green', 
+        name: 'Grün', 
+        title: 'DIAMANTEN', 
+        bg: 'from-emerald-950 via-green-950 to-slate-950', 
+        border: 'border-emerald-400', 
+        art: CardArt.bow, 
+        primaryColor: '#10b981', 
+        glowColor: 'rgba(16, 185, 129, 0.8)', 
+        podiumClass: 'podium-diamond', 
+        // NEUE DIAMANTEN-KRISTALL-KRONE (Facettierter Edelstein-Look mit funkelnden Kristallspitzen)
+        crownSvg: (
+          <svg viewBox="0 0 140 60" className="w-28 h-12 drop-shadow-[0_0_18px_#10b981] animate-pulse">
+            {/* Funkelnde Seitenkristalle */}
+            <polygon points="15,42 30,20 45,42" fill="#34d399" stroke="#a7f3d0" strokeWidth="1.5" />
+            <polygon points="95,42 110,20 125,42" fill="#34d399" stroke="#a7f3d0" strokeWidth="1.5" />
+            {/* Großer Haupt-Diamant in der Mitte */}
+            <polygon points="35,48 55,10 85,10 105,48 70,55" fill="url(#diamondGrad)" stroke="#6ee7b7" strokeWidth="2" />
+            <polygon points="55,10 70,30 85,10" fill="#a7f3d0" opacity="0.8" />
+            <polygon points="35,48 70,30 55,10" fill="#059669" opacity="0.6" />
+            <polygon points="105,48 70,30 85,10" fill="#10b981" opacity="0.7" />
+            <polygon points="35,48 70,30 70,55" fill="#047857" opacity="0.8" />
+            <polygon points="105,48 70,30 70,55" fill="#34d399" opacity="0.5" />
+            <defs>
+              <linearGradient id="diamondGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stopColor="#6ee7b7" />
+                <stop offset="50%" stopColor="#10b981" />
+                <stop offset="100%" stopColor="#047857" />
+              </linearGradient>
+            </defs>
+            {/* Glanzpunkte / Lichtreflexe */}
+            <circle cx="70" cy="20" r="3" fill="#fff" />
+            <circle cx="30" cy="15" r="1.5" fill="#fff" />
+            <circle cx="110" cy="15" r="1.5" fill="#fff" />
+          </svg>
+        ) 
+      },
       blue: { key: 'blue', name: 'Blau', title: 'WASSER', bg: 'from-blue-950 via-sky-950 to-slate-950', border: 'border-blue-400', art: CardArt.dagger, primaryColor: '#0284c7', glowColor: 'rgba(2, 132, 199, 0.7)', podiumClass: 'podium-water', crownSvg: (
         <svg viewBox="0 0 100 40" className="w-20 h-10 drop-shadow-[0_0_10px_#38bdf8]">
           <path d="M 10 32 Q 30 10 50 28 Q 70 10 90 32 Z" fill="#0284c7" stroke="#38bdf8" strokeWidth="2" />
@@ -1015,7 +1047,7 @@
               </div>
 
               <span className="text-[9px] text-center text-slate-300 font-bold block mt-2 drop-shadow bg-slate-950/70 py-1 rounded-full backdrop-blur-md border border-sky-500/30">
-                MYTHOS CARD GAME V10.9 (TORNADO & WIND CROWN UPDATE)
+                MYTHOS CARD GAME V10.10 (DIAMOND CRYSTAL & CROWN UPDATE)
               </span>
             </div>
           </div>
@@ -1464,7 +1496,7 @@
                       </div>
                     </div>
                     
-                    {/* NEUES TORNADO-PODEST FÜR WIND ODER STANDARD-PODEST */}
+                    {/* ELEMENT-PODEST (DIAMANT, TORNADO ODER STANDARD) */}
                     <div 
                       className={`w-48 h-20 mt-[-16px] flex flex-col items-center justify-center element-podium-active z-10 ${suitTheme.podiumClass} ${winnerSuitKey === 'yellow' ? 'animate-tornado' : ''}`}
                       style={{ '--glow-color': suitTheme.glowColor }}
