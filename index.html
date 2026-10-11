@@ -884,42 +884,73 @@
         }
       }, [victoryData]);
 
+      // Timer für Würfel-Modus zurücksetzen
       useEffect(() => {
         let interval = null;
         if (showDiceModal && !diceRolls && !isDiceRolling) {
+          setDiceTimer(20); // Setzt den Timer beim Öffnen frisch auf 20 Sekunden zurück
           interval = setInterval(() => {
-            setDiceTimer(prev => { if (prev <= 1) { handleUserRollDice(); return 0; } return prev - 1; });
+            setDiceTimer(prev => { 
+              if (prev <= 1) { 
+                handleUserRollDice(); 
+                return 0; 
+              } 
+              return prev - 1; 
+            });
           }, 1000);
         }
         return () => clearInterval(interval);
       }, [showDiceModal, diceRolls, isDiceRolling]);
 
+      // Timer für Ergebnis nach dem Würfeln
       useEffect(() => {
         let interval = null;
         if (showDiceModal && diceRolls && !isDiceRolling) {
+          setResultTimer(10); // Setzt den Timer frisch auf 10 Sekunden zurück
           interval = setInterval(() => {
-            setResultTimer(prev => { if (prev <= 1) { startRoundAfterDice(); return 0; } return prev - 1; });
+            setResultTimer(prev => { 
+              if (prev <= 1) { 
+                startRoundAfterDice(); 
+                return 0; 
+              } 
+              return prev - 1; 
+            });
           }, 1000);
         }
         return () => clearInterval(interval);
       }, [showDiceModal, diceRolls, isDiceRolling]);
 
+      // Bidding Timer (Ansage)
       useEffect(() => {
         let interval = null;
         if (screen === 'game' && phase === 'bidding' && !showDiceModal && !roundSummary && !victoryData && !showExitConfirm) {
+          setBiddingTimer(20); // Setzt den Ansage-Timer frisch auf 20 Sekunden zurück
           interval = setInterval(() => {
-            setBiddingTimer(prev => { if (prev <= 1) { handleHumanBid(0); return 20; } return prev - 1; });
+            setBiddingTimer(prev => { 
+              if (prev <= 1) { 
+                handleHumanBid(0); 
+                return 20; 
+              } 
+              return prev - 1; 
+            });
           }, 1000);
         }
         return () => clearInterval(interval);
       }, [screen, phase, showDiceModal, roundSummary, victoryData, showExitConfirm]);
 
+      // Turn Timer (Spielzug)
       useEffect(() => {
         let interval = null;
         if (screen === 'game' && phase === 'playing' && turn === 0 && !isEvaluatingRef.current && !animatingCardId && !collectingWinnerId && playedCards.length < players.length && !showDiceModal && !roundSummary && !victoryData && !showExitConfirm) {
+          setTurnTimer(20); // Setzt den Zug-Timer frisch auf 20 Sekunden zurück
           interval = setInterval(() => {
             setTurnTimer(prev => {
-              if (prev <= 1) { if (players[0]?.hand?.length > 0) { playCard(0, 0); } return 20; }
+              if (prev <= 1) { 
+                if (players[0]?.hand?.length > 0) { 
+                  playCard(0, 0); 
+                } 
+                return 20; 
+              }
               return prev - 1;
             });
           }, 1000);
@@ -940,21 +971,37 @@
         return () => clearInterval(interval);
       }, [showExitConfirm]);
 
+      // Runden-Zusammenfassung Timer
       useEffect(() => {
         let interval = null;
         if (roundSummary && !showExitConfirm) {
+          setSummaryTimer(10); // Setzt den Timer frisch auf 10 Sekunden zurück
           interval = setInterval(() => {
-            setSummaryTimer(prev => { if (prev <= 1) { proceedToNextRound(); return 0; } return prev - 1; });
+            setSummaryTimer(prev => { 
+              if (prev <= 1) { 
+                proceedToNextRound(); 
+                return 0; 
+              } 
+              return prev - 1; 
+            });
           }, 1000);
         }
         return () => clearInterval(interval);
       }, [roundSummary, showExitConfirm]);
 
+      // Sieg-Bildschirm Timer
       useEffect(() => {
         let interval = null;
         if (victoryData && !showExitConfirm) {
+          setVictoryTimer(20); // Setzt den Timer frisch auf 20 Sekunden zurück
           interval = setInterval(() => {
-            setVictoryTimer(prev => { if (prev <= 1) { finishGameAndGoMenu(); return 0; } return prev - 1; });
+            setVictoryTimer(prev => { 
+              if (prev <= 1) { 
+                finishGameAndGoMenu(); 
+                return 0; 
+              } 
+              return prev - 1; 
+            });
           }, 1000);
         }
         return () => clearInterval(interval);
@@ -2154,7 +2201,7 @@
       );
     }
 
-    ReactDOM.createRoot(getElementById('root')).render(<App />);
+    ReactDOM.createRoot(document.getElementById('root')).render(<App />);
   </script>
 </body>
 </html>
