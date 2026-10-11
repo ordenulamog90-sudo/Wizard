@@ -1585,7 +1585,7 @@
               </button>
 
               <span className="text-[9px] text-center text-slate-300 font-bold block mt-2 drop-shadow bg-slate-950/70 py-1 rounded-full backdrop-blur-md border border-sky-500/30">
-                MYTHOS CARD GAME V10.92
+                MYTHOS CARD GAME V10.93
               </span>
             </div>
           </div>
@@ -1945,6 +1945,8 @@
       // ---------------- 6. SPIELFELD ----------------
       const humanPlayer = players[0] || {};
       const isHumanTurn = (turn === 0);
+      const handCardCount = humanPlayer.hand ? humanPlayer.hand.length : 0;
+      const shouldOverlapCards = handCardCount >= 6;
 
       return (
         <div onClick={handleUserInteraction} className="w-full h-full flex flex-col justify-between p-1.5 pb-4 bg-slate-950 relative overflow-hidden box-border">
@@ -2190,7 +2192,7 @@
             </div>
           </div>
 
-          {/* DEINE HANDKARTEN (Nach oben gerückt mit Abstand zum Bildschirmrand) */}
+          {/* DEINE HANDKARTEN (Ab 6 Karten mit automatischer Überlappung) */}
           <div className={`p-1.5 mb-2 rounded-xl border transition-all shrink-0 ${isHumanTurn && phase === 'playing' ? 'border-sky-400 bg-slate-800/95 shadow-xl shadow-sky-500/30 ring-2 ring-sky-400/60' : 'border-slate-800 bg-slate-900'} ${collectingWinnerId === 0 ? 'ring-2 ring-amber-400 bg-amber-950/40 shadow-[0_0_20px_#f59e0b]' : ''}`}>
             <div className="flex justify-between items-center mb-1 px-1">
               <div className="flex items-center gap-1.5">
@@ -2207,15 +2209,23 @@
 
             {/* HANDKARTEN SCROLL-CONTAINER */}
             <div className="w-full flex justify-start sm:justify-center items-end py-1 overflow-x-auto hand-scroll-container">
-              <div className="flex items-end gap-2 px-2 py-1 min-w-full justify-start sm:justify-center">
+              <div className="flex items-end px-2 py-1 min-w-full justify-start sm:justify-center">
                 {humanPlayer.hand && humanPlayer.hand.map((card, idx) => (
-                  <CardFace 
+                  <div 
                     key={card.id || idx} 
-                    card={card} 
-                    size="md" 
-                    disabled={phase !== 'playing' || turn !== 0 || isEvaluatingRef.current || animatingCardId !== null || collectingWinnerId !== null || showExitConfirm} 
-                    onClick={() => playCard(0, idx)} 
-                  />
+                    className="transition-all duration-200"
+                    style={{ 
+                      marginLeft: shouldOverlapCards && idx > 0 ? '-35px' : '0px',
+                      zIndex: idx 
+                    }}
+                  >
+                    <CardFace 
+                      card={card} 
+                      size="md" 
+                      disabled={phase !== 'playing' || turn !== 0 || isEvaluatingRef.current || animatingCardId !== null || collectingWinnerId !== null || showExitConfirm} 
+                      onClick={() => playCard(0, idx)} 
+                    />
+                  </div>
                 ))}
               </div>
             </div>
