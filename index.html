@@ -517,7 +517,6 @@
 
       const cornerText = isWizard ? 'Z' : isJester ? 'N' : card.value;
 
-      // Farbschema für Eckzahlen
       let cornerColorClass = 'text-amber-300';
       if (isWizard) cornerColorClass = 'text-purple-300 drop-shadow-[0_0_8px_rgba(168,85,247,0.8)]';
       else if (isJester) {
@@ -1020,6 +1019,7 @@
         let winningCardObj = cardsOnTable[0];
         const activeTrump = stateRef.current.trumpCard;
 
+        // Zauberer stechen IMMER absolut (der ERSTE ausgespielte Zauberer gewinnt den Stich)
         const firstWizard = cardsOnTable.find(c => c.card.type === 'wizard');
         if (firstWizard) {
           winningCardObj = firstWizard;
@@ -1363,7 +1363,7 @@
               </div>
 
               <span className="text-[9px] text-center text-slate-300 font-bold block mt-2 drop-shadow bg-slate-950/70 py-1 rounded-full backdrop-blur-md border border-sky-500/30">
-                MYTHOS CARD GAME V10.44
+                MYTHOS CARD GAME V10.45
               </span>
             </div>
           </div>
