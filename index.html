@@ -559,7 +559,7 @@
     };
 
     function CardBack({ size = "md" }) {
-      const dim = size === "sm" ? "w-12 h-20" : size === "lg" ? "w-28 h-40" : "w-16 h-24 sm:w-20 sm:h-32";
+      const dim = size === "sm" ? "w-10 h-16" : size === "lg" ? "w-28 h-40" : "w-16 h-24 sm:w-20 sm:h-32";
       return (
         <div className={`${dim} rounded-xl border-2 border-sky-400/60 overflow-hidden shadow-2xl relative bg-slate-950 shrink-0`}>
           <img src="./1791640361452.jpg" alt="Kartenrücken" className="w-full h-full object-cover" />
@@ -568,7 +568,7 @@
     }
 
     function CardFace({ card, size = "md", onClick, disabled, className = "" }) {
-      const dim = size === "sm" ? "w-14 h-24" : size === "lg" ? "w-28 h-40" : "w-16 h-24 sm:w-20 sm:h-32";
+      const dim = size === "sm" ? "w-11 h-18" : size === "lg" ? "w-28 h-40" : "w-16 h-24 sm:w-20 sm:h-32";
       if (!card) return null;
 
       const isWizard = card.type === 'wizard';
@@ -1585,7 +1585,7 @@
               </button>
 
               <span className="text-[9px] text-center text-slate-300 font-bold block mt-2 drop-shadow bg-slate-950/70 py-1 rounded-full backdrop-blur-md border border-sky-500/30">
-                MYTHOS CARD GAME V10.85
+                MYTHOS CARD GAME V10.86
               </span>
             </div>
           </div>
@@ -1947,7 +1947,7 @@
       const isHumanTurn = (turn === 0);
 
       return (
-        <div onClick={handleUserInteraction} className="w-full h-full flex flex-col justify-between p-1.5 bg-slate-950 relative overflow-hidden box-border">
+        <div onClick={handleUserInteraction} className="w-full h-full flex flex-col justify-between p-1 bg-slate-950 relative overflow-hidden box-border">
           
           {showExitConfirm && (
             <div className="absolute inset-0 bg-slate-950/95 backdrop-blur-md z-50 flex flex-col items-center justify-center p-4 text-center select-none overflow-y-auto">
@@ -2120,44 +2120,45 @@
             <button onClick={() => setShowExitConfirm(true)} className="text-[11px] bg-slate-800 hover:bg-slate-700 active:scale-95 text-sky-300 border border-sky-500/30 px-3 py-1 rounded-lg font-bold transition-all shadow">Menü</button>
           </div>
 
-          {/* GEGNER-LEISTE */}
-          <div className="grid grid-cols-3 gap-1.5 shrink-0 my-0.5">
+          {/* GEGNER-LEISTE (Kompakt) */}
+          <div className="grid grid-cols-3 gap-1 shrink-0 my-0.5">
             {players.filter(p => !p.isHuman).map(p => {
               const isCurrentTurn = (turn === p.id);
               const isWinnerCollecting = (collectingWinnerId === p.id);
               return (
-                <div key={p.id} className={`p-1 rounded-xl border flex items-center gap-1.5 text-xs transition-all ${isCurrentTurn ? 'border-sky-400 bg-slate-800 shadow-lg shadow-sky-500/25' : 'border-slate-800 bg-slate-900/60'} ${isWinnerCollecting ? 'ring-2 ring-amber-400 bg-amber-950/40 shadow-[0_0_15px_#f59e0b]' : ''}`}>
-                  <div className="shrink-0 scale-75 origin-left">
-                    {renderAvatarIcon(p.avatarObj, "w-8 h-8 text-xs")}
+                <div key={p.id} className={`p-1 rounded-lg border flex items-center gap-1 text-[11px] transition-all ${isCurrentTurn ? 'border-sky-400 bg-slate-800 shadow-lg shadow-sky-500/25' : 'border-slate-800 bg-slate-900/60'} ${isWinnerCollecting ? 'ring-2 ring-amber-400 bg-amber-950/40 shadow-[0_0_15px_#f59e0b]' : ''}`}>
+                  <div className="shrink-0 scale-70 origin-left">
+                    {renderAvatarIcon(p.avatarObj, "w-7 h-7 text-[10px]")}
                   </div>
                   <div className="min-w-0 flex-1 overflow-hidden">
-                    <div className={`font-bold truncate text-[11px] ${isCurrentTurn ? 'text-sky-300' : 'text-slate-300'}`}>{isCurrentTurn ? `> ${p.name}` : p.name}</div>
-                    <div className="text-[10px] font-bold text-amber-400">{p.score} Ptn</div>
-                    <div className="text-[9px] text-slate-300">Ans: {p.bid !== null ? p.bid : '?'} | Stich: {p.tricks}</div>
+                    <div className={`font-bold truncate text-[10px] ${isCurrentTurn ? 'text-sky-300' : 'text-slate-300'}`}>{isCurrentTurn ? `> ${p.name}` : p.name}</div>
+                    <div className="text-[9px] font-bold text-amber-400">{p.score} Ptn</div>
+                    <div className="text-[8px] text-slate-300">Ans: {p.bid !== null ? p.bid : '?'} | Stich: {p.tricks}</div>
                   </div>
                 </div>
               );
             })}
           </div>
 
-          {/* HAUPT-SPIELFELD (Kompakter für perfekten Platz) */}
-          <div className="flex-1 rounded-2xl border border-sky-500/40 p-1.5 flex flex-col justify-between items-center relative overflow-hidden shadow-2xl bg-slate-950 my-0.5">
+          {/* HAUPT-SPIELFELD (Sehr kompakt, damit Trumpf & Ablage klein sind) */}
+          <div className="flex-1 rounded-xl border border-sky-500/40 p-1 flex flex-col justify-between items-center relative overflow-hidden shadow-xl bg-slate-950 my-0.5">
             <div className="absolute inset-0 z-0 pointer-events-none">
               <img src="./1791660049147.jpg" alt="Spieltisch Hintergrund" className="w-full h-full object-cover" />
               <div className="absolute inset-0 bg-slate-950/40 backdrop-brightness-95"></div>
             </div>
 
-            <div className="flex items-center gap-2 z-10 shrink-0">
-              <span className="text-[11px] font-bold text-sky-300 uppercase drop-shadow">Trumpf:</span>
+            {/* KLEINER TRUMPF */}
+            <div className="flex items-center gap-1.5 z-10 shrink-0 scale-90">
+              <span className="text-[10px] font-bold text-sky-300 uppercase drop-shadow">Trumpf:</span>
               {trumpCard ? <CardFace card={trumpCard} size="sm" disabled /> : <CardBack size="sm" />}
             </div>
 
-            {/* ABLAGE-TISCH IM 3ER-GRID */}
+            {/* ABLAGE-TISCH IM 3ER-GRID (Sehr kompakt) */}
             <div className="w-full flex-1 flex items-center justify-center p-0.5 relative z-10 overflow-y-auto">
-              <div className={`grid grid-cols-3 gap-2 items-center justify-items-center max-w-xs ${collectingWinnerId !== null ? (collectingWinnerId === 0 ? 'animate-fly-to-bottom' : 'animate-fly-to-top') : ''}`}>
+              <div className={`grid grid-cols-3 gap-1.5 items-center justify-items-center max-w-xs ${collectingWinnerId !== null ? (collectingWinnerId === 0 ? 'animate-fly-to-bottom' : 'animate-fly-to-top') : ''}`}>
                 {playedCards.map((pc, i) => (
-                  <div key={i} className="flex flex-col items-center scale-75 origin-center">
-                    <span className="text-[9px] text-sky-200 mb-0.5 truncate max-w-[70px] drop-shadow">{players[pc.playerId]?.name}</span>
+                  <div key={i} className="flex flex-col items-center scale-65 origin-center">
+                    <span className="text-[8px] text-sky-200 mb-0.5 truncate max-w-[65px] drop-shadow">{players[pc.playerId]?.name}</span>
                     <CardFace card={pc.card} size="sm" disabled />
                   </div>
                 ))}
@@ -2167,23 +2168,23 @@
                 <div className="absolute inset-0 flex flex-col items-center justify-center z-40 bg-black/60 backdrop-blur-[2px]">
                   <div className="relative flex flex-col items-center">
                     {renderTcgElementAnimation(animatingCardObj)}
-                    <CardFace card={animatingCardObj} size="md" disabled className="animate-tcglike-slam mt-2" />
+                    <CardFace card={animatingCardObj} size="sm" disabled className="animate-tcglike-slam mt-1" />
                   </div>
                 </div>
               )}
             </div>
 
             {/* UNTERER BEREICH IM TISCH (Ansagen-Auswahl) */}
-            <div className="w-full h-12 flex items-center justify-center z-20 shrink-0">
+            <div className="w-full h-10 flex items-center justify-center z-20 shrink-0">
               {phase === 'bidding' && !showDiceModal && !roundSummary && !victoryData && !showExitConfirm ? (
-                <div className="w-full bg-slate-900/95 border border-sky-500/50 p-1.5 rounded-xl flex flex-col items-center gap-1 shadow-2xl backdrop-blur-md">
+                <div className="w-full bg-slate-900/95 border border-sky-500/50 p-1 rounded-lg flex flex-col items-center gap-0.5 shadow-2xl backdrop-blur-md">
                   <div className="flex justify-between items-center w-full px-1">
-                    <span className="text-[10px] font-bold text-sky-300">Ansage (Runde {round}):</span>
-                    <span className="text-[10px] font-extrabold text-amber-400 bg-amber-950 px-2 py-0.5 rounded-full border border-sky-500/30">{biddingTimer}s</span>
+                    <span className="text-[9px] font-bold text-sky-300">Ansage (Runde {round}):</span>
+                    <span className="text-[9px] font-extrabold text-amber-400 bg-amber-950 px-2 py-0.2 rounded-full border border-sky-500/30">{biddingTimer}s</span>
                   </div>
                   <div className="flex gap-1 flex-wrap justify-center overflow-x-auto max-w-full">
                     {Array.from({ length: round + 1 }, (_, i) => (
-                      <button key={i} onClick={() => handleHumanBid(i)} className="w-6 h-6 rounded-full bg-gradient-to-b from-sky-500 to-sky-700 text-white font-black text-[10px] shadow border border-sky-300 active:scale-90 transition-transform">{i}</button>
+                      <button key={i} onClick={() => handleHumanBid(i)} className="w-5 h-5 rounded-full bg-gradient-to-b from-sky-500 to-sky-700 text-white font-black text-[9px] shadow border border-sky-300 active:scale-90 transition-transform">{i}</button>
                     ))}
                   </div>
                 </div>
@@ -2191,22 +2192,22 @@
             </div>
           </div>
 
-          {/* DEINE HANDKARTEN (Sicherer, horizontal scrollbarer Bereich - NIEMALS ABGESCHNITTEN) */}
-          <div className={`p-2 rounded-2xl border transition-all shrink-0 ${isHumanTurn && phase === 'playing' ? 'border-sky-400 bg-slate-800/95 shadow-2xl shadow-sky-500/30 ring-2 ring-sky-400/60' : 'border-slate-800 bg-slate-900'} ${collectingWinnerId === 0 ? 'ring-2 ring-amber-400 bg-amber-950/40 shadow-[0_0_20px_#f59e0b]' : ''}`}>
+          {/* DEINE HANDKARTEN (Sicherer, weiter oben gerückter & voll scrollbarer Original-Bereich - NIEMALS ABGESCHNITTEN) */}
+          <div className={`p-2 rounded-xl border transition-all shrink-0 mb-1 ${isHumanTurn && phase === 'playing' ? 'border-sky-400 bg-slate-800/95 shadow-2xl shadow-sky-500/30 ring-2 ring-sky-400/60' : 'border-slate-800 bg-slate-900'} ${collectingWinnerId === 0 ? 'ring-2 ring-amber-400 bg-amber-950/40 shadow-[0_0_20px_#f59e0b]' : ''}`}>
             <div className="flex justify-between items-center mb-1 px-1">
-              <div className="flex items-center gap-2">
-                <div className="shrink-0 scale-75 origin-left">
-                  {renderAvatarIcon(humanPlayer.avatarObj || profile.selectedAvatar, "w-8 h-8 text-xs")}
+              <div className="flex items-center gap-1.5">
+                <div className="shrink-0 scale-70 origin-left">
+                  {renderAvatarIcon(humanPlayer.avatarObj || profile.selectedAvatar, "w-7 h-7 text-[10px]")}
                 </div>
-                <span className={`text-[11px] font-black tracking-wide ${isHumanTurn && phase === 'playing' ? 'text-sky-300 animate-pulse' : 'text-slate-300'}`}>
+                <span className={`text-[10px] font-black tracking-wide ${isHumanTurn && phase === 'playing' ? 'text-sky-300 animate-pulse' : 'text-slate-300'}`}>
                   DEINE HAND:
                 </span>
-                <span className="text-[11px] font-black text-amber-400 bg-amber-950/80 px-2 py-0.5 rounded-md border border-amber-500/40">{humanPlayer.score || 0} Ptn</span>
+                <span className="text-[10px] font-black text-amber-400 bg-amber-950/80 px-1.5 py-0.5 rounded-md border border-amber-500/40">{humanPlayer.score || 0} Ptn</span>
               </div>
-              <span className="text-[11px] font-bold text-sky-400">Ans: {humanPlayer.bid !== null ? humanPlayer.bid : '-'} | Stich: {humanPlayer.tricks}</span>
+              <span className="text-[10px] font-bold text-sky-400">Ans: {humanPlayer.bid !== null ? humanPlayer.bid : '-'} | Stich: {humanPlayer.tricks}</span>
             </div>
 
-            {/* HANDKARTEN CONTAINER (Horizontal scrollbar für perfekten Überblick) */}
+            {/* HANDKARTEN CONTAINER (Horizontal scrollbar für perfekten Überblick in voller Größe) */}
             <div className="w-full flex justify-start sm:justify-center items-end py-1 overflow-x-auto hand-scroll-container">
               <div className="flex items-end gap-2.5 px-1 py-1 min-w-full justify-start sm:justify-center">
                 {humanPlayer.hand && humanPlayer.hand.map((card, idx) => (
