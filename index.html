@@ -170,6 +170,151 @@
   <script type="text/babel">
     const { useState, useEffect, useRef } = React;
 
+    // --- SOUND ENGINE (WEB AUDIO API) ---
+    class SoundEngine {
+      constructor() {
+        this.ctx = null;
+      }
+      init() {
+        if (!this.ctx) {
+          const AudioContext = window.AudioContext || window.webkitAudioContext;
+          if (AudioContext) {
+            this.ctx = new AudioContext();
+          }
+        }
+        if (this.ctx && this.ctx.state === 'suspended') {
+          this.ctx.resume();
+        }
+      }
+      playCardSound(volume = 0.5) {
+        if (volume <= 0) return;
+        this.init();
+        if (!this.ctx) return;
+
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(320, this.ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(120, this.ctx.currentTime + 0.1);
+
+        gain.gain.setValueAtTime(volume * 0.3, this.ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.1);
+
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start();
+        osc.stop(this.ctx.currentTime + 0.1);
+      }
+      playWizardSound(volume = 0.5) {
+        if (volume <= 0) return;
+        this.init();
+        if (!this.ctx) return;
+
+        const now = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(440, now);
+        osc.frequency.exponentialRampToValueAtTime(880, now + 0.35);
+
+        gain.gain.setValueAtTime(volume * 0.4, now);
+        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.35);
+
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start();
+        osc.stop(now + 0.35);
+      }
+      playDiceSound(volume = 0.5) {
+        if (volume <= 0) return;
+        this.init();
+        if (!this.ctx) return;
+
+        const now = this.ctx.currentTime;
+        // 4 schnelle Klicks fürs Rollen
+        for (let i = 0; i < 4; i++) {
+          const delay = i * 0.08;
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'square';
+          osc.frequency.setValueAtTime(150 + Math.random() * 100, now + delay);
+
+          gain.gain.setValueAtTime(volume * 0.15, now + delay);
+          gain.gain.exponentialRampToValueAtTime(0.01, now + delay + 0.05);
+
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(now + delay);
+          osc.stop(now + delay + 0.05);
+        }
+        // Finaler Stopp-Ton
+        setTimeout(() => {
+          if (!this.ctx) return;
+          const t2 = this.ctx.currentTime;
+          const osc2 = this.ctx.createOscillator();
+          const gain2 = this.ctx.createGain();
+          osc2.type = 'triangle';
+          osc2.frequency.setValueAtTime(220, t2);
+          osc2.frequency.exponentialRampToValueAtTime(110, t2 + 0.15);
+
+          gain2.gain.setValueAtTime(volume * 0.3, t2);
+          gain2.gain.exponentialRampToValueAtTime(0.01, t2 + 0.15);
+
+          osc2.connect(gain2);
+          gain2.connect(this.ctx.destination);
+          osc2.start(t2);
+          osc2.stop(t2 + 0.15);
+        }, 320);
+      }
+      playWinTrickSound(volume = 0.5) {
+        if (volume <= 0) return;
+        this.init();
+        if (!this.ctx) return;
+
+        const now = this.ctx.currentTime;
+        const notes = [523.25, 659.25, 783.99]; // C5, E5, G5
+        notes.forEach((freq, idx) => {
+          const startTime = now + idx * 0.06;
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(freq, startTime);
+
+          gain.gain.setValueAtTime(volume * 0.25, startTime);
+          gain.gain.exponentialRampToValueAtTime(0.01, startTime + 0.2);
+
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(startTime);
+          osc.stop(startTime + 0.2);
+        });
+      }
+      playVictorySound(volume = 0.5) {
+        if (volume <= 0) return;
+        this.init();
+        if (!this.ctx) return;
+
+        const now = this.ctx.currentTime;
+        const chord = [392.00, 523.25, 659.25, 783.99]; // Epischer Akkord
+        chord.forEach((freq) => {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(freq, now);
+
+          gain.gain.setValueAtTime(volume * 0.35, now);
+          gain.gain.exponentialRampToValueAtTime(0.01, now + 1.2);
+
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(now);
+          osc.stop(now + 1.2);
+        });
+      }
+    }
+
+    const soundEngine = new SoundEngine();
+
     const BANNED_WORDS = [
       'arsch', 'idiot', 'scheisse', 'scheiße', 'wichser', 'hurensohn', 'spast', 'depp',
       'fick', 'fucker', 'fuck', 'bitch', 'asshole', 'bastard', 'nazi', 'hitler', 'cunt',
@@ -701,6 +846,20 @@
       const [screen, setScreen] = useState('menu');
       const [showExitConfirm, setShowExitConfirm] = useState(false);
       const [showAvatarModal, setShowAvatarModal] = useState(false);
+
+      // Sound settings state
+      const [soundVolume, setSoundVolume] = useState(() => {
+        const saved = localStorage.getItem('wizard_sound_vol');
+        return saved !== null ? parseFloat(saved) : 0.5;
+      });
+
+      const handleVolumeChange = (newVol) => {
+        setSoundVolume(newVol);
+        localStorage.setItem('wizard_sound_vol', newVol);
+        if (newVol > 0) {
+          soundEngine.playCardSound(newVol);
+        }
+      };
       
       const [profile, setProfile] = useState(() => {
         const saved = localStorage.getItem('wizard_profile');
@@ -776,7 +935,7 @@
       const isEvaluatingRef = useRef(false);
       const isProcessingClickRef = useRef(false);
       const stateRef = useRef({});
-      stateRef.current = { screen, phase, turn, players, playedCards, trumpCard, round, maxRounds, animatingCardId, collectingWinnerId };
+      stateRef.current = { screen, phase, turn, players, playedCards, trumpCard, round, maxRounds, animatingCardId, collectingWinnerId, soundVolume };
 
       const [showDiceModal, setShowDiceModal] = useState(false);
       const [isDiceRolling, setIsDiceRolling] = useState(false);
@@ -932,6 +1091,8 @@
       const handleUserRollDice = () => {
         if (isDiceRolling || diceRolls) return;
         setIsDiceRolling(true);
+        soundEngine.playDiceSound(stateRef.current.soundVolume);
+
         setTimeout(() => {
           const rolls = players.map(() => getCryptoRandomDice());
           let maxRoll = -1;
@@ -1031,6 +1192,13 @@
         setAnimatingCardId(selectedCard.id);
         setAnimatingCardObj(selectedCard);
 
+        // Sound abspielen
+        if (selectedCard.type === 'wizard') {
+          soundEngine.playWizardSound(stateRef.current.soundVolume);
+        } else {
+          soundEngine.playCardSound(stateRef.current.soundVolume);
+        }
+
         setPlayers(prev => prev.map(pl => pl.id === p.id ? { ...pl, hand: newHand } : pl));
 
         setTimeout(() => {
@@ -1092,6 +1260,7 @@
 
         const winnerId = winningCardObj.playerId;
         setCollectingWinnerId(winnerId);
+        soundEngine.playWinTrickSound(stateRef.current.soundVolume);
 
         setTimeout(() => {
           setPlayers(prev => {
@@ -1145,6 +1314,7 @@
           const sortedFinal = [...updated].sort((a, b) => b.score - a.score);
           setVictoryData(sortedFinal);
           setVictoryTimer(20);
+          soundEngine.playVictorySound(stateRef.current.soundVolume);
 
           const isHumanWinner = sortedFinal[0].isHuman;
           const activeSuit = profile.activeSuit || 'yellow';
@@ -1421,10 +1591,55 @@
                 </button>
               </div>
 
+              <button
+                onClick={() => setScreen('settings')}
+                className="w-full py-3 rounded-2xl mythic-btn-menu text-sky-300 font-bold text-xs active:scale-95 transition-transform flex items-center justify-center shadow-lg"
+              >
+                Einstellungen & Sound
+              </button>
+
               <span className="text-[9px] text-center text-slate-300 font-bold block mt-2 drop-shadow bg-slate-950/70 py-1 rounded-full backdrop-blur-md border border-sky-500/30">
-                MYTHOS CARD GAME V10.50
+                MYTHOS CARD GAME V10.51
               </span>
             </div>
+          </div>
+        );
+      }
+
+      // ---------------- EINSTELLUNGEN (SOUND & LAUTSTÄRKE) ----------------
+      if (screen === 'settings') {
+        return (
+          <div className="flex flex-col h-full max-w-md mx-auto p-4 justify-between bg-slate-950 overflow-y-auto">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-xl font-bold text-sky-400">Einstellungen</h2>
+              <button onClick={() => setScreen('menu')} className="text-xs bg-slate-800 text-sky-300 px-3 py-1.5 rounded-lg font-bold">Zurück</button>
+            </div>
+
+            <div className="space-y-4 my-auto">
+              <div className="bg-slate-900 p-4 rounded-2xl border border-slate-800 space-y-3 shadow-xl">
+                <div className="flex justify-between items-center">
+                  <span className="text-sm font-bold text-sky-200">Effekt-Lautstärke</span>
+                  <span className="text-xs font-black text-amber-400">{Math.round(soundVolume * 100)}%</span>
+                </div>
+
+                <input
+                  type="range"
+                  min="0"
+                  max="1"
+                  step="0.05"
+                  value={soundVolume}
+                  onChange={(e) => handleVolumeChange(parseFloat(e.target.value))}
+                  className="w-full accent-sky-400 bg-slate-950 rounded-lg h-2 cursor-pointer"
+                />
+
+                <div className="flex justify-between text-[10px] text-slate-400 font-bold">
+                  <span>Stumm (0%)</span>
+                  <span>Maximum (100%)</span>
+                </div>
+              </div>
+            </div>
+
+            <button onClick={() => setScreen('menu')} className="w-full py-3 mythic-btn-primary text-white font-bold rounded-xl">Zurück zum Menü</button>
           </div>
         );
       }
@@ -1709,7 +1924,7 @@
         );
       }
 
-      // ---------------- 5. REGELN (ÜBERARBEITET) ----------------
+      // ---------------- 5. REGELN ----------------
       if (screen === 'rules') {
         return (
           <div className="flex flex-col h-full max-w-md mx-auto p-4 justify-between bg-slate-950 overflow-y-auto">
