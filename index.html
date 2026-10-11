@@ -170,10 +170,11 @@
   <script type="text/babel">
     const { useState, useEffect, useRef } = React;
 
-    // --- SOUND ENGINE (WEB AUDIO API) ---
+    // --- SOUND & MUSIC ENGINE ---
     class SoundEngine {
       constructor() {
         this.ctx = null;
+        this.bgMusic = null;
       }
       init() {
         if (!this.ctx) {
@@ -184,6 +185,23 @@
         }
         if (this.ctx && this.ctx.state === 'suspended') {
           this.ctx.resume();
+        }
+      }
+      setupMusic(url, volume = 0.5) {
+        if (!this.bgMusic && url) {
+          this.bgMusic = new Audio(url);
+          this.bgMusic.loop = true;
+          this.bgMusic.volume = volume;
+        }
+      }
+      setMusicVolume(volume) {
+        if (this.bgMusic) {
+          this.bgMusic.volume = volume;
+        }
+      }
+      playMusic() {
+        if (this.bgMusic && this.bgMusic.paused) {
+          this.bgMusic.play().catch(e => console.log("Autoplay waiting for interaction"));
         }
       }
       playCardSound(volume = 0.5) {
@@ -231,7 +249,6 @@
         if (!this.ctx) return;
 
         const now = this.ctx.currentTime;
-        // 4 schnelle Klicks fürs Rollen
         for (let i = 0; i < 4; i++) {
           const delay = i * 0.08;
           const osc = this.ctx.createOscillator();
@@ -247,7 +264,6 @@
           osc.start(now + delay);
           osc.stop(now + delay + 0.05);
         }
-        // Finaler Stopp-Ton
         setTimeout(() => {
           if (!this.ctx) return;
           const t2 = this.ctx.currentTime;
@@ -272,7 +288,7 @@
         if (!this.ctx) return;
 
         const now = this.ctx.currentTime;
-        const notes = [523.25, 659.25, 783.99]; // C5, E5, G5
+        const notes = [523.25, 659.25, 783.99];
         notes.forEach((freq, idx) => {
           const startTime = now + idx * 0.06;
           const osc = this.ctx.createOscillator();
@@ -295,7 +311,7 @@
         if (!this.ctx) return;
 
         const now = this.ctx.currentTime;
-        const chord = [392.00, 523.25, 659.25, 783.99]; // Epischer Akkord
+        const chord = [392.00, 523.25, 659.25, 783.99];
         chord.forEach((freq) => {
           const osc = this.ctx.createOscillator();
           const gain = this.ctx.createGain();
@@ -847,18 +863,29 @@
       const [showExitConfirm, setShowExitConfirm] = useState(false);
       const [showAvatarModal, setShowAvatarModal] = useState(false);
 
-      // Sound settings state
       const [soundVolume, setSoundVolume] = useState(() => {
         const saved = localStorage.getItem('wizard_sound_vol');
         return saved !== null ? parseFloat(saved) : 0.5;
       });
 
+      useEffect(() => {
+        // Suno-Musik-Link direkt eingebunden
+        soundEngine.setupMusic("https://suno.com/s/zMVr375bxKindDRG", soundVolume);
+      }, []);
+
       const handleVolumeChange = (newVol) => {
         setSoundVolume(newVol);
         localStorage.setItem('wizard_sound_vol', newVol);
+        soundEngine.setMusicVolume(newVol);
         if (newVol > 0) {
           soundEngine.playCardSound(newVol);
+          soundEngine.playMusic();
         }
+      };
+
+      const handleUserInteraction = () => {
+        soundEngine.init();
+        soundEngine.playMusic();
       };
       
       const [profile, setProfile] = useState(() => {
@@ -1030,6 +1057,7 @@
       }, [victoryData, showExitConfirm]);
 
       const startNewGame = () => {
+        handleUserInteraction();
         const shuffledNames = shuffleArray(FAMOUS_WIZARDS);
         const suitKeys = Object.keys(SUITS);
 
@@ -1107,6 +1135,7 @@
 
       const handleDiceOverlayClick = (e) => {
         e.stopPropagation();
+        handleUserInteraction();
         if (!diceRolls && !isDiceRolling) { handleUserRollDice(); } 
         else if (diceRolls && !isDiceRolling) { startRoundAfterDice(); }
       };
@@ -1170,6 +1199,7 @@
       };
 
       const handleHumanBid = (bidVal) => {
+        handleUserInteraction();
         setPlayers(prev => prev.map(p => p.isHuman ? { ...p, bid: bidVal } : p));
         setPhase('playing');
         setTurnTimer(20);
@@ -1177,6 +1207,7 @@
 
       const playCard = (playerIdx, cardIdx) => {
         if (isEvaluatingRef.current || isProcessingClickRef.current || animatingCardId || collectingWinnerId) return;
+        handleUserInteraction();
         const currentPlayers = stateRef.current.players;
         const currentPlayed = stateRef.current.playedCards;
         const p = currentPlayers[playerIdx];
@@ -1192,7 +1223,6 @@
         setAnimatingCardId(selectedCard.id);
         setAnimatingCardObj(selectedCard);
 
-        // Sound abspielen
         if (selectedCard.type === 'wizard') {
           soundEngine.playWizardSound(stateRef.current.soundVolume);
         } else {
@@ -1563,14 +1593,14 @@
 
             <div className="relative z-10 w-full max-w-sm flex flex-col gap-3 my-auto">
               <button
-                onClick={() => setScreen('game_setup')}
+                onClick={startNewGame}
                 className="w-full py-4 rounded-2xl mythic-btn-primary text-white font-black text-lg active:scale-95 transition-transform flex items-center justify-center shadow-2xl"
               >
                 Spiel starten
               </button>
 
               <button
-                onClick={() => setScreen('multiplayer')}
+                onClick={() => { handleUserInteraction(); setScreen('multiplayer'); }}
                 className="w-full py-3.5 rounded-2xl mythic-btn-menu text-sky-200 font-bold text-base active:scale-95 transition-transform flex items-center justify-center shadow-xl"
               >
                 Online-Lobby
@@ -1578,13 +1608,13 @@
 
               <div className="flex gap-2">
                 <button
-                  onClick={() => setScreen('profile')}
+                  onClick={() => { handleUserInteraction(); setScreen('profile'); }}
                   className="flex-1 py-3 rounded-2xl mythic-btn-menu text-sky-300 font-bold text-xs active:scale-95 transition-transform flex items-center justify-center shadow-lg"
                 >
                   Profil & Stats
                 </button>
                 <button
-                  onClick={() => setScreen('rules')}
+                  onClick={() => { handleUserInteraction(); setScreen('rules'); }}
                   className="flex-1 py-3 rounded-2xl mythic-btn-menu text-sky-300 font-bold text-xs active:scale-95 transition-transform flex items-center justify-center shadow-lg"
                 >
                   Regeln
@@ -1592,21 +1622,21 @@
               </div>
 
               <button
-                onClick={() => setScreen('settings')}
+                onClick={() => { handleUserInteraction(); setScreen('settings'); }}
                 className="w-full py-3 rounded-2xl mythic-btn-menu text-sky-300 font-bold text-xs active:scale-95 transition-transform flex items-center justify-center shadow-lg"
               >
                 Einstellungen & Sound
               </button>
 
               <span className="text-[9px] text-center text-slate-300 font-bold block mt-2 drop-shadow bg-slate-950/70 py-1 rounded-full backdrop-blur-md border border-sky-500/30">
-                MYTHOS CARD GAME V10.51
+                MYTHOS CARD GAME V10.53
               </span>
             </div>
           </div>
         );
       }
 
-      // ---------------- EINSTELLUNGEN (SOUND & LAUTSTÄRKE) ----------------
+      // ---------------- EINSTELLUNGEN ----------------
       if (screen === 'settings') {
         return (
           <div className="flex flex-col h-full max-w-md mx-auto p-4 justify-between bg-slate-950 overflow-y-auto">
@@ -1618,7 +1648,7 @@
             <div className="space-y-4 my-auto">
               <div className="bg-slate-900 p-4 rounded-2xl border border-slate-800 space-y-3 shadow-xl">
                 <div className="flex justify-between items-center">
-                  <span className="text-sm font-bold text-sky-200">Effekt-Lautstärke</span>
+                  <span className="text-sm font-bold text-sky-200">Lautstärke (Musik & SFX)</span>
                   <span className="text-xs font-black text-amber-400">{Math.round(soundVolume * 100)}%</span>
                 </div>
 
@@ -1716,7 +1746,7 @@
         );
       }
 
-      // ---------------- 3. PROFIL & STATISTIKEN & AVATAR-AUSWAHL ----------------
+      // ---------------- 3. PROFIL & STATISTIKEN ----------------
       if (screen === 'profile') {
         const offPlayed = profile.offlinePlayed || 0;
         const offWins = profile.offlineWins || 0;
@@ -1965,7 +1995,7 @@
       const isHumanTurn = (turn === 0);
 
       return (
-        <div className="flex flex-col h-full max-w-md mx-auto p-2 justify-between bg-slate-950 relative overflow-hidden">
+        <div onClick={handleUserInteraction} className="flex flex-col h-full max-w-md mx-auto p-2 justify-between bg-slate-950 relative overflow-hidden">
           
           {showExitConfirm && (
             <div className="absolute inset-0 bg-slate-950/95 backdrop-blur-md z-50 flex flex-col items-center justify-center p-4 text-center select-none overflow-y-auto">
