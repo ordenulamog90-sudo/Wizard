@@ -170,36 +170,53 @@
   <script type="text/babel">
     const { useState, useEffect, useRef } = React;
 
-    // --- SOUND ENGINE (Hintergrundmusik steuerbar für Menüs) ---
+    // --- SOUND ENGINE ---
     class SoundEngine {
       constructor() {
-        this.bgMusic = null;
-        this.isInitialized = false;
+        this.menuMusic = null;
+        this.playMusicAudio = null;
       }
       init() {
-        if (!this.bgMusic) {
-          this.bgMusic = new Audio('./mythosmainmenu.mp3');
-          this.bgMusic.loop = true;
-          this.bgMusic.volume = 0.5;
+        if (!this.menuMusic) {
+          this.menuMusic = new Audio('./mythosmainmenu.mp3');
+          this.menuMusic.loop = true;
+          this.menuMusic.volume = 0.5;
+        }
+        if (!this.playMusicAudio) {
+          this.playMusicAudio = new Audio('./mythosplay.mp3');
+          this.playMusicAudio.loop = true;
+          this.playMusicAudio.volume = 0.5;
         }
       }
-      playMusic() {
+      playMenu() {
         this.init();
-        if (this.bgMusic && this.bgMusic.paused) {
-          this.bgMusic.play().then(() => {
-            this.isInitialized = true;
-          }).catch(e => console.log("Autoplay waiting for interaction"));
+        if (this.playMusicAudio && !this.playMusicAudio.paused) {
+          this.playMusicAudio.pause();
+        }
+        if (this.menuMusic && this.menuMusic.paused) {
+          this.menuMusic.play().catch(e => console.log("Autoplay waiting for interaction"));
         }
       }
-      stopMusic() {
-        if (this.bgMusic && !this.bgMusic.paused) {
-          this.bgMusic.pause();
+      playBattle() {
+        this.init();
+        if (this.menuMusic && !this.menuMusic.paused) {
+          this.menuMusic.pause();
+        }
+        if (this.playMusicAudio && this.playMusicAudio.paused) {
+          this.playMusicAudio.play().catch(e => console.log("Autoplay waiting for interaction"));
         }
       }
-      setMusicVolume(volume) {
-        if (this.bgMusic) {
-          this.bgMusic.volume = volume;
+      stopAll() {
+        if (this.menuMusic && !this.menuMusic.paused) {
+          this.menuMusic.pause();
         }
+        if (this.playMusicAudio && !this.playMusicAudio.paused) {
+          this.playMusicAudio.pause();
+        }
+      }
+      setVolume(volume) {
+        if (this.menuMusic) this.menuMusic.volume = volume;
+        if (this.playMusicAudio) this.playMusicAudio.volume = volume;
       }
     }
 
@@ -742,24 +759,31 @@
         return saved !== null ? parseFloat(saved) : 0.5;
       });
 
-      // Musik nur in Menüs spielen, während des Spiels und der Siegerehrung stoppen
+      // Musiksteuerung: Menü-Musik in Menüs, Spiel-Musik (mythosplay.mp3) während des Spiels (inkl. Ansagen und Rundenwechsel)
       useEffect(() => {
         if (screen === 'menu' || screen === 'settings' || screen === 'game_setup' || screen === 'profile' || screen === 'multiplayer' || screen === 'rules') {
-          soundEngine.playMusic();
-        } else {
-          soundEngine.stopMusic();
+          soundEngine.playMenu();
+        } else if (screen === 'game') {
+          // Läuft während des gesamten Spiels weiter, stoppt nur beim Start-Würfeln, bei aktiver Siegerehrung oder beim Verlassen
+          if (!showDiceModal && !victoryData && !showExitConfirm) {
+            soundEngine.playBattle();
+          } else {
+            soundEngine.stopAll();
+          }
         }
-      }, [screen]);
+      }, [screen, showDiceModal, victoryData, showExitConfirm]);
 
       const handleVolumeChange = (newVol) => {
         setMusicVolume(newVol);
         localStorage.setItem('wizard_music_vol', newVol);
-        soundEngine.setMusicVolume(newVol);
+        soundEngine.setVolume(newVol);
       };
 
       const handleUserInteraction = () => {
         if (screen === 'menu' || screen === 'settings' || screen === 'game_setup' || screen === 'profile' || screen === 'multiplayer' || screen === 'rules') {
-          soundEngine.playMusic();
+          soundEngine.playMenu();
+        } else if (screen === 'game' && !showDiceModal && !victoryData && !showExitConfirm) {
+          soundEngine.playBattle();
         }
       };
       
@@ -1495,7 +1519,7 @@
               </button>
 
               <span className="text-[9px] text-center text-slate-300 font-bold block mt-2 drop-shadow bg-slate-950/70 py-1 rounded-full backdrop-blur-md border border-sky-500/30">
-                MYTHOS CARD GAME V10.58
+                MYTHOS CARD GAME V10.60
               </span>
             </div>
           </div>
