@@ -172,6 +172,7 @@
       constructor() {
         this.menuMusic = null;
         this.playMusicAudio = null;
+        this.hasInteracted = false;
       }
       init() {
         if (!this.menuMusic) {
@@ -192,7 +193,9 @@
           this.playMusicAudio.currentTime = 0;
         }
         if (this.menuMusic && this.menuMusic.paused) {
-          this.menuMusic.play().catch(e => console.log("Autoplay waiting for interaction"));
+          this.menuMusic.play().then(() => {
+            this.hasInteracted = true;
+          }).catch(e => console.log("Autoplay waiting for interaction"));
         }
       }
       playBattle() {
@@ -202,7 +205,9 @@
           this.menuMusic.currentTime = 0;
         }
         if (this.playMusicAudio && this.playMusicAudio.paused) {
-          this.playMusicAudio.play().catch(e => console.log("Autoplay waiting for interaction"));
+          this.playMusicAudio.play().then(() => {
+            this.hasInteracted = true;
+          }).catch(e => console.log("Autoplay waiting for interaction"));
         }
       }
       stopAll() {
@@ -776,6 +781,9 @@
 
       const handleUserInteraction = () => {
         soundEngine.init();
+        if (screen === 'menu' && !soundEngine.hasInteracted) {
+          soundEngine.playMenu();
+        }
       };
       
       const [profile, setProfile] = useState(() => {
@@ -1487,7 +1495,7 @@
               </button>
 
               <button
-                onClick={() => { setScreen('multiplayer'); }}
+                onClick={() => { handleUserInteraction(); setScreen('multiplayer'); }}
                 className="w-full py-3.5 rounded-2xl mythic-btn-menu text-sky-200 font-bold text-base active:scale-95 transition-transform flex items-center justify-center shadow-xl"
               >
                 Online-Lobby
@@ -1495,13 +1503,13 @@
 
               <div className="flex gap-2">
                 <button
-                  onClick={() => { setScreen('profile'); }}
+                  onClick={() => { handleUserInteraction(); setScreen('profile'); }}
                   className="flex-1 py-3 rounded-2xl mythic-btn-menu text-sky-300 font-bold text-xs active:scale-95 transition-transform flex items-center justify-center shadow-lg"
                 >
                   Profil & Stats
                 </button>
                 <button
-                  onClick={() => { setScreen('rules'); }}
+                  onClick={() => { handleUserInteraction(); setScreen('rules'); }}
                   className="flex-1 py-3 rounded-2xl mythic-btn-menu text-sky-300 font-bold text-xs active:scale-95 transition-transform flex items-center justify-center shadow-lg"
                 >
                   Regeln
@@ -1509,7 +1517,7 @@
               </div>
 
               <button
-                onClick={() => { setScreen('settings'); }}
+                onClick={() => { handleUserInteraction(); setScreen('settings'); }}
                 className="w-full py-3 rounded-2xl mythic-btn-menu text-sky-300 font-bold text-xs active:scale-95 transition-transform flex items-center justify-center shadow-lg"
               >
                 Einstellungen & Sound
@@ -1859,7 +1867,7 @@
 
               <div className="bg-slate-900 p-3 rounded-xl border border-slate-800 space-y-1">
                 <h3 className="font-bold text-sky-300 text-sm">3. Farbzwang & Trumpf</h3>
-                <p>Es herrscht Farbzwang: Du musst die ausgespielte Leitfarbe bedienen, sofern du sie auf der Hand hast. Kannst du nicht bekennen, darfst du eine andere Farbe oder einen Trumpf spielen. Die aufgedeckte Trumpfkarte sticht jede Fehlfarbe. Innerhalb der Farbe oder des Trumpfs entscheidet die höhere Zahl.</p>
+                <p>Es herrscht Farbzwang: Du musst die ausgespielte Leitfarbe bekennen, sofern du sie auf der Hand hast. Kannst du nicht bekennen, darfst du eine andere Farbe oder einen Trumpf spielen. Die aufgedeckte Trumpfkarte sticht jede Fehlfarbe. Innerhalb der Farbe oder des Trumpfs entscheidet die höhere Zahl.</p>
               </div>
 
               <div className="bg-slate-900 p-3 rounded-xl border border-slate-800 space-y-1">
@@ -2042,7 +2050,7 @@
             );
           })()}
 
-          {/* OBERER BEREICH: Rundeninfo & Menü (etwas kompakter & gut lesbar) */}
+          {/* OBERER BEREICH: Rundeninfo & Menü */}
           <div className="flex justify-between items-center bg-slate-900/90 px-3 py-1 rounded-xl border border-slate-800 shrink-0 shadow">
             <span className="text-xs font-bold text-sky-400">Runde {round} / {maxRounds}</span>
             {phase === 'playing' && isHumanTurn && !isEvaluatingRef.current && !animatingCardId && !collectingWinnerId && !showDiceModal && !roundSummary && !victoryData && !showExitConfirm && (
@@ -2051,7 +2059,7 @@
             <button onClick={() => setShowExitConfirm(true)} className="text-[11px] bg-slate-800 hover:bg-slate-700 active:scale-95 text-sky-300 border border-sky-500/30 px-3 py-1 rounded-lg font-bold transition-all shadow">Menü</button>
           </div>
 
-          {/* GEGNER-LEISTE (Etwas größer für Handy) */}
+          {/* GEGNER-LEISTE */}
           <div className="grid grid-cols-3 gap-1.5 shrink-0 my-1">
             {players.filter(p => !p.isHuman).map(p => {
               const isCurrentTurn = (turn === p.id);
@@ -2071,7 +2079,7 @@
             })}
           </div>
 
-          {/* HAUPT-SPIELFELD (TISCH MIT HINTERGRUNDBILD) */}
+          {/* HAUPT-SPIELFELD */}
           <div className="flex-1 rounded-2xl border border-sky-500/40 p-2 flex flex-col justify-between items-center relative overflow-hidden shadow-2xl bg-slate-950 my-1">
             <div className="absolute inset-0 z-0 pointer-events-none">
               <img src="./1791660049147.jpg" alt="Spieltisch Hintergrund" className="w-full h-full object-cover" />
@@ -2103,7 +2111,7 @@
               )}
             </div>
 
-            {/* UNTERER BEREICH IM TISCH (Ansage-Buttons fixiert, kein Springen) */}
+            {/* UNTERER BEREICH IM TISCH */}
             <div className="w-full h-16 flex items-center justify-center z-20 shrink-0">
               {phase === 'bidding' && !showDiceModal && !roundSummary && !victoryData && !showExitConfirm ? (
                 <div className="w-full bg-slate-900/95 border border-sky-500/50 p-2 rounded-xl flex flex-col items-center gap-1 shadow-2xl backdrop-blur-md">
@@ -2117,15 +2125,11 @@
                     ))}
                   </div>
                 </div>
-              ) : (
-                <div className="text-[11px] text-sky-300/80 font-bold tracking-widest uppercase drop-shadow">
-                  {phase === 'playing' ? 'Kampf im Gange' : ''}
-                </div>
-              )}
+              ) : null}
             </div>
           </div>
 
-          {/* DEINE HANDKARTEN (DEUTLICH GRÖSSER UND OPTIMAL SICHTBAR) */}
+          {/* DEINE HANDKARTEN */}
           <div className={`p-2.5 rounded-2xl border transition-all shrink-0 ${isHumanTurn && phase === 'playing' ? 'border-sky-400 bg-slate-800/95 shadow-2xl shadow-sky-500/30 ring-2 ring-sky-400/60' : 'border-slate-800 bg-slate-900'} ${collectingWinnerId === 0 ? 'ring-2 ring-amber-400 bg-amber-950/40 shadow-[0_0_20px_#f59e0b]' : ''}`}>
             <div className="flex justify-between items-center mb-1.5 px-1">
               <div className="flex items-center gap-2">
@@ -2150,7 +2154,7 @@
       );
     }
 
-    ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+    ReactDOM.createRoot(getElementById('root')).render(<App />);
   </script>
 </body>
 </html>
