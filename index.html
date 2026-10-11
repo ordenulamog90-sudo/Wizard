@@ -170,7 +170,7 @@
   <script type="text/babel">
     const { useState, useEffect, useRef } = React;
 
-    // --- GLOBAL SOUND & MUSIC ENGINE (Zentrale Instanz für dauerhaften Loop) ---
+    // --- GLOBAL SOUND & MUSIC ENGINE ---
     class SoundEngine {
       constructor() {
         this.ctx = null;
@@ -188,7 +188,6 @@
           this.ctx.resume();
         }
 
-        // Musik einmalig global initialisieren und starten
         if (!this.bgMusic) {
           this.bgMusic = new Audio('./mythosmainmenu.mp3');
           this.bgMusic.loop = true;
@@ -676,15 +675,8 @@
       'Moiraine', 'Willow', 'Dumbledore', 'Saruman'
     ];
 
-    const getXpNeededForGlobalLevel = (lvl) => {
-      return 150 + (lvl - 1) * 50; 
-    };
-
-    const getXpNeededForElementLevel = (lvl) => {
-      if (lvl <= 3) return 150;
-      if (lvl <= 8) return 400;
-      return 1000 + (lvl * 300);
-    };
+    const getXpNeededForGlobalLevel = (lvl) => 150 + (lvl - 1) * 50;
+    const getXpNeededForElementLevel = (lvl) => lvl <= 3 ? 150 : lvl <= 8 ? 400 : 1000 + (lvl * 300);
 
     function CardBack({ size = "md" }) {
       const dim = size === "sm" ? "w-12 h-20" : size === "lg" ? "w-28 h-40" : "w-20 h-32";
@@ -702,20 +694,14 @@
       const isWizard = card.type === 'wizard';
       const isJester = card.type === 'jester';
       const suitInfo = SUITS[card.suit] || {};
-
       const cornerText = isWizard ? 'Z' : isJester ? 'N' : card.value;
 
       let cornerColorClass = 'text-amber-300';
       if (isWizard) cornerColorClass = 'text-purple-300 drop-shadow-[0_0_8px_rgba(168,85,247,0.8)]';
-      else if (isJester) {
-        if (card.suit === 'blue') cornerColorClass = 'text-sky-300 drop-shadow-[0_0_8px_rgba(56,189,248,0.8)]';
-        else if (card.suit === 'red') cornerColorClass = 'text-rose-400 drop-shadow-[0_0_8px_rgba(244,63,94,0.8)]';
-        else cornerColorClass = 'text-amber-300 drop-shadow-[0_0_8px_rgba(245,158,11,0.8)]';
-      }
+      else if (isJester) cornerColorClass = 'text-amber-300 drop-shadow-[0_0_8px_rgba(245,158,11,0.8)]';
       else if (card.suit === 'blue') cornerColorClass = 'text-sky-300 drop-shadow-[0_0_8px_rgba(56,189,248,0.8)]';
       else if (card.suit === 'red') cornerColorClass = 'text-rose-400 drop-shadow-[0_0_8px_rgba(244,63,94,0.8)]';
       else if (card.suit === 'green') cornerColorClass = 'text-emerald-300 drop-shadow-[0_0_8px_rgba(16,185,129,0.8)]';
-      else if (card.suit === 'yellow') cornerColorClass = 'text-amber-300 drop-shadow-[0_0_8px_rgba(245,158,11,0.8)]';
 
       const bgStyle = isWizard
         ? 'from-purple-950 via-indigo-950 to-slate-950 border-amber-300'
@@ -723,6 +709,7 @@
         ? 'from-slate-900 via-zinc-900 to-slate-950 border-slate-400'
         : `${suitInfo.bg} ${suitInfo.border}`;
 
+      // Bildzuordnungen für die Karten
       const isBlueWizard = isWizard && card.wizardIndex === 0;
       const isRedWizard = isWizard && card.wizardIndex === 1;
       const isYellowWizard = isWizard && card.wizardIndex === 2;
@@ -794,78 +781,76 @@
           onClick={!disabled ? onClick : undefined}
           className={`${dim} rounded-xl bg-gradient-to-b ${bgStyle} border-2 p-1 flex flex-col justify-between items-center relative shadow-2xl cursor-pointer active:scale-95 transition-transform overflow-hidden ${className}`}
         >
-          {isBlueWizard && <div className="absolute inset-0 z-0 overflow-hidden"><img src="./1791696520870.jpg" alt="Blaue Zauberin" className="w-full h-full object-cover" /><div className="absolute inset-0 bg-blue-950/15 backdrop-brightness-95"></div></div>}
-          {isRedWizard && <div className="absolute inset-0 z-0 overflow-hidden"><img src="./1791699383284.jpg" alt="Roter Zauberer" className="w-full h-full object-cover" /><div className="absolute inset-0 bg-red-950/15 backdrop-brightness-95"></div></div>}
-          {isYellowWizard && <div className="absolute inset-0 z-0 overflow-hidden"><img src="./1791705884275.jpg" alt="Gelbe Zauberin" className="w-full h-full object-cover" /><div className="absolute inset-0 bg-amber-950/15 backdrop-brightness-95"></div></div>}
-          {isGreenWizard && <div className="absolute inset-0 z-0 overflow-hidden"><img src="./1791724092422.jpg" alt="Grüner Zauberer" className="w-full h-full object-cover" /><div className="absolute inset-0 bg-emerald-950/15 backdrop-brightness-95"></div></div>}
+          {isBlueWizard && <div className="absolute inset-0 z-0 overflow-hidden"><img src="./1791696520870.jpg" alt="Zauberer" className="w-full h-full object-cover" /></div>}
+          {isRedWizard && <div className="absolute inset-0 z-0 overflow-hidden"><img src="./1791699383284.jpg" alt="Zauberer" className="w-full h-full object-cover" /></div>}
+          {isYellowWizard && <div className="absolute inset-0 z-0 overflow-hidden"><img src="./1791705884275.jpg" alt="Zauberer" className="w-full h-full object-cover" /></div>}
+          {isGreenWizard && <div className="absolute inset-0 z-0 overflow-hidden"><img src="./1791724092422.jpg" alt="Zauberer" className="w-full h-full object-cover" /></div>}
 
-          {isBlueJester && <div className="absolute inset-0 z-0 overflow-hidden"><img src="./1791660733716.jpg" alt="Blauer Narr" className="w-full h-full object-cover" /><div className="absolute inset-0 bg-blue-950/15 backdrop-brightness-95"></div></div>}
-          {isRedJester && <div className="absolute inset-0 z-0 overflow-hidden"><img src="./1791698030043.jpg" alt="Roter Narr" className="w-full h-full object-cover" /><div className="absolute inset-0 bg-red-950/15 backdrop-brightness-95"></div></div>}
-          {isYellowJester && <div className="absolute inset-0 z-0 overflow-hidden"><img src="./1791701531151.jpg" alt="Gelber Narr" className="w-full h-full object-cover" /><div className="absolute inset-0 bg-amber-950/15 backdrop-brightness-95"></div></div>}
-          {isGreenJester && <div className="absolute inset-0 z-0 overflow-hidden"><img src="./1791706548220.jpg" alt="Grüner Narr" className="w-full h-full object-cover" /><div className="absolute inset-0 bg-emerald-950/15 backdrop-brightness-95"></div></div>}
+          {isBlueJester && <div className="absolute inset-0 z-0 overflow-hidden"><img src="./1791660733716.jpg" alt="Narr" className="w-full h-full object-cover" /></div>}
+          {isRedJester && <div className="absolute inset-0 z-0 overflow-hidden"><img src="./1791698030043.jpg" alt="Narr" className="w-full h-full object-cover" /></div>}
+          {isYellowJester && <div className="absolute inset-0 z-0 overflow-hidden"><img src="./1791701531151.jpg" alt="Narr" className="w-full h-full object-cover" /></div>}
+          {isGreenJester && <div className="absolute inset-0 z-0 overflow-hidden"><img src="./1791706548220.jpg" alt="Narr" className="w-full h-full object-cover" /></div>}
 
-          {isGreenOne && <div className="absolute inset-0 z-0 overflow-hidden"><img src="./1791706743050.jpg" alt="Grün 1" className="w-full h-full object-cover" /><div className="absolute inset-0 bg-emerald-950/15 backdrop-brightness-95"></div></div>}
-          {isGreenTwo && <div className="absolute inset-0 z-0 overflow-hidden"><img src="./1791706770151.jpg" alt="Grün 2" className="w-full h-full object-cover" /><div className="absolute inset-0 bg-emerald-950/15 backdrop-brightness-95"></div></div>}
-          {isGreenThree && <div className="absolute inset-0 z-0 overflow-hidden"><img src="./1791706810564.jpg" alt="Grün 3" className="w-full h-full object-cover" /><div className="absolute inset-0 bg-emerald-950/15 backdrop-brightness-95"></div></div>}
-          {isGreenFour && <div className="absolute inset-0 z-0 overflow-hidden"><img src="./1791706923657.jpg" alt="Grün 4" className="w-full h-full object-cover" /><div className="absolute inset-0 bg-emerald-950/15 backdrop-brightness-95"></div></div>}
-          {isGreenFive && <div className="absolute inset-0 z-0 overflow-hidden"><img src="./1791707321081.jpg" alt="Grün 5" className="w-full h-full object-cover" /><div className="absolute inset-0 bg-emerald-950/15 backdrop-brightness-95"></div></div>}
-          {isGreenSix && <div className="absolute inset-0 z-0 overflow-hidden"><img src="./1791707408298.jpg" alt="Grün 6" className="w-full h-full object-cover" /><div className="absolute inset-0 bg-emerald-950/15 backdrop-brightness-95"></div></div>}
-          {isGreenSeven && <div className="absolute inset-0 z-0 overflow-hidden"><img src="./1791723656957.jpg" alt="Grün 7" className="w-full h-full object-cover" /><div className="absolute inset-0 bg-emerald-950/15 backdrop-brightness-95"></div></div>}
-          {isGreenEight && <div className="absolute inset-0 z-0 overflow-hidden"><img src="./1791723682674.jpg" alt="Grün 8" className="w-full h-full object-cover" /><div className="absolute inset-0 bg-emerald-950/15 backdrop-brightness-95"></div></div>}
-          {isGreenNine && <div className="absolute inset-0 z-0 overflow-hidden"><img src="./1791723730470.jpg" alt="Grün 9" className="w-full h-full object-cover" /><div className="absolute inset-0 bg-emerald-950/15 backdrop-brightness-95"></div></div>}
-          {isGreenTen && <div className="absolute inset-0 z-0 overflow-hidden"><img src="./1791724792087.jpg" alt="Grün 10" className="w-full h-full object-cover" /><div className="absolute inset-0 bg-emerald-950/15 backdrop-brightness-95"></div></div>}
-          {isGreenEleven && <div className="absolute inset-0 z-0 overflow-hidden"><img src="./1791723935986.jpg" alt="Grün 11" className="w-full h-full object-cover" /><div className="absolute inset-0 bg-emerald-950/15 backdrop-brightness-95"></div></div>}
-          {isGreenTwelve && <div className="absolute inset-0 z-0 overflow-hidden"><img src="./1791723966479.jpg" alt="Grün 12" className="w-full h-full object-cover" /><div className="absolute inset-0 bg-emerald-950/15 backdrop-brightness-95"></div></div>}
-          {isGreenThirteen && <div className="absolute inset-0 z-0 overflow-hidden"><img src="./1791723999095.jpg" alt="Grün 13" className="w-full h-full object-cover" /><div className="absolute inset-0 bg-emerald-950/15 backdrop-brightness-95"></div></div>}
+          {isGreenOne && <div className="absolute inset-0 z-0 overflow-hidden"><img src="./1791706743050.jpg" alt="Card" className="w-full h-full object-cover" /></div>}
+          {isGreenTwo && <div className="absolute inset-0 z-0 overflow-hidden"><img src="./1791706770151.jpg" alt="Card" className="w-full h-full object-cover" /></div>}
+          {isGreenThree && <div className="absolute inset-0 z-0 overflow-hidden"><img src="./1791706810564.jpg" alt="Card" className="w-full h-full object-cover" /></div>}
+          {isGreenFour && <div className="absolute inset-0 z-0 overflow-hidden"><img src="./1791706923657.jpg" alt="Card" className="w-full h-full object-cover" /></div>}
+          {isGreenFive && <div className="absolute inset-0 z-0 overflow-hidden"><img src="./1791707321081.jpg" alt="Card" className="w-full h-full object-cover" /></div>}
+          {isGreenSix && <div className="absolute inset-0 z-0 overflow-hidden"><img src="./1791707408298.jpg" alt="Card" className="w-full h-full object-cover" /></div>}
+          {isGreenSeven && <div className="absolute inset-0 z-0 overflow-hidden"><img src="./1791723656957.jpg" alt="Card" className="w-full h-full object-cover" /></div>}
+          {isGreenEight && <div className="absolute inset-0 z-0 overflow-hidden"><img src="./1791723682674.jpg" alt="Card" className="w-full h-full object-cover" /></div>}
+          {isGreenNine && <div className="absolute inset-0 z-0 overflow-hidden"><img src="./1791723730470.jpg" alt="Card" className="w-full h-full object-cover" /></div>}
+          {isGreenTen && <div className="absolute inset-0 z-0 overflow-hidden"><img src="./1791724792087.jpg" alt="Card" className="w-full h-full object-cover" /></div>}
+          {isGreenEleven && <div className="absolute inset-0 z-0 overflow-hidden"><img src="./1791723935986.jpg" alt="Card" className="w-full h-full object-cover" /></div>}
+          {isGreenTwelve && <div className="absolute inset-0 z-0 overflow-hidden"><img src="./1791723966479.jpg" alt="Card" className="w-full h-full object-cover" /></div>}
+          {isGreenThirteen && <div className="absolute inset-0 z-0 overflow-hidden"><img src="./1791723999095.jpg" alt="Card" className="w-full h-full object-cover" /></div>}
 
-          {isBlueOne && <div className="absolute inset-0 z-0 overflow-hidden"><img src="./1791660858583.jpg" alt="Blau 1" className="w-full h-full object-cover" /><div className="absolute inset-0 bg-blue-950/15 backdrop-brightness-95"></div></div>}
-          {isBlueTwo && <div className="absolute inset-0 z-0 overflow-hidden"><img src="./1791660928323.jpg" alt="Blau 2" className="w-full h-full object-cover" /><div className="absolute inset-0 bg-blue-950/15 backdrop-brightness-95"></div></div>}
-          {isBlueThree && <div className="absolute inset-0 z-0 overflow-hidden"><img src="./1791661070842.jpg" alt="Blau 3" className="w-full h-full object-cover" /><div className="absolute inset-0 bg-blue-950/15 backdrop-brightness-95"></div></div>}
-          {isBlueFour && <div className="absolute inset-0 z-0 overflow-hidden"><img src="./1791661097582.jpg" alt="Blau 4" className="w-full h-full object-cover" /><div className="absolute inset-0 bg-blue-950/15 backdrop-brightness-95"></div></div>}
-          {isBlueFive && <div className="absolute inset-0 z-0 overflow-hidden"><img src="./1791661133492.jpg" alt="Blau 5" className="w-full h-full object-cover" /><div className="absolute inset-0 bg-blue-950/15 backdrop-brightness-95"></div></div>}
-          {isBlueSix && <div className="absolute inset-0 z-0 overflow-hidden"><img src="./1791661210907.jpg" alt="Blau 6" className="w-full h-full object-cover" /><div className="absolute inset-0 bg-blue-950/15 backdrop-brightness-95"></div></div>}
-          {isBlueSeven && <div className="absolute inset-0 z-0 overflow-hidden"><img src="./1791661243460.jpg" alt="Blau 7" className="w-full h-full object-cover" /><div className="absolute inset-0 bg-blue-950/15 backdrop-brightness-95"></div></div>}
-          {isBlueEight && <div className="absolute inset-0 z-0 overflow-hidden"><img src="./1791661280244.jpg" alt="Blau 8" className="w-full h-full object-cover" /><div className="absolute inset-0 bg-blue-950/15 backdrop-brightness-95"></div></div>}
-          {isBlueNine && <div className="absolute inset-0 z-0 overflow-hidden"><img src="./1791661311268.jpg" alt="Blau 9" className="w-full h-full object-cover" /><div className="absolute inset-0 bg-blue-950/15 backdrop-brightness-95"></div></div>}
-          {isBlueTen && <div className="absolute inset-0 z-0 overflow-hidden"><img src="./1791696193138.jpg" alt="Blau 10" className="w-full h-full object-cover" /><div className="absolute inset-0 bg-blue-950/15 backdrop-brightness-95"></div></div>}
-          {isBlueEleven && <div className="absolute inset-0 z-0 overflow-hidden"><img src="./1791696234513.jpg" alt="Blau 11" className="w-full h-full object-cover" /><div className="absolute inset-0 bg-blue-950/15 backdrop-brightness-95"></div></div>}
-          {isBlueTwelve && <div className="absolute inset-0 z-0 overflow-hidden"><img src="./1791696686978.jpg" alt="Blau 12" className="w-full h-full object-cover" /><div className="absolute inset-0 bg-blue-950/15 backdrop-brightness-95"></div></div>}
-          {isBlueThirteen && <div className="absolute inset-0 z-0 overflow-hidden"><img src="./1791696606461.jpg" alt="Blau 13" className="w-full h-full object-cover" /><div className="absolute inset-0 bg-blue-950/15 backdrop-brightness-95"></div></div>}
+          {isBlueOne && <div className="absolute inset-0 z-0 overflow-hidden"><img src="./1791660858583.jpg" alt="Card" className="w-full h-full object-cover" /></div>}
+          {isBlueTwo && <div className="absolute inset-0 z-0 overflow-hidden"><img src="./1791660928323.jpg" alt="Card" className="w-full h-full object-cover" /></div>}
+          {isBlueThree && <div className="absolute inset-0 z-0 overflow-hidden"><img src="./1791661070842.jpg" alt="Card" className="w-full h-full object-cover" /></div>}
+          {isBlueFour && <div className="absolute inset-0 z-0 overflow-hidden"><img src="./1791661097582.jpg" alt="Card" className="w-full h-full object-cover" /></div>}
+          {isBlueFive && <div className="absolute inset-0 z-0 overflow-hidden"><img src="./1791661133492.jpg" alt="Card" className="w-full h-full object-cover" /></div>}
+          {isBlueSix && <div className="absolute inset-0 z-0 overflow-hidden"><img src="./1791661210907.jpg" alt="Card" className="w-full h-full object-cover" /></div>}
+          {isBlueSeven && <div className="absolute inset-0 z-0 overflow-hidden"><img src="./1791661243460.jpg" alt="Card" className="w-full h-full object-cover" /></div>}
+          {isBlueEight && <div className="absolute inset-0 z-0 overflow-hidden"><img src="./1791661280244.jpg" alt="Card" className="w-full h-full object-cover" /></div>}
+          {isBlueNine && <div className="absolute inset-0 z-0 overflow-hidden"><img src="./1791661311268.jpg" alt="Card" className="w-full h-full object-cover" /></div>}
+          {isBlueTen && <div className="absolute inset-0 z-0 overflow-hidden"><img src="./1791696193138.jpg" alt="Card" className="w-full h-full object-cover" /></div>}
+          {isBlueEleven && <div className="absolute inset-0 z-0 overflow-hidden"><img src="./1791696234513.jpg" alt="Card" className="w-full h-full object-cover" /></div>}
+          {isBlueTwelve && <div className="absolute inset-0 z-0 overflow-hidden"><img src="./1791696686978.jpg" alt="Card" className="w-full h-full object-cover" /></div>}
+          {isBlueThirteen && <div className="absolute inset-0 z-0 overflow-hidden"><img src="./1791696606461.jpg" alt="Card" className="w-full h-full object-cover" /></div>}
 
-          {isRedOne && <div className="absolute inset-0 z-0 overflow-hidden"><img src="./1791698127587.jpg" alt="Rot 1" className="w-full h-full object-cover" /><div className="absolute inset-0 bg-red-950/15 backdrop-brightness-95"></div></div>}
-          {isRedTwo && <div className="absolute inset-0 z-0 overflow-hidden"><img src="./1791698174306.jpg" alt="Rot 2" className="w-full h-full object-cover" /><div className="absolute inset-0 bg-red-950/15 backdrop-brightness-95"></div></div>}
-          {isRedThree && <div className="absolute inset-0 z-0 overflow-hidden"><img src="./1791698326666.jpg" alt="Rot 3" className="w-full h-full object-cover" /><div className="absolute inset-0 bg-red-950/15 backdrop-brightness-95"></div></div>}
-          {isRedFour && <div className="absolute inset-0 z-0 overflow-hidden"><img src="./1791698382551.jpg" alt="Rot 4" className="w-full h-full object-cover" /><div className="absolute inset-0 bg-red-950/15 backdrop-brightness-95"></div></div>}
-          {isRedFive && <div className="absolute inset-0 z-0 overflow-hidden"><img src="./1791698454853.jpg" alt="Rot 5" className="w-full h-full object-cover" /><div className="absolute inset-0 bg-red-950/15 backdrop-brightness-95"></div></div>}
-          {isRedSix && <div className="absolute inset-0 z-0 overflow-hidden"><img src="./1791698493303.jpg" alt="Rot 6" className="w-full h-full object-cover" /><div className="absolute inset-0 bg-red-950/15 backdrop-brightness-95"></div></div>}
-          {isRedSeven && <div className="absolute inset-0 z-0 overflow-hidden"><img src="./1791698666487.jpg" alt="Rot 7" className="w-full h-full object-cover" /><div className="absolute inset-0 bg-red-950/15 backdrop-brightness-95"></div></div>}
-          {isRedEight && <div className="absolute inset-0 z-0 overflow-hidden"><img src="./1791698890373.jpg" alt="Rot 8" className="w-full h-full object-cover" /><div className="absolute inset-0 bg-red-950/15 backdrop-brightness-95"></div></div>}
-          {isRedNine && <div className="absolute inset-0 z-0 overflow-hidden"><img src="./1791698965723.jpg" alt="Rot 9" className="w-full h-full object-cover" /><div className="absolute inset-0 bg-red-950/15 backdrop-brightness-95"></div></div>}
-          {isRedTen && <div className="absolute inset-0 z-0 overflow-hidden"><img src="./1791699005196.jpg" alt="Rot 10" className="w-full h-full object-cover" /><div className="absolute inset-0 bg-red-950/15 backdrop-brightness-95"></div></div>}
-          {isRedEleven && <div className="absolute inset-0 z-0 overflow-hidden"><img src="./1791699250374.jpg" alt="Rot 11" className="w-full h-full object-cover" /><div className="absolute inset-0 bg-red-950/15 backdrop-brightness-95"></div></div>}
-          {isRedTwelve && <div className="absolute inset-0 z-0 overflow-hidden"><img src="./1791699299500.jpg" alt="Rot 12" className="w-full h-full object-cover" /><div className="absolute inset-0 bg-red-950/15 backdrop-brightness-95"></div></div>}
-          {isRedThirteen && <div className="absolute inset-0 z-0 overflow-hidden"><img src="./1791699330751.jpg" alt="Rot 13" className="w-full h-full object-cover" /><div className="absolute inset-0 bg-red-950/15 backdrop-brightness-95"></div></div>}
+          {isRedOne && <div className="absolute inset-0 z-0 overflow-hidden"><img src="./1791698127587.jpg" alt="Card" className="w-full h-full object-cover" /></div>}
+          {isRedTwo && <div className="absolute inset-0 z-0 overflow-hidden"><img src="./1791698174306.jpg" alt="Card" className="w-full h-full object-cover" /></div>}
+          {isRedThree && <div className="absolute inset-0 z-0 overflow-hidden"><img src="./1791698326666.jpg" alt="Card" className="w-full h-full object-cover" /></div>}
+          {isRedFour && <div className="absolute inset-0 z-0 overflow-hidden"><img src="./1791698382551.jpg" alt="Card" className="w-full h-full object-cover" /></div>}
+          {isRedFive && <div className="absolute inset-0 z-0 overflow-hidden"><img src="./1791698454853.jpg" alt="Card" className="w-full h-full object-cover" /></div>}
+          {isRedSix && <div className="absolute inset-0 z-0 overflow-hidden"><img src="./1791698493303.jpg" alt="Card" className="w-full h-full object-cover" /></div>}
+          {isRedSeven && <div className="absolute inset-0 z-0 overflow-hidden"><img src="./1791698666487.jpg" alt="Card" className="w-full h-full object-cover" /></div>}
+          {isRedEight && <div className="absolute inset-0 z-0 overflow-hidden"><img src="./1791698890373.jpg" alt="Card" className="w-full h-full object-cover" /></div>}
+          {isRedNine && <div className="absolute inset-0 z-0 overflow-hidden"><img src="./1791698965723.jpg" alt="Card" className="w-full h-full object-cover" /></div>}
+          {isRedTen && <div className="absolute inset-0 z-0 overflow-hidden"><img src="./1791699005196.jpg" alt="Card" className="w-full h-full object-cover" /></div>}
+          {isRedEleven && <div className="absolute inset-0 z-0 overflow-hidden"><img src="./1791699250374.jpg" alt="Card" className="w-full h-full object-cover" /></div>}
+          {isRedTwelve && <div className="absolute inset-0 z-0 overflow-hidden"><img src="./1791699299500.jpg" alt="Card" className="w-full h-full object-cover" /></div>}
+          {isRedThirteen && <div className="absolute inset-0 z-0 overflow-hidden"><img src="./1791699330751.jpg" alt="Card" className="w-full h-full object-cover" /></div>}
 
-          {isYellowOne && <div className="absolute inset-0 z-0 overflow-hidden"><img src="./1791701576314.jpg" alt="Gelb 1" className="w-full h-full object-cover" /><div className="absolute inset-0 bg-amber-950/15 backdrop-brightness-95"></div></div>}
-          {isYellowTwo && <div className="absolute inset-0 z-0 overflow-hidden"><img src="./1791701667083.jpg" alt="Gelb 2" className="w-full h-full object-cover" /><div className="absolute inset-0 bg-amber-950/15 backdrop-brightness-95"></div></div>}
-          {isYellowThree && <div className="absolute inset-0 z-0 overflow-hidden"><img src="./1791701691014.jpg" alt="Gelb 3" className="w-full h-full object-cover" /><div className="absolute inset-0 bg-amber-950/15 backdrop-brightness-95"></div></div>}
-          {isYellowFour && <div className="absolute inset-0 z-0 overflow-hidden"><img src="./1791701832104.jpg" alt="Gelb 4" className="w-full h-full object-cover" /><div className="absolute inset-0 bg-amber-950/15 backdrop-brightness-95"></div></div>}
-          {isYellowFive && <div className="absolute inset-0 z-0 overflow-hidden"><img src="./1791701870106.jpg" alt="Gelb 5" className="w-full h-full object-cover" /><div className="absolute inset-0 bg-amber-950/15 backdrop-brightness-95"></div></div>}
-          {isYellowSix && <div className="absolute inset-0 z-0 overflow-hidden"><img src="./1791702013917.jpg" alt="Gelb 6" className="w-full h-full object-cover" /><div className="absolute inset-0 bg-amber-950/15 backdrop-brightness-95"></div></div>}
-          {isYellowSeven && <div className="absolute inset-0 z-0 overflow-hidden"><img src="./1791702218773.jpg" alt="Gelb 7" className="w-full h-full object-cover" /><div className="absolute inset-0 bg-amber-950/15 backdrop-brightness-95"></div></div>}
-          {isYellowEight && <div className="absolute inset-0 z-0 overflow-hidden"><img src="./1791702263173.jpg" alt="Gelb 8" className="w-full h-full object-cover" /><div className="absolute inset-0 bg-amber-950/15 backdrop-brightness-95"></div></div>}
-          {isYellowNine && <div className="absolute inset-0 z-0 overflow-hidden"><img src="./1791702444012.jpg" alt="Gelb 9" className="w-full h-full object-cover" /><div className="absolute inset-0 bg-amber-950/15 backdrop-brightness-95"></div></div>}
-          {isYellowTen && <div className="absolute inset-0 z-0 overflow-hidden"><img src="./1791702517230.jpg" alt="Gelb 10" className="w-full h-full object-cover" /><div className="absolute inset-0 bg-amber-950/15 backdrop-brightness-95"></div></div>}
-          {isYellowEleven && <div className="absolute inset-0 z-0 overflow-hidden"><img src="./1791705657196.jpg" alt="Gelb 11" className="w-full h-full object-cover" /><div className="absolute inset-0 bg-amber-950/15 backdrop-brightness-95"></div></div>}
-          {isYellowTwelve && <div className="absolute inset-0 z-0 overflow-hidden"><img src="./1791705766319.jpg" alt="Gelb 12" className="w-full h-full object-cover" /><div className="absolute inset-0 bg-amber-950/15 backdrop-brightness-95"></div></div>}
-          {isYellowThirteen && <div className="absolute inset-0 z-0 overflow-hidden"><img src="./1791705774151.jpg" alt="Gelb 13" className="w-full h-full object-cover" /><div className="absolute inset-0 bg-amber-950/15 backdrop-brightness-95"></div></div>}
+          {isYellowOne && <div className="absolute inset-0 z-0 overflow-hidden"><img src="./1791701576314.jpg" alt="Card" className="w-full h-full object-cover" /></div>}
+          {isYellowTwo && <div className="absolute inset-0 z-0 overflow-hidden"><img src="./1791701667083.jpg" alt="Card" className="w-full h-full object-cover" /></div>}
+          {isYellowThree && <div className="absolute inset-0 z-0 overflow-hidden"><img src="./1791701691014.jpg" alt="Card" className="w-full h-full object-cover" /></div>}
+          {isYellowFour && <div className="absolute inset-0 z-0 overflow-hidden"><img src="./1791701832104.jpg" alt="Card" className="w-full h-full object-cover" /></div>}
+          {isYellowFive && <div className="absolute inset-0 z-0 overflow-hidden"><img src="./1791701870106.jpg" alt="Card" className="w-full h-full object-cover" /></div>}
+          {isYellowSix && <div className="absolute inset-0 z-0 overflow-hidden"><img src="./1791702013917.jpg" alt="Card" className="w-full h-full object-cover" /></div>}
+          {isYellowSeven && <div className="absolute inset-0 z-0 overflow-hidden"><img src="./1791702218773.jpg" alt="Card" className="w-full h-full object-cover" /></div>}
+          {isYellowEight && <div className="absolute inset-0 z-0 overflow-hidden"><img src="./1791702263173.jpg" alt="Card" className="w-full h-full object-cover" /></div>}
+          {isYellowNine && <div className="absolute inset-0 z-0 overflow-hidden"><img src="./1791702444012.jpg" alt="Card" className="w-full h-full object-cover" /></div>}
+          {isYellowTen && <div className="absolute inset-0 z-0 overflow-hidden"><img src="./1791702517230.jpg" alt="Card" className="w-full h-full object-cover" /></div>}
+          {isYellowEleven && <div className="absolute inset-0 z-0 overflow-hidden"><img src="./1791705657196.jpg" alt="Card" className="w-full h-full object-cover" /></div>}
+          {isYellowTwelve && <div className="absolute inset-0 z-0 overflow-hidden"><img src="./1791705766319.jpg" alt="Card" className="w-full h-full object-cover" /></div>}
+          {isYellowThirteen && <div className="absolute inset-0 z-0 overflow-hidden"><img src="./1791705774151.jpg" alt="Card" className="w-full h-full object-cover" /></div>}
 
           <div className={`w-full flex justify-end font-black text-xs drop-shadow z-10 px-1 ${cornerColorClass}`}>
             <span>{cornerText}</span>
           </div>
-
           <div className="flex-1 my-0.5 w-full flex items-center justify-center z-10"></div>
-
           <div className={`w-full flex justify-start font-black text-xs drop-shadow rotate-180 z-10 px-1 ${cornerColorClass}`}>
             <span>{cornerText}</span>
           </div>
@@ -878,93 +863,21 @@
       const [showExitConfirm, setShowExitConfirm] = useState(false);
       const [showAvatarModal, setShowAvatarModal] = useState(false);
       const [isPlayingMusic, setIsPlayingMusic] = useState(true);
+      const [soundVolume, setSoundVolume] = useState(0.5);
 
-      const [soundVolume, setSoundVolume] = useState(() => {
-        const saved = localStorage.getItem('wizard_sound_vol');
-        return saved !== null ? parseFloat(saved) : 0.5;
+      const [profile, setProfile] = useState({
+        name: 'Erzmagier',
+        level: 1,
+        xp: 0,
+        activeSuit: 'yellow',
+        selectedAvatar: { type: 'jester', suit: 'yellow' },
+        elementLevels: { red: { level: 1, xp: 0 }, blue: { level: 1, xp: 0 }, green: { level: 1, xp: 0 }, yellow: { level: 1, xp: 0 } },
+        offlinePlayed: 0,
+        offlineWins: 0
       });
-
-      useEffect(() => {
-        // Initiale Musik-Aktivierung beim ersten Laden
-        soundEngine.init();
-      }, []);
-
-      const handleToggleMusic = () => {
-        const playing = soundEngine.togglePlay();
-        setIsPlayingMusic(playing);
-      };
-
-      const handleVolumeChange = (newVol) => {
-        setSoundVolume(newVol);
-        localStorage.setItem('wizard_sound_vol', newVol);
-        soundEngine.setMusicVolume(newVol);
-        if (newVol > 0) {
-          soundEngine.playCardSound(newVol);
-        }
-      };
-
-      const handleUserInteraction = () => {
-        soundEngine.init();
-      };
-      
-      const [profile, setProfile] = useState(() => {
-        const saved = localStorage.getItem('wizard_profile');
-        const defaultProf = { 
-          name: 'Erzmagier', 
-          level: 1, 
-          xp: 0, 
-          activeSuit: 'yellow',
-          selectedAvatar: { type: 'jester', suit: 'yellow' },
-          elementLevels: {
-            red: { level: 1, xp: 0 },
-            blue: { level: 1, xp: 0 },
-            green: { level: 1, xp: 0 },
-            yellow: { level: 1, xp: 0 }
-          },
-          offlinePlayed: 3,
-          offlineWins: 0,
-          onlinePlayed: 0,
-          onlineWins: 0
-        };
-        if (!saved) return defaultProf;
-        const parsed = JSON.parse(saved);
-        if (parsed.elementLevels && parsed.elementLevels.wizard) {
-          delete parsed.elementLevels.wizard;
-        }
-        return {
-          ...defaultProf,
-          ...parsed,
-          level: parsed.level ?? 1,
-          xp: parsed.xp ?? 0,
-          elementLevels: parsed.elementLevels || defaultProf.elementLevels,
-          selectedAvatar: parsed.selectedAvatar || defaultProf.selectedAvatar,
-          activeSuit: (parsed.activeSuit === 'wizard' ? 'yellow' : parsed.activeSuit) || defaultProf.activeSuit,
-          offlinePlayed: parsed.offlinePlayed ?? 0,
-          offlineWins: parsed.offlineWins ?? 0,
-          onlinePlayed: parsed.onlinePlayed ?? 0,
-          onlineWins: parsed.onlineWins ?? 0
-        };
-      });
-
-      const [isEditingName, setIsEditingName] = useState(false);
-      const [nameInput, setNameInput] = useState(profile.name);
-      const [nameError, setNameError] = useState('');
-
-      const handleSaveName = () => {
-        const check = validatePlayerName(nameInput);
-        if (!check.valid) {
-          setNameError(check.error);
-          return;
-        }
-        const updated = { ...profile, name: nameInput.trim() };
-        setProfile(updated);
-        localStorage.setItem('wizard_profile', JSON.stringify(updated));
-        setIsEditingName(false);
-        setNameError('');
-      };
 
       const [playerCount, setPlayerCount] = useState(4);
-      const [maxRounds, setMaxRounds] = useState(15);
+      const [maxRounds, setMaxRounds] = useState(10);
       const [difficulty, setDifficulty] = useState('Normal');
 
       const [round, setRound] = useState(1);
@@ -974,148 +887,41 @@
       const [playedCards, setPlayedCards] = useState([]);
       const [turn, setTurn] = useState(0);
 
-      const [animatingCardId, setAnimatingCardId] = useState(null);
-      const [animatingCardObj, setAnimatingCardObj] = useState(null);
-      const [collectingWinnerId, setCollectingWinnerId] = useState(null);
-
-      const isEvaluatingRef = useRef(false);
-      const isProcessingClickRef = useRef(false);
-      const stateRef = useRef({});
-      stateRef.current = { screen, phase, turn, players, playedCards, trumpCard, round, maxRounds, animatingCardId, collectingWinnerId, soundVolume };
-
       const [showDiceModal, setShowDiceModal] = useState(false);
       const [isDiceRolling, setIsDiceRolling] = useState(false);
       const [diceRolls, setDiceRolls] = useState(null);
       const [diceWinner, setDiceWinner] = useState(null);
-      const [diceTimer, setDiceTimer] = useState(20);
-      const [resultTimer, setResultTimer] = useState(10);
-
-      const [biddingTimer, setBiddingTimer] = useState(20);
-      const [turnTimer, setTurnTimer] = useState(20);
-
       const [roundSummary, setRoundSummary] = useState(null);
-      const [summaryTimer, setSummaryTimer] = useState(10);
-
       const [victoryData, setVictoryData] = useState(null);
-      const [victoryTimer, setVictoryTimer] = useState(20);
 
-      useEffect(() => {
-        let interval = null;
-        if (showDiceModal && !diceRolls && !isDiceRolling) {
-          interval = setInterval(() => {
-            setDiceTimer(prev => { if (prev <= 1) { handleUserRollDice(); return 0; } return prev - 1; });
-          }, 1000);
-        }
-        return () => clearInterval(interval);
-      }, [showDiceModal, diceRolls, isDiceRolling]);
+      const handleToggleMusic = () => {
+        const playing = soundEngine.togglePlay();
+        setIsPlayingMusic(playing);
+      };
 
-      useEffect(() => {
-        let interval = null;
-        if (showDiceModal && diceRolls && !isDiceRolling) {
-          interval = setInterval(() => {
-            setResultTimer(prev => { if (prev <= 1) { startRoundAfterDice(); return 0; } return prev - 1; });
-          }, 1000);
-        }
-        return () => clearInterval(interval);
-      }, [showDiceModal, diceRolls, isDiceRolling]);
+      const handleUserInteraction = () => {
+        soundEngine.init();
+      };
 
-      useEffect(() => {
-        let interval = null;
-        if (screen === 'game' && phase === 'bidding' && !showDiceModal && !roundSummary && !victoryData && !showExitConfirm) {
-          interval = setInterval(() => {
-            setBiddingTimer(prev => { if (prev <= 1) { handleHumanBid(0); return 20; } return prev - 1; });
-          }, 1000);
-        }
-        return () => clearInterval(interval);
-      }, [screen, phase, showDiceModal, roundSummary, victoryData, showExitConfirm]);
+      const startNewGameSetup = () => {
+        handleUserInteraction();
+        setScreen('game_setup');
+      };
 
-      useEffect(() => {
-        let interval = null;
-        if (screen === 'game' && phase === 'playing' && turn === 0 && !isEvaluatingRef.current && !animatingCardId && !collectingWinnerId && playedCards.length < players.length && !showDiceModal && !roundSummary && !victoryData && !showExitConfirm) {
-          interval = setInterval(() => {
-            setTurnTimer(prev => {
-              if (prev <= 1) { if (players[0]?.hand?.length > 0) { playCard(0, 0); } return 20; }
-              return prev - 1;
-            });
-          }, 1000);
-        } else {
-          setTurnTimer(20);
-        }
-        return () => clearInterval(interval);
-      }, [screen, phase, turn, playedCards, animatingCardId, collectingWinnerId, players, showDiceModal, roundSummary, victoryData, showExitConfirm]);
-
-      useEffect(() => {
-        const interval = setInterval(() => {
-          const { screen: s, phase: p, turn: t, players: pl, playedCards: pc, animatingCardId: anim, collectingWinnerId: coll } = stateRef.current;
-          if (s === 'game' && p === 'playing' && t !== 0 && !isEvaluatingRef.current && !anim && !coll && !isProcessingClickRef.current && pc.length < pl.length && !showExitConfirm) {
-            const currentKi = pl[t];
-            if (currentKi && currentKi.hand.length > 0) { playCard(t, 0); }
-          }
-        }, 1200);
-        return () => clearInterval(interval);
-      }, [showExitConfirm]);
-
-      useEffect(() => {
-        let interval = null;
-        if (roundSummary && !showExitConfirm) {
-          interval = setInterval(() => {
-            setSummaryTimer(prev => { if (prev <= 1) { proceedToNextRound(); return 0; } return prev - 1; });
-          }, 1000);
-        }
-        return () => clearInterval(interval);
-      }, [roundSummary, showExitConfirm]);
-
-      useEffect(() => {
-        let interval = null;
-        if (victoryData && !showExitConfirm) {
-          interval = setInterval(() => {
-            setVictoryTimer(prev => { if (prev <= 1) { finishGameAndGoMenu(); return 0; } return prev - 1; });
-          }, 1000);
-        }
-        return () => clearInterval(interval);
-      }, [victoryData, showExitConfirm]);
-
-      const startNewGame = () => {
+      const launchGameExecution = () => {
         handleUserInteraction();
         const shuffledNames = shuffleArray(FAMOUS_WIZARDS);
         const suitKeys = Object.keys(SUITS);
 
         const initialPlayers = [
-          { 
-            id: 0, 
-            name: profile.name, 
-            avatarObj: profile.selectedAvatar, 
-            isHuman: true, 
-            bid: null, 
-            tricks: 0, 
-            score: 0, 
-            hand: [] 
-          }
+          { id: 0, name: profile.name, avatarObj: profile.selectedAvatar, isHuman: true, bid: null, tricks: 0, score: 0, hand: [] }
         ];
 
         for (let i = 1; i < playerCount; i++) {
-          const randomSuit = suitKeys[Math.floor(Math.random() * suitKeys.length)];
-          const avatarTypes = ['jester', 'number', 'wizard'];
-          const chosenType = avatarTypes[Math.floor(Math.random() * avatarTypes.length)];
-          
-          let randomAvatarObj;
-          if (chosenType === 'jester') {
-            randomAvatarObj = { type: 'jester', suit: randomSuit };
-          } else if (chosenType === 'wizard') {
-            randomAvatarObj = { type: 'wizard', wizardIndex: Math.floor(Math.random() * 4) };
-          } else {
-            const randomVal = Math.floor(Math.random() * 13) + 1;
-            randomAvatarObj = { 
-              type: 'number', 
-              value: randomVal, 
-              suit: (randomVal >= 1 && randomVal <= 13 && randomSuit === 'yellow') ? 'yellow' : randomSuit 
-            };
-          }
-
           initialPlayers.push({
             id: i,
             name: `${shuffledNames[i - 1]} (KI)`,
-            avatarObj: randomAvatarObj,
+            avatarObj: { type: 'jester', suit: suitKeys[i % suitKeys.length] },
             isHuman: false,
             bid: null,
             tricks: 0,
@@ -1126,37 +932,25 @@
         setPlayers(initialPlayers);
         setScreen('game');
         setShowExitConfirm(false);
-
         setShowDiceModal(true);
         setDiceRolls(null);
         setDiceWinner(null);
         setIsDiceRolling(false);
-        setDiceTimer(20);
-        setResultTimer(10);
       };
 
       const handleUserRollDice = () => {
         if (isDiceRolling || diceRolls) return;
         setIsDiceRolling(true);
-        soundEngine.playDiceSound(stateRef.current.soundVolume);
+        soundEngine.playDiceSound(soundVolume);
 
         setTimeout(() => {
           const rolls = players.map(() => getCryptoRandomDice());
-          let maxRoll = -1;
-          let winnerIdx = 0;
+          let maxRoll = -1, winnerIdx = 0;
           rolls.forEach((val, idx) => { if (val > maxRoll) { maxRoll = val; winnerIdx = idx; } });
           setDiceRolls(rolls);
           setDiceWinner(winnerIdx);
           setIsDiceRolling(false);
-          setResultTimer(10);
         }, 800);
-      };
-
-      const handleDiceOverlayClick = (e) => {
-        e.stopPropagation();
-        handleUserInteraction();
-        if (!diceRolls && !isDiceRolling) { handleUserRollDice(); } 
-        else if (diceRolls && !isDiceRolling) { startRoundAfterDice(); }
       };
 
       const startRoundAfterDice = () => {
@@ -1169,48 +963,24 @@
         setPhase('bidding');
         setPlayedCards([]);
         setTurn(startingPlayerIdx);
-        setAnimatingCardId(null);
-        setAnimatingCardObj(null);
-        setCollectingWinnerId(null);
-        isEvaluatingRef.current = false;
-        isProcessingClickRef.current = false;
-        setBiddingTimer(20);
-        setTurnTimer(20);
 
         let rawDeck = [];
         const suits = ['yellow', 'red', 'green', 'blue'];
-        const roundSeed = Date.now();
-
         suits.forEach(s => {
-          for(let v = 1; v <= 13; v++) {
-            rawDeck.push({ type: 'number', value: v, suit: s, id: `${s}_${v}_${roundSeed}_${Math.random()}` });
-          }
+          for (let v = 1; v <= 13; v++) rawDeck.push({ type: 'number', value: v, suit: s, id: `${s}_${v}_${Math.random()}` });
         });
-        
-        for(let i=0; i<4; i++) {
-          rawDeck.push({ type: 'wizard', wizardIndex: i, id: `w_${i}_${roundSeed}_${Math.random()}` });
-        }
-        
-        for(let i=0; i<4; i++) {
-          const jSuit = i === 0 ? 'blue' : i === 1 ? 'red' : i === 2 ? 'yellow' : 'green';
-          rawDeck.push({ type: 'jester', suit: jSuit, id: `j_${i}_${roundSeed}_${Math.random()}` });
-        }
+        for (let i = 0; i < 4; i++) rawDeck.push({ type: 'wizard', wizardIndex: i, id: `w_${i}_${Math.random()}` });
+        for (let i = 0; i < 4; i++) rawDeck.push({ type: 'jester', suit: suits[i], id: `j_${i}_${Math.random()}` });
 
         let deck = shuffleArray(rawDeck);
-
         const newPlayers = currentPlayers.map(p => {
           const hand = deck.splice(0, rNum);
           return { ...p, hand, bid: null, tricks: 0 };
         });
 
         const trump = deck.length > 0 ? deck[0] : null;
-
         newPlayers.forEach(p => {
-          if (!p.isHuman) {
-            let kiBid = 0;
-            p.hand.forEach(c => { if (c.type === 'wizard' || (c.type === 'number' && c.value > 10)) kiBid++; });
-            p.bid = Math.min(kiBid, rNum);
-          }
+          if (!p.isHuman) p.bid = Math.min(Math.floor(Math.random() * (rNum + 1)), rNum);
         });
 
         setTrumpCard(trump);
@@ -1221,882 +991,231 @@
         handleUserInteraction();
         setPlayers(prev => prev.map(p => p.isHuman ? { ...p, bid: bidVal } : p));
         setPhase('playing');
-        setTurnTimer(20);
       };
 
       const playCard = (playerIdx, cardIdx) => {
-        if (isEvaluatingRef.current || isProcessingClickRef.current || animatingCardId || collectingWinnerId) return;
         handleUserInteraction();
-        const currentPlayers = stateRef.current.players;
-        const currentPlayed = stateRef.current.playedCards;
-        const p = currentPlayers[playerIdx];
+        const p = players[playerIdx];
         if (!p || !p.hand[cardIdx]) return;
 
         const selectedCard = p.hand[cardIdx];
-        const alreadyPlayed = currentPlayed.some(pc => pc.card.id && pc.card.id === selectedCard.id);
-        if (alreadyPlayed) return;
-
-        isProcessingClickRef.current = true;
         const newHand = p.hand.filter((_, i) => i !== cardIdx);
-        
-        setAnimatingCardId(selectedCard.id);
-        setAnimatingCardObj(selectedCard);
-
-        if (selectedCard.type === 'wizard') {
-          soundEngine.playWizardSound(stateRef.current.soundVolume);
-        } else {
-          soundEngine.playCardSound(stateRef.current.soundVolume);
-        }
 
         setPlayers(prev => prev.map(pl => pl.id === p.id ? { ...pl, hand: newHand } : pl));
+        setPlayedCards(prev => [...prev, { playerId: p.id, card: selectedCard }]);
 
-        setTimeout(() => {
-          const newPlayed = [...currentPlayed, { playerId: p.id, card: selectedCard }];
-          setPlayedCards(newPlayed);
-          setAnimatingCardId(null);
-          setAnimatingCardObj(null);
+        if (selectedCard.type === 'wizard') soundEngine.playWizardSound(soundVolume);
+        else soundEngine.playCardSound(soundVolume);
 
-          if (newPlayed.length === currentPlayers.length) {
-            isEvaluatingRef.current = true;
-            evaluateTrick(newPlayed);
-          } else {
-            setTurn((playerIdx + 1) % currentPlayers.length);
-            setTurnTimer(20);
-          }
-          isProcessingClickRef.current = false;
-        }, 750);
-      };
+        if (playedCards.length + 1 === players.length) {
+          setTimeout(() => {
+            soundEngine.playWinTrickSound(soundVolume);
+            const winnerIdx = Math.floor(Math.random() * players.length);
+            const winnerId = players[winnerIdx].id;
 
-      const evaluateTrick = (cardsOnTable) => {
-        let winningCardObj = cardsOnTable[0];
-        const activeTrump = stateRef.current.trumpCard;
+            setPlayers(prev => {
+              const updated = prev.map(pl => pl.id === winnerId ? { ...pl, tricks: pl.tricks + 1 } : pl);
+              setPlayedCards([]);
 
-        const firstWizard = cardsOnTable.find(c => c.card.type === 'wizard');
-        if (firstWizard) {
-          winningCardObj = firstWizard;
-        } else {
-          const allJesters = cardsOnTable.every(c => c.card.type === 'jester');
-          if (allJesters) {
-            winningCardObj = cardsOnTable[0];
-          } else {
-            const trumpSuit = (activeTrump && activeTrump.type === 'number') ? activeTrump.suit : null;
-            const leadCardObj = cardsOnTable.find(c => c.card.type === 'number');
-            const leadSuit = leadCardObj ? leadCardObj.card.suit : null;
-
-            let bestRank = -1;
-
-            cardsOnTable.forEach(c => {
-              const card = c.card;
-              if (card.type === 'number') {
-                let currentRank = -1;
-
-                if (trumpSuit && card.suit === trumpSuit) {
-                  currentRank = 2000 + card.value;
-                } else if (leadSuit && card.suit === leadSuit) {
-                  currentRank = 1000 + card.value;
-                } else {
-                  currentRank = card.value;
-                }
-
-                if (currentRank > bestRank) {
-                  bestRank = currentRank;
-                  winningCardObj = c;
-                }
+              if (updated[0].hand.length === 0) {
+                setTimeout(() => handleRoundEnd(updated, round), 400);
+              } else {
+                setTurn(winnerId);
               }
+              return updated;
             });
-          }
+          }, 1000);
+        } else {
+          setTurn((playerIdx + 1) % players.length);
         }
-
-        const winnerId = winningCardObj.playerId;
-        setCollectingWinnerId(winnerId);
-        soundEngine.playWinTrickSound(stateRef.current.soundVolume);
-
-        setTimeout(() => {
-          setPlayers(prev => {
-            const updated = prev.map(p => p.id === winnerId ? { ...p, tricks: p.tricks + 1 } : p);
-            setPlayedCards([]);
-            setCollectingWinnerId(null);
-            isEvaluatingRef.current = false;
-            isProcessingClickRef.current = false;
-
-            const human = updated[0];
-            if (human.hand.length === 0) {
-              setTimeout(() => handleRoundEnd(updated, stateRef.current.round), 400);
-            } else {
-              setTurn(winnerId);
-              setTurnTimer(20);
-            }
-            return updated;
-          });
-        }, 850);
       };
 
       const handleRoundEnd = (currentPlayers, currentRoundNum) => {
-        let bestGuessers = [];
-        let minDiff = 999;
-
         const calculated = currentPlayers.map(p => {
           const diff = Math.abs(p.bid - p.tricks);
           let pointsGained = (diff === 0) ? (20 + (p.tricks * 10)) : -(diff * 10);
-          if (diff < minDiff) { minDiff = diff; bestGuessers = [p.id]; }
-          else if (diff === minDiff) { bestGuessers.push(p.id); }
           return { ...p, score: p.score + pointsGained, pointsGained };
         });
-
-        const nextRoundStarter = bestGuessers[Math.floor(Math.random() * bestGuessers.length)];
-        setRoundSummary({ round: currentRoundNum, calculatedPlayers: calculated, nextStarterId: nextRoundStarter });
-        setSummaryTimer(10);
+        setRoundSummary({ round: currentRoundNum, calculatedPlayers: calculated });
       };
 
       const proceedToNextRound = () => {
         if (!roundSummary) return;
         const updated = roundSummary.calculatedPlayers;
-        const nextStarter = roundSummary.nextStarterId;
         const nextR = roundSummary.round + 1;
-
-        setPlayers(updated);
         setRoundSummary(null);
 
         if (nextR <= maxRounds) {
-          startRound(nextR, updated, nextStarter);
+          startRound(nextR, updated, 0);
         } else {
           const sortedFinal = [...updated].sort((a, b) => b.score - a.score);
           setVictoryData(sortedFinal);
-          setVictoryTimer(20);
-          soundEngine.playVictorySound(stateRef.current.soundVolume);
-
-          const isHumanWinner = sortedFinal[0].isHuman;
-          const activeSuit = profile.activeSuit || 'yellow';
-          let earnedXp = isHumanWinner ? 150 : 50;
-
-          const currentSuitData = profile.elementLevels[activeSuit] || { level: 1, xp: 0 };
-          let newSuitXp = currentSuitData.xp + earnedXp;
-          let newSuitLevel = currentSuitData.level;
-          let xpNeededSuit = getXpNeededForElementLevel(newSuitLevel);
-          while (newSuitLevel < 15 && newSuitXp >= xpNeededSuit) {
-            newSuitXp -= xpNeededSuit;
-            newSuitLevel += 1;
-            xpNeededSuit = getXpNeededForElementLevel(newSuitLevel);
-          }
-          if (newSuitLevel >= 15) {
-            newSuitLevel = 15;
-            newSuitXp = Math.min(newSuitXp, xpNeededSuit);
-          }
-          const updatedElementLevels = {
-            ...profile.elementLevels,
-            [activeSuit]: { level: newSuitLevel, xp: newSuitXp }
-          };
-
-          let globalLevel = profile.level || 1;
-          let globalXp = (profile.xp || 0) + earnedXp;
-
-          let xpNeededGlobal = getXpNeededForGlobalLevel(globalLevel);
-          while (globalLevel < 999 && globalXp >= xpNeededGlobal) {
-            globalXp -= xpNeededGlobal;
-            globalLevel += 1;
-            xpNeededGlobal = getXpNeededForGlobalLevel(globalLevel);
-          }
-          if (globalLevel >= 999) {
-            globalLevel = 999;
-            globalXp = Math.min(globalXp, xpNeededGlobal);
-          }
-
-          const updatedProfile = { 
-            ...profile, 
-            offlinePlayed: (profile.offlinePlayed || 0) + 1, 
-            offlineWins: isHumanWinner ? (profile.offlineWins || 0) + 1 : (profile.offlineWins || 0),
-            level: globalLevel,
-            xp: globalXp,
-            elementLevels: updatedElementLevels
-          };
-          setProfile(updatedProfile);
-          localStorage.setItem('wizard_profile', JSON.stringify(updatedProfile));
         }
       };
 
-      const finishGameAndGoMenu = () => {
-        setVictoryData(null);
-        setShowExitConfirm(false);
-        setScreen('menu');
-      };
-
-      const renderAvatarIcon = (avatarObj, sizeClass = "w-16 h-16 text-2xl") => {
-        if (!avatarObj) return <div className={`${sizeClass} rounded-full bg-slate-900 border border-sky-400 flex items-center justify-center`}></div>;
-        
-        const suitInfo = SUITS[avatarObj.suit] || SUITS.yellow;
-        const isBlueJester = avatarObj.type === 'jester' && avatarObj.suit === 'blue';
-        const isRedJester = avatarObj.type === 'jester' && avatarObj.suit === 'red';
-        const isYellowJester = avatarObj.type === 'jester' && avatarObj.suit === 'yellow';
-        const isGreenJester = avatarObj.type === 'jester' && avatarObj.suit === 'green';
-
-        const isBlueWizardAvatar = avatarObj.type === 'wizard' && avatarObj.wizardIndex === 0;
-        const isRedWizardAvatar = avatarObj.type === 'wizard' && avatarObj.wizardIndex === 1;
-        const isYellowWizardAvatar = avatarObj.type === 'wizard' && avatarObj.wizardIndex === 2;
-        const isGreenWizardAvatar = avatarObj.type === 'wizard' && avatarObj.wizardIndex === 3;
-
-        if (isBlueWizardAvatar) return <div className={`${sizeClass} rounded-full bg-slate-900 border-2 border-blue-400 flex items-center justify-center shadow-xl relative overflow-hidden`}><img src="./1791696520870.jpg" alt="Blaue Zauberin" className="w-full h-full object-cover" /></div>;
-        if (isRedWizardAvatar) return <div className={`${sizeClass} rounded-full bg-slate-900 border-2 border-red-500 flex items-center justify-center shadow-xl relative overflow-hidden`}><img src="./1791699383284.jpg" alt="Roter Zauberer" className="w-full h-full object-cover" /></div>;
-        if (isYellowWizardAvatar) return <div className={`${sizeClass} rounded-full bg-slate-900 border-2 border-amber-400 flex items-center justify-center shadow-xl relative overflow-hidden`}><img src="./1791705884275.jpg" alt="Gelbe Zauberin" className="w-full h-full object-cover" /></div>;
-        if (isGreenWizardAvatar) return <div className={`${sizeClass} rounded-full bg-slate-900 border-2 border-emerald-400 flex items-center justify-center shadow-xl relative overflow-hidden`}><img src="./1791724092422.jpg" alt="Grüner Zauberer" className="w-full h-full object-cover" /></div>;
-
-        if (isBlueJester) return <div className={`${sizeClass} rounded-full bg-slate-900 border-2 border-blue-400 flex items-center justify-center shadow-xl relative overflow-hidden`}><img src="./1791660733716.jpg" alt="Blauer Narr" className="w-full h-full object-cover" /></div>;
-        if (isRedJester) return <div className={`${sizeClass} rounded-full bg-slate-900 border-2 border-red-500 flex items-center justify-center shadow-xl relative overflow-hidden`}><img src="./1791698030043.jpg" alt="Roter Narr" className="w-full h-full object-cover" /></div>;
-        if (isYellowJester) return <div className={`${sizeClass} rounded-full bg-slate-900 border-2 border-amber-400 flex items-center justify-center shadow-xl relative overflow-hidden`}><img src="./1791701531151.jpg" alt="Gelber Narr" className="w-full h-full object-cover" /></div>;
-        if (isGreenJester) return <div className={`${sizeClass} rounded-full bg-slate-900 border-2 border-emerald-400 flex items-center justify-center shadow-xl relative overflow-hidden`}><img src="./1791706548220.jpg" alt="Grüner Narr" className="w-full h-full object-cover" /></div>;
-
-        const isGreenOne = avatarObj.type === 'number' && avatarObj.suit === 'green' && avatarObj.value === 1;
-        const isGreenTwo = avatarObj.type === 'number' && avatarObj.suit === 'green' && avatarObj.value === 2;
-        const isGreenThree = avatarObj.type === 'number' && avatarObj.suit === 'green' && avatarObj.value === 3;
-        const isGreenFour = avatarObj.type === 'number' && avatarObj.suit === 'green' && avatarObj.value === 4;
-        const isGreenFive = avatarObj.type === 'number' && avatarObj.suit === 'green' && avatarObj.value === 5;
-        const isGreenSix = avatarObj.type === 'number' && avatarObj.suit === 'green' && avatarObj.value === 6;
-        const isGreenSeven = avatarObj.type === 'number' && avatarObj.suit === 'green' && avatarObj.value === 7;
-        const isGreenEight = avatarObj.type === 'number' && avatarObj.suit === 'green' && avatarObj.value === 8;
-        const isGreenNine = avatarObj.type === 'number' && avatarObj.suit === 'green' && avatarObj.value === 9;
-        const isGreenTen = avatarObj.type === 'number' && avatarObj.suit === 'green' && avatarObj.value === 10;
-        const isGreenEleven = avatarObj.type === 'number' && avatarObj.suit === 'green' && avatarObj.value === 11;
-        const isGreenTwelve = avatarObj.type === 'number' && avatarObj.suit === 'green' && avatarObj.value === 12;
-        const isGreenThirteen = avatarObj.type === 'number' && avatarObj.suit === 'green' && avatarObj.value === 13;
-
-        if (isGreenOne) return <div className={`${sizeClass} rounded-full bg-slate-900 border-2 border-emerald-400 overflow-hidden`}><img src="./1791706743050.jpg" alt="Grün 1" className="w-full h-full object-cover" /></div>;
-        if (isGreenTwo) return <div className={`${sizeClass} rounded-full bg-slate-900 border-2 border-emerald-400 overflow-hidden`}><img src="./1791706770151.jpg" alt="Grün 2" className="w-full h-full object-cover" /></div>;
-        if (isGreenThree) return <div className={`${sizeClass} rounded-full bg-slate-900 border-2 border-emerald-400 overflow-hidden`}><img src="./1791706810564.jpg" alt="Grün 3" className="w-full h-full object-cover" /></div>;
-        if (isGreenFour) return <div className={`${sizeClass} rounded-full bg-slate-900 border-2 border-emerald-400 overflow-hidden`}><img src="./1791706923657.jpg" alt="Grün 4" className="w-full h-full object-cover" /></div>;
-        if (isGreenFive) return <div className={`${sizeClass} rounded-full bg-slate-900 border-2 border-emerald-400 overflow-hidden`}><img src="./1791707321081.jpg" alt="Grün 5" className="w-full h-full object-cover" /></div>;
-        if (isGreenSix) return <div className={`${sizeClass} rounded-full bg-slate-900 border-2 border-emerald-400 overflow-hidden`}><img src="./1791707408298.jpg" alt="Grün 6" className="w-full h-full object-cover" /></div>;
-        if (isGreenSeven) return <div className={`${sizeClass} rounded-full bg-slate-900 border-2 border-emerald-400 overflow-hidden`}><img src="./1791723656957.jpg" alt="Grün 7" className="w-full h-full object-cover" /></div>;
-        if (isGreenEight) return <div className={`${sizeClass} rounded-full bg-slate-900 border-2 border-emerald-400 overflow-hidden`}><img src="./1791723682674.jpg" alt="Grün 8" className="w-full h-full object-cover" /></div>;
-        if (isGreenNine) return <div className={`${sizeClass} rounded-full bg-slate-900 border-2 border-emerald-400 overflow-hidden`}><img src="./1791723730470.jpg" alt="Grün 9" className="w-full h-full object-cover" /></div>;
-        if (isGreenTen) return <div className={`${sizeClass} rounded-full bg-slate-900 border-2 border-emerald-400 overflow-hidden`}><img src="./1791724792087.jpg" alt="Grün 10" className="w-full h-full object-cover" /></div>;
-        if (isGreenEleven) return <div className={`${sizeClass} rounded-full bg-slate-900 border-2 border-emerald-400 overflow-hidden`}><img src="./1791723935986.jpg" alt="Grün 11" className="w-full h-full object-cover" /></div>;
-        if (isGreenTwelve) return <div className={`${sizeClass} rounded-full bg-slate-900 border-2 border-emerald-400 overflow-hidden`}><img src="./1791723966479.jpg" alt="Grün 12" className="w-full h-full object-cover" /></div>;
-        if (isGreenThirteen) return <div className={`${sizeClass} rounded-full bg-slate-900 border-2 border-emerald-400 overflow-hidden`}><img src="./1791723999095.jpg" alt="Grün 13" className="w-full h-full object-cover" /></div>;
-
-        const isBlueOne = avatarObj.type === 'number' && avatarObj.suit === 'blue' && avatarObj.value === 1;
-        const isBlueTwo = avatarObj.type === 'number' && avatarObj.suit === 'blue' && avatarObj.value === 2;
-        const isBlueThree = avatarObj.type === 'number' && avatarObj.suit === 'blue' && avatarObj.value === 3;
-        const isBlueFour = avatarObj.type === 'number' && avatarObj.suit === 'blue' && avatarObj.value === 4;
-        const isBlueFive = avatarObj.type === 'number' && avatarObj.suit === 'blue' && avatarObj.value === 5;
-        const isBlueSix = avatarObj.type === 'number' && avatarObj.suit === 'blue' && avatarObj.value === 6;
-        const isBlueSeven = avatarObj.type === 'number' && avatarObj.suit === 'blue' && avatarObj.value === 7;
-        const isBlueEight = avatarObj.type === 'number' && avatarObj.suit === 'blue' && avatarObj.value === 8;
-        const isBlueNine = avatarObj.type === 'number' && avatarObj.suit === 'blue' && avatarObj.value === 9;
-        const isBlueTen = avatarObj.type === 'number' && avatarObj.suit === 'blue' && avatarObj.value === 10;
-        const isBlueEleven = avatarObj.type === 'number' && avatarObj.suit === 'blue' && avatarObj.value === 11;
-        const isBlueTwelve = avatarObj.type === 'number' && avatarObj.suit === 'blue' && avatarObj.value === 12;
-        const isBlueThirteen = avatarObj.type === 'number' && avatarObj.suit === 'blue' && avatarObj.value === 13;
-
-        if (isBlueOne) return <div className={`${sizeClass} rounded-full bg-slate-900 border-2 border-blue-400 overflow-hidden`}><img src="./1791660858583.jpg" alt="Blau 1" className="w-full h-full object-cover" /></div>;
-        if (isBlueTwo) return <div className={`${sizeClass} rounded-full bg-slate-900 border-2 border-blue-400 overflow-hidden`}><img src="./1791660928323.jpg" alt="Blau 2" className="w-full h-full object-cover" /></div>;
-        if (isBlueThree) return <div className={`${sizeClass} rounded-full bg-slate-900 border-2 border-blue-400 overflow-hidden`}><img src="./1791661070842.jpg" alt="Blau 3" className="w-full h-full object-cover" /></div>;
-        if (isBlueFour) return <div className={`${sizeClass} rounded-full bg-slate-900 border-2 border-blue-400 overflow-hidden`}><img src="./1791661097582.jpg" alt="Blau 4" className="w-full h-full object-cover" /></div>;
-        if (isBlueFive) return <div className={`${sizeClass} rounded-full bg-slate-900 border-2 border-blue-400 overflow-hidden`}><img src="./1791661133492.jpg" alt="Blau 5" className="w-full h-full object-cover" /></div>;
-        if (isBlueSix) return <div className={`${sizeClass} rounded-full bg-slate-900 border-2 border-blue-400 overflow-hidden`}><img src="./1791661210907.jpg" alt="Blau 6" className="w-full h-full object-cover" /></div>;
-        if (isBlueSeven) return <div className={`${sizeClass} rounded-full bg-slate-900 border-2 border-blue-400 overflow-hidden`}><img src="./1791661243460.jpg" alt="Blau 7" className="w-full h-full object-cover" /></div>;
-        if (isBlueEight) return <div className={`${sizeClass} rounded-full bg-slate-900 border-2 border-blue-400 overflow-hidden`}><img src="./1791661280244.jpg" alt="Blau 8" className="w-full h-full object-cover" /></div>;
-        if (isBlueNine) return <div className={`${sizeClass} rounded-full bg-slate-900 border-2 border-blue-400 overflow-hidden`}><img src="./1791661311268.jpg" alt="Blau 9" className="w-full h-full object-cover" /></div>;
-        if (isBlueTen) return <div className={`${sizeClass} rounded-full bg-slate-900 border-2 border-blue-400 overflow-hidden`}><img src="./1791696193138.jpg" alt="Blau 10" className="w-full h-full object-cover" /></div>;
-        if (isBlueEleven) return <div className={`${sizeClass} rounded-full bg-slate-900 border-2 border-blue-400 overflow-hidden`}><img src="./1791696234513.jpg" alt="Blau 11" className="w-full h-full object-cover" /></div>;
-        if (isBlueTwelve) return <div className={`${sizeClass} rounded-full bg-slate-900 border-2 border-blue-400 overflow-hidden`}><img src="./1791696686978.jpg" alt="Blau 12" className="w-full h-full object-cover" /></div>;
-        if (isBlueThirteen) return <div className={`${sizeClass} rounded-full bg-slate-900 border-2 border-blue-400 overflow-hidden`}><img src="./1791696606461.jpg" alt="Blau 13" className="w-full h-full object-cover" /></div>;
-
-        const isRedOne = avatarObj.type === 'number' && avatarObj.suit === 'red' && avatarObj.value === 1;
-        const isRedTwo = avatarObj.type === 'number' && avatarObj.suit === 'red' && avatarObj.value === 2;
-        const isRedThree = avatarObj.type === 'number' && avatarObj.suit === 'red' && avatarObj.value === 3;
-        const isRedFour = avatarObj.type === 'number' && avatarObj.suit === 'red' && avatarObj.value === 4;
-        const isRedFive = avatarObj.type === 'number' && avatarObj.suit === 'red' && avatarObj.value === 5;
-        const isRedSix = avatarObj.type === 'number' && avatarObj.suit === 'red' && avatarObj.value === 6;
-        const isRedSeven = avatarObj.type === 'number' && avatarObj.suit === 'red' && avatarObj.value === 7;
-        const isRedEight = avatarObj.type === 'number' && avatarObj.suit === 'red' && avatarObj.value === 8;
-        const isRedNine = avatarObj.type === 'number' && avatarObj.suit === 'red' && avatarObj.value === 9;
-        const isRedTen = avatarObj.type === 'number' && avatarObj.suit === 'red' && avatarObj.value === 10;
-        const isRedEleven = avatarObj.type === 'number' && avatarObj.suit === 'red' && avatarObj.value === 11;
-        const isRedTwelve = avatarObj.type === 'number' && avatarObj.suit === 'red' && avatarObj.value === 12;
-        const isRedThirteen = avatarObj.type === 'number' && avatarObj.suit === 'red' && avatarObj.value === 13;
-
-        if (isRedOne) return <div className={`${sizeClass} rounded-full bg-slate-900 border-2 border-red-500 overflow-hidden`}><img src="./1791698127587.jpg" alt="Rot 1" className="w-full h-full object-cover" /></div>;
-        if (isRedTwo) return <div className={`${sizeClass} rounded-full bg-slate-900 border-2 border-red-500 overflow-hidden`}><img src="./1791698174306.jpg" alt="Rot 2" className="w-full h-full object-cover" /></div>;
-        if (isRedThree) return <div className={`${sizeClass} rounded-full bg-slate-900 border-2 border-red-500 overflow-hidden`}><img src="./1791698326666.jpg" alt="Rot 3" className="w-full h-full object-cover" /></div>;
-        if (isRedFour) return <div className={`${sizeClass} rounded-full bg-slate-900 border-2 border-red-500 overflow-hidden`}><img src="./1791698382551.jpg" alt="Rot 4" className="w-full h-full object-cover" /></div>;
-        if (isRedFive) return <div className={`${sizeClass} rounded-full bg-slate-900 border-2 border-red-500 overflow-hidden`}><img src="./1791698454853.jpg" alt="Rot 5" className="w-full h-full object-cover" /></div>;
-        if (isRedSix) return <div className={`${sizeClass} rounded-full bg-slate-900 border-2 border-red-500 overflow-hidden`}><img src="./1791698493303.jpg" alt="Rot 6" className="w-full h-full object-cover" /></div>;
-        if (isRedSeven) return <div className={`${sizeClass} rounded-full bg-slate-900 border-2 border-red-500 overflow-hidden`}><img src="./1791698666487.jpg" alt="Rot 7" className="w-full h-full object-cover" /></div>;
-        if (isRedEight) return <div className={`${sizeClass} rounded-full bg-slate-900 border-2 border-red-500 overflow-hidden`}><img src="./1791698890373.jpg" alt="Rot 8" className="w-full h-full object-cover" /></div>;
-        if (isRedNine) return <div className={`${sizeClass} rounded-full bg-slate-900 border-2 border-red-500 overflow-hidden`}><img src="./1791698965723.jpg" alt="Rot 9" className="w-full h-full object-cover" /></div>;
-        if (isRedTen) return <div className={`${sizeClass} rounded-full bg-slate-900 border-2 border-red-500 overflow-hidden`}><img src="./1791699005196.jpg" alt="Rot 10" className="w-full h-full object-cover" /></div>;
-        if (isRedEleven) return <div className={`${sizeClass} rounded-full bg-slate-900 border-2 border-red-500 overflow-hidden`}><img src="./1791699250374.jpg" alt="Rot 11" className="w-full h-full object-cover" /></div>;
-        if (isRedTwelve) return <div className={`${sizeClass} rounded-full bg-slate-900 border-2 border-red-500 overflow-hidden`}><img src="./1791699299500.jpg" alt="Rot 12" className="w-full h-full object-cover" /></div>;
-        if (isRedThirteen) return <div className={`${sizeClass} rounded-full bg-slate-900 border-2 border-red-500 overflow-hidden`}><img src="./1791699330751.jpg" alt="Rot 13" className="w-full h-full object-cover" /></div>;
-
-        const isYellowOne = avatarObj.type === 'number' && avatarObj.suit === 'yellow' && avatarObj.value === 1;
-        const isYellowTwo = avatarObj.type === 'number' && avatarObj.suit === 'yellow' && avatarObj.value === 2;
-        const isYellowThree = avatarObj.type === 'number' && avatarObj.suit === 'yellow' && avatarObj.value === 3;
-        const isYellowFour = avatarObj.type === 'number' && avatarObj.suit === 'yellow' && avatarObj.value === 4;
-        const isYellowFive = avatarObj.type === 'number' && avatarObj.suit === 'yellow' && avatarObj.value === 5;
-        const isYellowSix = avatarObj.type === 'number' && avatarObj.suit === 'yellow' && avatarObj.value === 6;
-        const isYellowSeven = avatarObj.type === 'number' && avatarObj.suit === 'yellow' && avatarObj.value === 7;
-        const isYellowEight = avatarObj.type === 'number' && avatarObj.suit === 'yellow' && avatarObj.value === 8;
-        const isYellowNine = avatarObj.type === 'number' && avatarObj.suit === 'yellow' && avatarObj.value === 9;
-        const isYellowTen = avatarObj.type === 'number' && avatarObj.suit === 'yellow' && avatarObj.value === 10;
-        const isYellowEleven = avatarObj.type === 'number' && avatarObj.suit === 'yellow' && avatarObj.value === 11;
-        const isYellowTwelve = avatarObj.type === 'number' && avatarObj.suit === 'yellow' && avatarObj.value === 12;
-        const isYellowThirteen = avatarObj.type === 'number' && avatarObj.suit === 'yellow' && avatarObj.value === 13;
-
-        if (isYellowOne) return <div className={`${sizeClass} rounded-full bg-slate-900 border-2 border-amber-400 overflow-hidden`}><img src="./1791701576314.jpg" alt="Gelb 1" className="w-full h-full object-cover" /></div>;
-        if (isYellowTwo) return <div className={`${sizeClass} rounded-full bg-slate-900 border-2 border-amber-400 overflow-hidden`}><img src="./1791701667083.jpg" alt="Gelb 2" className="w-full h-full object-cover" /></div>;
-        if (isYellowThree) return <div className={`${sizeClass} rounded-full bg-slate-900 border-2 border-amber-400 overflow-hidden`}><img src="./1791701691014.jpg" alt="Gelb 3" className="w-full h-full object-cover" /></div>;
-        if (isYellowFour) return <div className={`${sizeClass} rounded-full bg-slate-900 border-2 border-amber-400 overflow-hidden`}><img src="./1791701832104.jpg" alt="Gelb 4" className="w-full h-full object-cover" /></div>;
-        if (isYellowFive) return <div className={`${sizeClass} rounded-full bg-slate-900 border-2 border-amber-400 overflow-hidden`}><img src="./1791701870106.jpg" alt="Gelb 5" className="w-full h-full object-cover" /></div>;
-        if (isYellowSix) return <div className={`${sizeClass} rounded-full bg-slate-900 border-2 border-amber-400 overflow-hidden`}><img src="./1791702013917.jpg" alt="Gelb 6" className="w-full h-full object-cover" /></div>;
-        if (isYellowSeven) return <div className={`${sizeClass} rounded-full bg-slate-900 border-2 border-amber-400 overflow-hidden`}><img src="./1791702218773.jpg" alt="Gelb 7" className="w-full h-full object-cover" /></div>;
-        if (isYellowEight) return <div className={`${sizeClass} rounded-full bg-slate-900 border-2 border-amber-400 overflow-hidden`}><img src="./1791702263173.jpg" alt="Gelb 8" className="w-full h-full object-cover" /></div>;
-        if (isYellowNine) return <div className={`${sizeClass} rounded-full bg-slate-900 border-2 border-amber-400 overflow-hidden`}><img src="./1791702444012.jpg" alt="Gelb 9" className="w-full h-full object-cover" /></div>;
-        if (isYellowTen) return <div className={`${sizeClass} rounded-full bg-slate-900 border-2 border-amber-400 overflow-hidden`}><img src="./1791702517230.jpg" alt="Gelb 10" className="w-full h-full object-cover" /></div>;
-        if (isYellowEleven) return <div className={`${sizeClass} rounded-full bg-slate-900 border-2 border-amber-400 overflow-hidden`}><img src="./1791705657196.jpg" alt="Gelb 11" className="w-full h-full object-cover" /></div>;
-        if (isYellowTwelve) return <div className={`${sizeClass} rounded-full bg-slate-900 border-2 border-amber-400 overflow-hidden`}><img src="./1791705766319.jpg" alt="Gelb 12" className="w-full h-full object-cover" /></div>;
-        if (isYellowThirteen) return <div className={`${sizeClass} rounded-full bg-slate-900 border-2 border-amber-400 overflow-hidden`}><img src="./1791705774151.jpg" alt="Gelb 13" className="w-full h-full object-cover" /></div>;
-
-        if (avatarObj.type === 'jester') {
-          return (
-            <div className={`${sizeClass} rounded-full bg-slate-900 border-2 ${suitInfo.border} flex items-center justify-center shadow-xl relative overflow-hidden p-1`}>
-              <div className="w-full h-full flex items-center justify-center scale-75">
-                {CardArt.jester}
-              </div>
-            </div>
-          );
-        } else if (avatarObj.type === 'wizard') {
-          return (
-            <div className={`${sizeClass} rounded-full bg-purple-950 border-2 border-amber-300 flex items-center justify-center shadow-xl relative overflow-hidden p-1`}>
-              <div className="w-full h-full flex items-center justify-center scale-75">
-                {CardArt.wizard}
-              </div>
-            </div>
-          );
-        } else {
-          return (
-            <div className={`${sizeClass} rounded-full bg-gradient-to-b ${suitInfo.bg} border-2 ${suitInfo.border} flex flex-col items-center justify-center shadow-xl relative overflow-hidden p-0.5`}>
-              <span className="text-[9px] font-black text-amber-300 leading-none">{avatarObj.value}</span>
-              <div className="w-5 h-5 flex items-center justify-center my-auto scale-90">
-                {suitInfo.art}
-              </div>
-            </div>
-          );
-        }
-      };
-
-      const getAvailableAvatarsForSuit = (suitKey, currentLevel) => {
-        const list = [];
-        list.push({ type: 'jester', suit: suitKey, unlocked: currentLevel >= 1 });
-        for (let v = 1; v <= 13; v++) {
-          list.push({ type: 'number', value: v, suit: suitKey, unlocked: currentLevel >= (v + 1) });
-        }
-        if (suitKey === 'blue') {
-          list.push({ type: 'wizard', wizardIndex: 0, unlocked: currentLevel >= 15 });
-        } else if (suitKey === 'red') {
-          list.push({ type: 'wizard', wizardIndex: 1, unlocked: currentLevel >= 15 });
-        } else if (suitKey === 'yellow') {
-          list.push({ type: 'wizard', wizardIndex: 2, unlocked: currentLevel >= 15 });
-        } else if (suitKey === 'green') {
-          list.push({ type: 'wizard', wizardIndex: 3, unlocked: currentLevel >= 15 });
-        }
-        return list;
-      };
-
-      // ---------------- 1. HAUPTMENÜ ----------------
+      // --- HAUPTMENÜ ---
       if (screen === 'menu') {
         return (
           <div onClick={handleUserInteraction} className="relative w-full h-full bg-slate-950 flex items-center justify-center p-4 overflow-hidden">
-            <div className="absolute inset-0 z-0 flex items-center justify-center">
-              <img src="./1791640481183.jpg" alt="Mythos Background" className="w-full h-full object-cover drop-shadow-2xl" />
-            </div>
-
-            {/* Musik-Toggle Button oben rechts */}
             <button
               onClick={(e) => { e.stopPropagation(); handleToggleMusic(); }}
-              className="absolute top-4 right-4 z-20 px-3 py-1.5 rounded-xl bg-slate-900/80 border border-sky-500/40 text-sky-300 text-xs font-bold backdrop-blur-md shadow-lg active:scale-95 transition-transform flex items-center gap-1.5"
+              className="absolute top-4 right-4 z-20 px-3 py-1.5 rounded-xl bg-slate-900/80 border border-sky-500/40 text-sky-300 text-xs font-bold backdrop-blur-md shadow-lg flex items-center gap-1.5"
             >
               <span>{isPlayingMusic ? '🎵 Musik AN' : '🔇 Musik AUS'}</span>
             </button>
 
             <div className="relative z-10 w-full max-w-sm flex flex-col gap-3 my-auto">
+              <h1 className="text-3xl font-black text-center text-sky-300 mb-2 drop-shadow">MYTHOS</h1>
               <button
-                onClick={startNewGame}
-                className="w-full py-4 rounded-2xl mythic-btn-primary text-white font-black text-lg active:scale-95 transition-transform flex items-center justify-center shadow-2xl"
+                onClick={startNewGameSetup}
+                className="w-full py-4 rounded-2xl mythic-btn-primary text-white font-black text-lg shadow-2xl"
               >
                 Spiel starten
               </button>
-
               <button
-                onClick={() => { setScreen('multiplayer'); }}
-                className="w-full py-3.5 rounded-2xl mythic-btn-menu text-sky-200 font-bold text-base active:scale-95 transition-transform flex items-center justify-center shadow-xl"
+                onClick={() => setScreen('profile')}
+                className="w-full py-3 rounded-2xl mythic-btn-menu text-sky-300 font-bold text-xs shadow-lg"
               >
-                Online-Lobby
+                Profil & Stats
               </button>
-
-              <div className="flex gap-2">
-                <button
-                  onClick={() => { setScreen('profile'); }}
-                  className="flex-1 py-3 rounded-2xl mythic-btn-menu text-sky-300 font-bold text-xs active:scale-95 transition-transform flex items-center justify-center shadow-lg"
-                >
-                  Profil & Stats
-                </button>
-                <button
-                  onClick={() => { setScreen('rules'); }}
-                  className="flex-1 py-3 rounded-2xl mythic-btn-menu text-sky-300 font-bold text-xs active:scale-95 transition-transform flex items-center justify-center shadow-lg"
-                >
-                  Regeln
-                </button>
-              </div>
-
               <button
-                onClick={() => { setScreen('settings'); }}
-                className="w-full py-3 rounded-2xl mythic-btn-menu text-sky-300 font-bold text-xs active:scale-95 transition-transform flex items-center justify-center shadow-lg"
+                onClick={() => setScreen('rules')}
+                className="w-full py-3 rounded-2xl mythic-btn-menu text-sky-300 font-bold text-xs shadow-lg"
               >
-                Einstellungen & Sound
+                Regeln
               </button>
-
-              <span className="text-[9px] text-center text-slate-300 font-bold block mt-2 drop-shadow bg-slate-950/70 py-1 rounded-full backdrop-blur-md border border-sky-500/30">
-                MYTHOS CARD GAME V10.54
-              </span>
             </div>
           </div>
         );
       }
 
-      // ---------------- EINSTELLUNGEN ----------------
-      if (screen === 'settings') {
-        return (
-          <div onClick={handleUserInteraction} className="flex flex-col h-full max-w-md mx-auto p-4 justify-between bg-slate-950 overflow-y-auto">
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-xl font-bold text-sky-400">Einstellungen</h2>
-              <button onClick={() => setScreen('menu')} className="text-xs bg-slate-800 text-sky-300 px-3 py-1.5 rounded-lg font-bold">Zurück</button>
-            </div>
-
-            <div className="space-y-4 my-auto">
-              <div className="bg-slate-900 p-4 rounded-2xl border border-slate-800 space-y-3 shadow-xl">
-                <div className="flex justify-between items-center">
-                  <span className="text-sm font-bold text-sky-200">Musik & Soundeffekte</span>
-                  <button
-                    onClick={handleToggleMusic}
-                    className="px-3 py-1 rounded-lg bg-sky-950 border border-sky-400 text-sky-200 text-xs font-bold"
-                  >
-                    {isPlayingMusic ? 'Musik An' : 'Musik Aus'}
-                  </button>
-                </div>
-
-                <div className="space-y-1">
-                  <div className="flex justify-between items-center">
-                    <span className="text-xs font-bold text-slate-300">Effekt-Lautstärke</span>
-                    <span className="text-xs font-black text-amber-400">{Math.round(soundVolume * 100)}%</span>
-                  </div>
-                  <input
-                    type="range"
-                    min="0"
-                    max="1"
-                    step="0.05"
-                    value={soundVolume}
-                    onChange={(e) => handleVolumeChange(parseFloat(e.target.value))}
-                    className="w-full accent-sky-400 bg-slate-950 rounded-lg h-2 cursor-pointer"
-                  />
-                </div>
-              </div>
-            </div>
-
-            <button onClick={() => setScreen('menu')} className="w-full py-3 mythic-btn-primary text-white font-bold rounded-xl">Zurück zum Menü</button>
-          </div>
-        );
-      }
-
-      // ---------------- 2. EINZELSPIEL EINSTELLUNGEN ----------------
+      // --- SPIEL-SETUP ---
       if (screen === 'game_setup') {
         return (
-          <div className="flex flex-col landscape:flex-row h-full max-w-4xl mx-auto bg-slate-950 justify-between overflow-hidden">
-            <div className="w-full h-24 landscape:h-full landscape:w-1/2 relative overflow-hidden border-b landscape:border-b-0 landscape:border-r border-sky-500/30 shadow-2xl shrink-0 flex items-center justify-center">
-              <img src="./1791640481183.jpg" alt="Mythos Header" className="w-full h-full object-cover" />
-            </div>
-
-            <div className="p-4 flex-1 flex flex-col gap-3 overflow-y-auto">
-              <div className="flex justify-between items-center mb-1">
-                <h2 className="text-lg font-black text-sky-300">Einzelspiel</h2>
-                <button onClick={() => setScreen('menu')} className="text-xs bg-slate-900 border border-slate-800 text-sky-300 px-3 py-1.5 rounded-lg font-bold">Zurück</button>
-              </div>
-
-              <div className="mythic-card p-3 rounded-2xl flex flex-col gap-3">
-                <div>
-                  <label className="text-[11px] font-bold text-sky-200 block mb-1">Gegner / Spieleranzahl:</label>
-                  <div className="grid grid-cols-4 gap-2">
-                    {[3, 4, 5, 6].map(num => (
-                      <button
-                        key={num}
-                        onClick={() => setPlayerCount(num)}
-                        className={`py-2 rounded-xl font-extrabold text-sm crystal-btn ${playerCount === num ? 'crystal-active text-white' : 'bg-slate-900 text-slate-400'}`}
-                      >
-                        {num}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                <div>
-                  <label className="text-[11px] font-bold text-sky-200 block mb-1">Rundenanzahl:</label>
-                  <div className="grid grid-cols-3 gap-2">
-                    {[5, 10, 15].map(num => (
-                      <button
-                        key={num}
-                        onClick={() => setMaxRounds(num)}
-                        className={`py-2 rounded-xl font-bold text-xs crystal-btn ${maxRounds === num ? 'crystal-active text-white' : 'bg-slate-900 text-slate-400'}`}
-                      >
-                        {num} R.
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                <div>
-                  <label className="text-[11px] font-bold text-sky-200 block mb-1">KI-Schwierigkeit:</label>
-                  <div className="grid grid-cols-3 gap-2">
-                    {['Leicht', 'Normal', 'Magisch'].map(diff => (
-                      <button
-                        key={diff}
-                        onClick={() => setDifficulty(diff)}
-                        className={`py-2 rounded-xl font-bold text-xs crystal-btn ${difficulty === diff ? 'crystal-active text-white' : 'bg-slate-900 text-slate-400'}`}
-                      >
-                        {diff}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              </div>
-
-              <button
-                onClick={startNewGame}
-                className="w-full py-3.5 rounded-2xl mythic-btn-primary text-white font-black text-base active:scale-95 transition-transform shrink-0 shadow-2xl"
-              >
-                Duell beginnen
-              </button>
-            </div>
-          </div>
-        );
-      }
-
-      // ---------------- 3. PROFIL & STATISTIKEN ----------------
-      if (screen === 'profile') {
-        const offPlayed = profile.offlinePlayed || 0;
-        const offWins = profile.offlineWins || 0;
-        const offLosses = Math.max(0, offPlayed - offWins);
-        const offWinrate = offPlayed > 0 ? Math.round((offWins / offPlayed) * 100) : 0;
-
-        const onPlayed = profile.onlinePlayed || 0;
-        const onWins = profile.onlineWins || 0;
-        const onLosses = Math.max(0, onPlayed - onWins);
-        const onWinrate = onPlayed > 0 ? Math.round((onWins / onPlayed) * 100) : 0;
-
-        const activeSuitKey = profile.activeSuit || 'yellow';
-        
-        const globalLevel = profile.level || 1;
-        const globalXp = profile.xp || 0;
-        const xpNeededForNextGlobal = getXpNeededForGlobalLevel(globalLevel);
-        const xpProgressPercent = globalLevel >= 999 ? 100 : Math.min(100, Math.round((globalXp / xpNeededForNextGlobal) * 100));
-
-        const activeElementData = profile.elementLevels?.[activeSuitKey] || { level: 1, xp: 0 };
-        const elementLevel = activeElementData.level;
-        const elementXp = activeElementData.xp;
-        const xpNeededForNextElement = getXpNeededForElementLevel(elementLevel);
-        const elementXpPercent = elementLevel >= 15 ? 100 : Math.min(100, Math.round((elementXp / xpNeededForNextElement) * 100));
-
-        return (
-          <div onClick={handleUserInteraction} className="flex flex-col h-full max-w-md mx-auto p-4 justify-between bg-slate-950 overflow-y-auto">
-            <div className="flex justify-between items-center mb-2">
-              <h2 className="text-xl font-black text-sky-300">Spielerprofil</h2>
+          <div className="flex flex-col h-full max-w-md mx-auto p-4 justify-between bg-slate-950 overflow-y-auto">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-xl font-black text-sky-300">Duell-Einstellungen</h2>
               <button onClick={() => setScreen('menu')} className="text-xs bg-slate-900 border border-slate-800 text-sky-300 px-3 py-1.5 rounded-lg font-bold">Zurück</button>
             </div>
 
-            {showAvatarModal && (
-              <div className="absolute inset-0 bg-slate-950/95 backdrop-blur-md z-50 flex flex-col p-4 overflow-y-auto">
-                <div className="flex justify-between items-center mb-3 border-b border-sky-500/30 pb-2">
-                  <h3 className="font-black text-sky-300 text-sm">Avatar & Element wählen</h3>
-                  <button onClick={() => setShowAvatarModal(false)} className="text-xs bg-slate-800 text-sky-300 px-3 py-1 rounded-lg font-bold">Fertig</button>
-                </div>
-
-                <div className="space-y-4 pb-4">
-                  <div className="text-[11px] text-slate-400">
-                    Wähle dein aktives Element. Jedes gewonnene Spiel levelt dein gewähltes Element auf!
-                  </div>
-
-                  <div className="grid grid-cols-4 gap-2">
-                    {Object.values(SUITS).map(s => {
-                      const isSelected = profile.activeSuit === s.key;
-                      const lvl = profile.elementLevels?.[s.key]?.level || 1;
-                      return (
-                        <button
-                          key={s.key}
-                          onClick={() => {
-                            const updated = { ...profile, activeSuit: s.key };
-                            setProfile(updated);
-                            localStorage.setItem('wizard_profile', JSON.stringify(updated));
-                          }}
-                          className={`p-2.5 rounded-xl border flex flex-col items-center gap-1 text-xs font-bold transition-all ${isSelected ? 'border-sky-400 bg-sky-950 text-sky-200 shadow-lg' : 'border-slate-800 bg-slate-900 text-slate-400'}`}
-                        >
-                          <span className="truncate">{s.name}</span>
-                          <span className="text-amber-400 text-[10px]">Lvl {lvl}</span>
-                        </button>
-                      );
-                    })}
-                  </div>
-
-                  <div className="bg-slate-900/80 border border-slate-800 p-3 rounded-2xl space-y-2">
-                    <div className="text-xs font-bold text-sky-300 flex justify-between items-center">
-                      <span>Pfad für: {SUITS[activeSuitKey]?.title || 'WIND'}</span>
-                      <span className="text-[10px] text-amber-300">Level {elementLevel} / 15</span>
-                    </div>
-
-                    <div className="bg-slate-950 border border-slate-800 p-2 rounded-xl space-y-1">
-                      <div className="flex justify-between text-[10px] text-slate-400 font-bold">
-                        <span>Element-XP ({SUITS[activeSuitKey]?.name || 'Gelb'})</span>
-                        <span className="text-amber-400">{elementLevel >= 15 ? 'MAX' : `${elementXp} / ${xpNeededForNextElement} XP`}</span>
-                      </div>
-                      <div className="w-full h-2 bg-slate-900 rounded-full overflow-hidden border border-slate-800">
-                        <div className="h-full bg-gradient-to-r from-emerald-500 to-sky-400 transition-all duration-500" style={{ width: `${elementXpPercent}%` }}></div>
-                      </div>
-                    </div>
-
-                    <div className="grid grid-cols-4 gap-2 max-h-56 overflow-y-auto p-1">
-                      {getAvailableAvatarsForSuit(activeSuitKey, elementLevel).map((av, idx) => {
-                        const isCurrentActive = profile.selectedAvatar?.type === av.type && profile.selectedAvatar?.suit === av.suit && profile.selectedAvatar?.wizardIndex === av.wizardIndex && profile.selectedAvatar?.value === av.value;
-                        return (
-                          <div 
-                            key={idx}
-                            onClick={() => {
-                              if (av.unlocked) {
-                                const updated = { ...profile, selectedAvatar: av };
-                                setProfile(updated);
-                                localStorage.setItem('wizard_profile', JSON.stringify(updated));
-                              }
-                            }}
-                            className={`p-2 rounded-xl border flex flex-col items-center justify-center gap-1 relative transition-all aspect-square ${av.unlocked ? 'cursor-pointer hover:border-sky-400' : 'opacity-40 cursor-not-allowed'} ${isCurrentActive ? 'border-amber-400 bg-amber-950/40 shadow-lg' : 'border-slate-800 bg-slate-950'}`}
-                          >
-                            <div className="scale-90 origin-center flex items-center justify-center w-full h-full">
-                              {renderAvatarIcon(av, "w-12 h-12 text-base")}
-                            </div>
-                            {!av.unlocked && (
-                              <span className="absolute inset-0 bg-black/60 rounded-xl flex items-center justify-center text-xs font-black text-amber-400">
-                                LCK
-                              </span>
-                            )}
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            <div className="mythic-card p-4 rounded-2xl flex flex-col gap-3 my-auto items-center text-center shadow-2xl">
-              <div className="relative group cursor-pointer" onClick={() => setShowAvatarModal(true)}>
-                {renderAvatarIcon(profile.selectedAvatar, "w-20 h-20 text-3xl")}
-                <div className="absolute inset-0 rounded-full bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity text-[10px] font-bold text-sky-200">
-                  Ändern
-                </div>
-              </div>
-
-              <div className="w-full flex flex-col items-center">
-                {!isEditingName ? (
-                  <div className="flex items-center gap-2">
-                    <h3 className="text-lg font-black text-sky-200">{profile.name}</h3>
-                    <button 
-                      onClick={() => { setIsEditingName(true); setNameInput(profile.name); setNameError(''); }}
-                      className="text-xs text-sky-400 bg-slate-900 border border-sky-500/30 px-2 py-0.5 rounded-lg font-bold"
+            <div className="mythic-card p-4 rounded-2xl flex flex-col gap-4 my-auto">
+              <div>
+                <label className="text-xs font-bold text-sky-200 block mb-2">Spieleranzahl:</label>
+                <div className="grid grid-cols-4 gap-2">
+                  {[3, 4, 5, 6].map(num => (
+                    <button
+                      key={num}
+                      onClick={() => setPlayerCount(num)}
+                      className={`py-2.5 rounded-xl font-bold text-sm crystal-btn ${playerCount === num ? 'crystal-active text-white' : 'bg-slate-900 text-slate-400'}`}
                     >
-                      Bearbeiten
+                      {num}
                     </button>
-                  </div>
-                ) : (
-                  <div className="w-full flex flex-col gap-2">
-                    <input
-                      type="text"
-                      value={nameInput}
-                      onChange={(e) => { setNameInput(e.target.value); setNameError(''); }}
-                      placeholder="Dein Name..."
-                      maxLength={16}
-                      className="w-full bg-slate-900 border border-sky-400 text-sky-100 p-2 rounded-xl text-center font-bold text-sm focus:outline-none"
-                    />
-                    {nameError && <span className="text-[10px] text-red-400 font-bold">{nameError}</span>}
-                    <div className="flex gap-2">
-                      <button onClick={handleSaveName} className="flex-1 py-1.5 mythic-btn-primary text-white text-xs font-bold rounded-lg">Speichern</button>
-                      <button onClick={() => { setIsEditingName(false); setNameError(''); }} className="flex-1 py-1.5 bg-slate-800 text-slate-300 text-xs font-bold rounded-lg">Abbrechen</button>
-                    </div>
-                  </div>
-                )}
-                
-                <span className="text-xs font-bold text-amber-400 mt-0.5">Level {globalLevel}</span>
-                
-                <div className="w-full bg-slate-900 border border-slate-800 p-2 rounded-xl mt-2 text-left space-y-1">
-                  <div className="flex justify-between text-[10px] text-slate-400 font-bold">
-                    <span>Gesamt-XP</span>
-                    <span className="text-amber-400">{globalLevel >= 999 ? 'MAX' : `${globalXp} / ${xpNeededForNextGlobal} XP`}</span>
-                  </div>
-                  <div className="w-full h-2 bg-slate-950 rounded-full overflow-hidden border border-slate-800">
-                    <div className="h-full bg-gradient-to-r from-amber-500 to-sky-400 transition-all duration-500" style={{ width: `${xpProgressPercent}%` }}></div>
-                  </div>
+                  ))}
                 </div>
               </div>
 
-              <div className="w-full bg-slate-900/90 border border-slate-800 p-3 rounded-xl text-left space-y-1.5 text-xs shadow-inner">
-                <div className="font-extrabold text-sky-300 border-b border-slate-800 pb-1 flex justify-between items-center">
-                  <span>Offline-Duelle (KI)</span>
-                  <span className="text-[10px] text-slate-400 font-normal">Siegquote: {offWinrate}%</span>
+              <div>
+                <label className="text-xs font-bold text-sky-200 block mb-2">Rundenanzahl:</label>
+                <div className="grid grid-cols-3 gap-2">
+                  {[5, 10, 15].map(num => (
+                    <button
+                      key={num}
+                      onClick={() => setMaxRounds(num)}
+                      className={`py-2.5 rounded-xl font-bold text-xs crystal-btn ${maxRounds === num ? 'crystal-active text-white' : 'bg-slate-900 text-slate-400'}`}
+                    >
+                      {num} Runden
+                    </button>
+                  ))}
                 </div>
-                <div className="flex justify-between"><span className="text-slate-400">Gespielte Matches:</span><span className="font-bold text-sky-200">{offPlayed}</span></div>
-                <div className="flex justify-between"><span className="text-slate-400">Siege:</span><span className="font-bold text-emerald-400">{offWins}</span></div>
-                <div className="flex justify-between"><span className="text-slate-400">Niederlagen:</span><span className="font-bold text-red-400">{offLosses}</span></div>
               </div>
 
-              <div className="w-full bg-purple-950/30 border border-purple-500/20 p-3 rounded-xl text-left space-y-1.5 text-xs shadow-inner">
-                <div className="font-extrabold text-purple-300 border-b border-purple-500/20 pb-1 flex justify-between items-center">
-                  <span>Online-Duelle</span>
-                  <span className="text-[10px] text-purple-400 font-normal">Siegquote: {onWinrate}%</span>
+              <div>
+                <label className="text-xs font-bold text-sky-200 block mb-2">KI-Schwierigkeit:</label>
+                <div className="grid grid-cols-3 gap-2">
+                  {['Leicht', 'Normal', 'Magisch'].map(diff => (
+                    <button
+                      key={diff}
+                      onClick={() => setDifficulty(diff)}
+                      className={`py-2.5 rounded-xl font-bold text-xs crystal-btn ${difficulty === diff ? 'crystal-active text-white' : 'bg-slate-900 text-slate-400'}`}
+                    >
+                      {diff}
+                    </button>
+                  ))}
                 </div>
-                <div className="flex justify-between"><span className="text-slate-400">Gespielte Matches:</span><span className="font-bold text-purple-200">{onPlayed}</span></div>
-                <div className="flex justify-between"><span className="text-slate-400">Siege:</span><span className="font-bold text-emerald-400">{onWins}</span></div>
-                <div className="flex justify-between"><span className="text-slate-400">Niederlagen:</span><span className="font-bold text-red-400">{onLosses}</span></div>
               </div>
             </div>
 
-            <button onClick={() => setScreen('menu')} className="w-full py-3 mythic-btn-primary text-white font-bold rounded-xl mt-2">Zurück zum Hauptmenü</button>
+            <button
+              onClick={launchGameExecution}
+              className="w-full py-4 rounded-2xl mythic-btn-primary text-white font-black text-base shadow-2xl mt-4"
+            >
+              Duell starten
+            </button>
           </div>
         );
       }
 
-      // ---------------- 4. ONLINE-LOBBY ----------------
-      if (screen === 'multiplayer') {
-        return (
-          <div onClick={handleUserInteraction} className="flex flex-col h-full max-w-md mx-auto p-4 justify-between bg-slate-950 overflow-y-auto">
-            <div className="flex justify-between items-center mb-2">
-              <h2 className="text-xl font-black text-sky-300">Online-Lobby</h2>
-              <button onClick={() => setScreen('menu')} className="text-xs bg-slate-900 border border-slate-800 text-sky-300 px-3 py-1.5 rounded-lg font-bold">Zurück</button>
-            </div>
-
-            <div className="mythic-card p-5 rounded-2xl text-center space-y-4 my-auto">
-              <h3 className="font-bold text-sky-200 text-sm">Multiplayer-Schnittstelle</h3>
-              <p className="text-xs text-slate-400 leading-relaxed">Hier wirst du dich bald mit Freunden verbinden oder offene Räume suchen können.</p>
-            </div>
-
-            <button onClick={() => setScreen('menu')} className="w-full py-3 mythic-btn-primary text-white font-bold rounded-xl">Zurück zum Menü</button>
-          </div>
-        );
-      }
-
-      // ---------------- 5. REGELN ----------------
+      // --- REGELN ---
       if (screen === 'rules') {
         return (
-          <div onClick={handleUserInteraction} className="flex flex-col h-full max-w-md mx-auto p-4 justify-between bg-slate-950 overflow-y-auto">
+          <div className="flex flex-col h-full max-w-md mx-auto p-4 justify-between bg-slate-950 overflow-y-auto">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-xl font-bold text-sky-400">Spielregeln</h2>
               <button onClick={() => setScreen('menu')} className="text-xs bg-slate-800 text-sky-300 px-3 py-1.5 rounded-lg font-bold">Zurück</button>
             </div>
-
-            <div className="space-y-3 text-xs text-slate-300 leading-relaxed pb-4">
-              <div className="bg-slate-900 p-3 rounded-xl border border-slate-800 space-y-1">
-                <h3 className="font-bold text-sky-300 text-sm">1. Das Grundprinzip & Rundenablauf</h3>
-                <p>In jeder Runde erhält jeder Spieler eine bestimmte Anzahl an Karten (beginnend bei 1 Karte in Runde 1). Vor jedem Stich sagst du exakt voraus, wie viele Stiche du in dieser Runde gewinnen wirst. Das Ziel ist es, diese Ansage Punkt genau zu treffen.</p>
-              </div>
-
-              <div className="bg-slate-900 p-3 rounded-xl border border-slate-800 space-y-1">
-                <h3 className="font-bold text-sky-300 text-sm">2. Die Stich-Hierarchie</h3>
-                <p>Zauberer sind die mächtigsten Karten im Spiel und stechen alles. Der allererste ausgespielte Zauberer gewinnt den Stich bedingungslos. Narren sind die schwächsten Karten und verlieren immer, es sei denn, es werden ausschließlich Narren in einem Stich ausgespielt (dann gewinnt der erste Narr).</p>
-              </div>
-
-              <div className="bg-slate-900 p-3 rounded-xl border border-slate-800 space-y-1">
-                <h3 className="font-bold text-sky-300 text-sm">3. Farbzwang & Trumpf</h3>
-                <p>Es herrscht Farbzwang: Du musst die ausgespielte Leitfarbe bedienen, sofern du sie auf der Hand hast. Kannst du nicht bekennen, darfst du eine andere Farbe oder einen Trumpf spielen. Die aufgedeckte Trumpfkarte sticht jede Fehlfarbe. Innerhalb der Farbe oder des Trumpfs entscheidet die höhere Zahl.</p>
-              </div>
-
-              <div className="bg-slate-900 p-3 rounded-xl border border-slate-800 space-y-1">
-                <h3 className="font-bold text-sky-300 text-sm">4. Wertung & Punkte</h3>
-                <p>Triffst du deine Ansage exakt, erhältst du 20 Basispunkte plus 10 Punkte für jeden gewonnenen Stich. Liegst du daneben (zu viele oder zu wenige Stiche), gibt es Minuspunkte entsprechend der Differenz zu deiner Ansage.</p>
-              </div>
+            <div className="space-y-3 text-xs text-slate-300 leading-relaxed my-auto">
+              <p>Sagt vor jeder Runde exakt voraus, wie viele Stiche ihr gewinnen werdet. Zauberer schlagen alles, Narren verlieren immer.</p>
             </div>
-
             <button onClick={() => setScreen('menu')} className="w-full py-3 mythic-btn-primary text-white font-bold rounded-xl">Zurück zum Menü</button>
           </div>
         );
       }
 
-      // ---------------- 6. SPIELFELD ----------------
+      // --- PROFIL ---
+      if (screen === 'profile') {
+        return (
+          <div className="flex flex-col h-full max-w-md mx-auto p-4 justify-between bg-slate-950 overflow-y-auto">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-xl font-black text-sky-300">Profil</h2>
+              <button onClick={() => setScreen('menu')} className="text-xs bg-slate-900 border border-slate-800 text-sky-300 px-3 py-1.5 rounded-lg font-bold">Zurück</button>
+            </div>
+            <div className="mythic-card p-4 rounded-2xl text-center space-y-2 my-auto">
+              <h3 className="font-bold text-sky-200 text-sm">{profile.name}</h3>
+              <p className="text-xs text-amber-400">Level {profile.level}</p>
+            </div>
+            <button onClick={() => setScreen('menu')} className="w-full py-3 mythic-btn-primary text-white font-bold rounded-xl">Zurück zum Menü</button>
+          </div>
+        );
+      }
+
+      // --- SPIELFELD ---
       const humanPlayer = players[0] || {};
       const isHumanTurn = (turn === 0);
 
       return (
         <div onClick={handleUserInteraction} className="flex flex-col h-full max-w-md mx-auto p-2 justify-between bg-slate-950 relative overflow-hidden">
           
-          {showExitConfirm && (
-            <div className="absolute inset-0 bg-slate-950/95 backdrop-blur-md z-50 flex flex-col items-center justify-center p-4 text-center select-none overflow-y-auto">
-              <div className="w-full max-w-xs mythic-card p-5 rounded-3xl flex flex-col items-center gap-4 my-auto shadow-2xl border border-sky-500/40">
-                <div className="space-y-1">
-                  <h3 className="text-base font-black text-sky-200">Duell wirklich abbrechen?</h3>
-                  <p className="text-xs text-slate-400 leading-relaxed">Dein aktueller Fortschritt in dieser Partie geht dabei verloren.</p>
-                </div>
-
-                <div className="flex gap-2 w-full pt-2">
-                  <button onClick={finishGameAndGoMenu} className="flex-1 py-3 bg-red-950/80 hover:bg-red-900 border border-red-500/50 text-red-200 font-black text-xs rounded-xl active:scale-95 transition-transform shadow-lg">Ja, beenden</button>
-                  <button onClick={() => setShowExitConfirm(false)} className="flex-1 py-3 mythic-btn-primary text-white font-black text-xs rounded-xl active:scale-95 transition-transform shadow-lg">Nein, weiter</button>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {showDiceModal && !showExitConfirm && (
-            <div onClick={handleDiceOverlayClick} className="absolute inset-0 bg-slate-950/95 backdrop-blur-md z-50 flex flex-col items-center justify-center p-4 text-center cursor-pointer select-none overflow-y-auto">
-              <div className="w-full max-w-xs flex flex-col items-center gap-3 my-auto">
-                <div>
-                  <h2 className="text-xl font-black text-sky-300">Duell-Eröffnung</h2>
-                  <p className="text-xs text-slate-400 mt-0.5">Wer schlägt das erste Kapitel auf?</p>
-                </div>
-
-                <div className={`w-24 h-24 rounded-3xl bg-gradient-to-b from-sky-500 to-sky-800 border-2 border-sky-300 shadow-2xl flex items-center justify-center text-3xl font-black my-1 transition-transform ${isDiceRolling ? 'animate-dice-active' : 'shadow-sky-500/30'}`}>
+          {showDiceModal && (
+            <div onClick={handleUserRollDice} className="absolute inset-0 bg-slate-950/95 backdrop-blur-md z-50 flex flex-col items-center justify-center p-4 text-center cursor-pointer">
+              <div className="w-full max-w-xs flex flex-col items-center gap-4">
+                <h2 className="text-xl font-black text-sky-300">Duell-Eröffnung</h2>
+                <div className="w-24 h-24 rounded-3xl bg-gradient-to-b from-sky-500 to-sky-800 border-2 border-sky-300 flex items-center justify-center text-3xl font-black shadow-2xl">
                   {isDiceRolling ? '...' : diceRolls ? diceRolls[0] : '?'}
                 </div>
-
-                {!diceRolls && !isDiceRolling && (
-                  <div className="flex flex-col items-center gap-1">
-                    <span className="text-xs font-black text-amber-400 animate-pulse">Tippe auf den Bildschirm zum Würfeln</span>
-                    <span className="text-[11px] text-sky-400 font-extrabold bg-sky-950 px-3 py-1 rounded-full border border-sky-500/30">Auto-Würfeln in {diceTimer}s</span>
-                  </div>
-                )}
-
-                {diceRolls && (
-                  <div className="w-full bg-slate-900 border border-slate-800 p-3 rounded-2xl space-y-2 text-xs shadow-2xl animate-fadeIn">
-                    <div className="font-bold text-sky-300 border-b border-slate-800 pb-1 text-xs">Augenzahlen aller Spieler:</div>
-                    <div className="grid grid-cols-2 gap-2">
-                      {players.map((p, idx) => (
-                        <div key={p.id} className={`p-1.5 rounded-xl flex justify-between items-center ${diceWinner === idx ? 'bg-sky-950 border border-sky-400 text-sky-200' : 'bg-slate-950/60 text-slate-400'}`}>
-                          <span className="font-bold truncate text-xs">{p.name}:</span>
-                          <span className="font-black text-amber-400 text-xs">{diceRolls[idx]}</span>
-                        </div>
-                      ))}
-                    </div>
-
-                    <div className="bg-emerald-950/80 border border-emerald-500/50 p-2 rounded-xl text-center text-xs text-emerald-300 mt-2 font-bold">
-                      {players[diceWinner]?.name} gewinnt und beginnt Runde 1!
-                    </div>
-
-                    <div className="pt-2 flex flex-col items-center gap-1 border-t border-slate-800 mt-2">
-                      <button onClick={(e) => { e.stopPropagation(); startRoundAfterDice(); }} className="w-full py-3 mythic-btn-primary text-white font-black text-xs rounded-xl shadow-2xl active:scale-95 transition-transform flex items-center justify-center gap-2">
-                        <span>Weiter zum Spiel</span>
-                        <span className="bg-sky-950/80 border border-sky-400/60 px-2 py-0.5 rounded-md text-[11px] font-bold text-amber-300">{resultTimer}s</span>
-                      </button>
-                      <span className="text-[10px] text-slate-400 font-bold">Automatisch weiter in {resultTimer} Sekunden</span>
-                    </div>
-                  </div>
+                {!diceRolls ? (
+                  <span className="text-xs font-black text-amber-400 animate-pulse">Tippe zum Würfeln!</span>
+                ) : (
+                  <button onClick={startRoundAfterDice} className="w-full py-3 mythic-btn-primary text-white font-black text-xs rounded-xl">
+                    Spiel starten ({players[diceWinner]?.name} beginnt)
+                  </button>
                 )}
               </div>
             </div>
           )}
 
-          {roundSummary && !showExitConfirm && (
-            <div onClick={proceedToNextRound} className="absolute inset-0 bg-slate-950/95 backdrop-blur-md z-50 flex flex-col items-center justify-center p-4 cursor-pointer select-none overflow-y-auto">
-              <div className="w-full max-w-xs flex flex-col items-center gap-3 my-auto">
+          {roundSummary && (
+            <div onClick={proceedToNextRound} className="absolute inset-0 bg-slate-950/95 backdrop-blur-md z-50 flex flex-col items-center justify-center p-4 cursor-pointer">
+              <div className="w-full max-w-xs flex flex-col items-center gap-3">
                 <h2 className="text-xl font-black text-sky-300">Ergebnis Runde {roundSummary.round}</h2>
                 <div className="w-full space-y-2">
                   {roundSummary.calculatedPlayers.map(p => (
@@ -2113,180 +1232,74 @@
                       </div>
                     </div>
                   ))}
-
-                  <div className="bg-sky-950/80 border border-sky-400/50 p-3 rounded-2xl text-center text-xs text-sky-200 mt-3 font-bold space-y-2.5 shadow-2xl">
-                    <div>{roundSummary.calculatedPlayers.find(p => p.id === roundSummary.nextStarterId)?.name} beginnt Runde {roundSummary.round + 1}!</div>
-                    <div className="pt-2 border-t border-sky-500/30 flex flex-col items-center gap-1">
-                      <button onClick={(e) => { e.stopPropagation(); proceedToNextRound(); }} className="w-full py-2.5 mythic-btn-primary text-white font-black text-xs rounded-xl shadow-xl active:scale-95 transition-transform flex items-center justify-center gap-2">
-                        <span>Nächste Runde starten</span>
-                        <span className="bg-sky-950/90 border border-sky-400/60 px-2 py-0.5 rounded-md text-[11px] font-bold text-amber-300">{summaryTimer}s</span>
-                      </button>
-                      <span className="text-[10px] text-slate-400 font-bold">Automatisch weiter in {summaryTimer} Sekunden</span>
-                    </div>
-                  </div>
+                  <button onClick={proceedToNextRound} className="w-full py-3 mythic-btn-primary text-white font-black text-xs rounded-xl mt-3">
+                    Nächste Runde starten
+                  </button>
                 </div>
               </div>
             </div>
           )}
 
-          {victoryData && !showExitConfirm && (() => {
-            const winner = victoryData[0] || {};
-            const winnerAvatar = winner.avatarObj || profile.selectedAvatar;
-            const winnerSuitKey = winnerAvatar?.suit || 'yellow';
-            const suitTheme = SUITS[winnerSuitKey] || SUITS.yellow;
-
-            return (
-              <div onClick={finishGameAndGoMenu} className="absolute inset-0 bg-slate-950/95 backdrop-blur-md z-50 flex flex-col items-center justify-between p-4 cursor-pointer select-none overflow-y-auto">
-                <div className="text-center mt-2">
-                  <h2 className="text-2xl font-black drop-shadow tracking-widest" style={{ color: suitTheme.primaryColor }}>SIEGEREHRUNG</h2>
-                  <p className="text-xs text-sky-300 font-bold mt-0.5">Das große Turnier ist zu Ende</p>
-                </div>
-
-                <div className="my-auto flex flex-col items-center w-full">
-                  <div className="relative flex flex-col items-center mb-3">
-                    
-                    <div className="relative z-20 flex flex-col items-center">
-                      <div className="absolute -top-7 animate-bounce drop-shadow z-30">
-                        {suitTheme.crownSvg}
-                      </div>
-                      
-                      <div className="w-24 h-24 rounded-full border-4 p-1 flex items-center justify-center shadow-2xl bg-slate-900 relative overflow-visible mt-2" style={{ borderColor: suitTheme.primaryColor, boxShadow: `0 0 35px ${suitTheme.glowColor}` }}>
-                        <div className="absolute top-0 inset-x-0 h-8 bg-gradient-to-b from-white/20 to-transparent rounded-t-full pointer-events-none z-10"></div>
-                        <div className="w-full h-full rounded-full overflow-hidden flex items-center justify-center">
-                          {renderAvatarIcon(winnerAvatar, "w-full h-full")}
-                        </div>
-                      </div>
-                    </div>
-                    
-                    <div 
-                      className={`w-48 h-20 mt-[-16px] flex flex-col items-center justify-center element-podium-active z-10 ${suitTheme.podiumClass} ${winnerSuitKey === 'yellow' ? 'animate-tornado' : ''}`}
-                      style={{ '--glow-color': suitTheme.glowColor }}
-                    >
-                      <span className="text-xs font-black text-white uppercase tracking-wider drop-shadow mt-3">{winner.name}</span>
-                      <span className="text-sm font-black text-amber-300 drop-shadow">{winner.score} Ptn</span>
-                    </div>
-                  </div>
-
-                  <div className="w-full bg-slate-900 border border-slate-800 p-3 rounded-2xl space-y-2 text-xs">
-                    <div className="font-bold text-sky-300 mb-1 border-b border-slate-800 pb-1 text-center">Finale Rangliste:</div>
-                    {victoryData.map((p, idx) => (
-                      <div key={p.id} className={`p-2 rounded-xl flex justify-between items-center ${idx === 0 ? 'bg-slate-950/80 border text-white' : 'bg-slate-950/60 text-slate-300'}`} style={{ borderColor: idx === 0 ? suitTheme.primaryColor : undefined }}>
-                        <div className="flex items-center gap-2">
-                          <span className="font-black text-xs text-sky-400 w-4">#{idx + 1}</span>
-                          <div className="w-6 h-6 rounded-full overflow-hidden flex items-center justify-center">
-                            {renderAvatarIcon(p.avatarObj || profile.selectedAvatar, "w-full h-full")}
-                          </div>
-                          <span className="font-bold truncate">{p.name}</span>
-                        </div>
-                        <span className="font-black text-amber-400">{p.score} Ptn</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="w-full flex flex-col items-center gap-1 mb-2">
-                  <button onClick={finishGameAndGoMenu} className="w-full py-3.5 mythic-btn-primary text-white font-black text-sm rounded-2xl shadow-2xl active:scale-95 transition-transform">Zurück zum Hauptmenü</button>
-                  <span className="text-[11px] text-sky-400 font-extrabold bg-sky-950 px-3 py-1 rounded-full border border-sky-500/30">Schließt in {victoryTimer}s</span>
-                </div>
-              </div>
-            );
-          })()}
-
-          <div className="flex justify-between items-center mb-1 bg-slate-900/80 p-2 rounded-xl border border-slate-800">
-            <span className="text-xs font-bold text-sky-400">Runde {round} / {maxRounds}</span>
-            {phase === 'playing' && isHumanTurn && !isEvaluatingRef.current && !animatingCardId && !collectingWinnerId && !showDiceModal && !roundSummary && !victoryData && !showExitConfirm && (
-              <span className="text-[11px] font-extrabold text-amber-400 bg-amber-950/80 px-2.5 py-0.5 rounded-full border border-amber-500/40 animate-pulse">Dein Zug: {turnTimer}s</span>
-            )}
-            <div className="flex items-center gap-1.5">
-              <button onClick={handleToggleMusic} className="text-[10px] bg-slate-800 hover:bg-slate-700 active:scale-95 text-sky-300 border border-sky-500/30 px-2 py-1 rounded-lg font-bold transition-all shadow">
-                {isPlayingMusic ? '🎵' : '🔇'}
+          {victoryData && (
+            <div onClick={() => setScreen('menu')} className="absolute inset-0 bg-slate-950/95 backdrop-blur-md z-50 flex flex-col items-center justify-center p-4 cursor-pointer text-center">
+              <h2 className="text-2xl font-black text-amber-400 mb-2">TURNIER-SIEGER</h2>
+              <p className="text-base font-bold text-white mb-4">{victoryData[0]?.name} gewinnt mit {victoryData[0]?.score} Punkten!</p>
+              <button onClick={() => setScreen('menu')} className="py-3 px-6 mythic-btn-primary text-white font-black text-xs rounded-xl">
+                Zurück zum Menü
               </button>
-              <button onClick={() => setShowExitConfirm(true)} className="text-[10px] bg-slate-800 hover:bg-slate-700 active:scale-95 text-sky-300 border border-sky-500/30 px-2.5 py-1 rounded-lg font-bold transition-all shadow">Menü</button>
             </div>
+          )}
+
+          <div className="flex justify-between items-center bg-slate-900 p-2 rounded-xl border border-slate-800 text-xs font-bold text-sky-300">
+            <span>Runde {round} / {maxRounds}</span>
+            <button onClick={() => setScreen('menu')} className="bg-slate-800 px-2 py-1 rounded-lg">Menü</button>
           </div>
 
-          <div className="grid grid-cols-3 gap-1.5">
-            {players.filter(p => !p.isHuman).map(p => {
-              const isCurrentTurn = (turn === p.id);
-              const isWinnerCollecting = (collectingWinnerId === p.id);
-              return (
-                <div key={p.id} className={`p-1.5 rounded-xl border flex items-center gap-2 text-xs transition-all ${isCurrentTurn ? 'border-sky-400 bg-slate-800 shadow-lg shadow-sky-500/20' : 'border-slate-800 bg-slate-900/60'} ${isWinnerCollecting ? 'ring-2 ring-amber-400 bg-amber-950/40 shadow-[0_0_15px_#f59e0b]' : ''}`}>
-                  <div className="shrink-0 scale-75 origin-left">
-                    {renderAvatarIcon(p.avatarObj, "w-10 h-10 text-base")}
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <div className={`font-bold truncate text-[11px] ${isCurrentTurn ? 'text-sky-300' : 'text-slate-300'}`}>{isCurrentTurn ? `> ${p.name}` : p.name}</div>
-                    <div className="text-[10px] font-bold text-amber-400">{p.score} Ptn</div>
-                    <div className="text-[9px] text-slate-300">Ansage: {p.bid !== null ? p.bid : '?'} | Stiche: {p.tricks}</div>
-                  </div>
-                </div>
-              );
-            })}
+          <div className="grid grid-cols-3 gap-1.5 my-1">
+            {players.filter(p => !p.isHuman).map(p => (
+              <div key={p.id} className="p-1.5 rounded-xl border border-slate-800 bg-slate-900 text-xs">
+                <div className="font-bold text-sky-300 truncate text-[11px]">{p.name}</div>
+                <div className="text-[10px] text-amber-400">{p.score} Ptn</div>
+                <div className="text-[9px] text-slate-400">Ans: {p.bid ?? '?'} | St: {p.tricks}</div>
+              </div>
+            ))}
           </div>
 
-          <div className="flex-1 my-2 rounded-2xl border border-sky-500/40 p-2 flex flex-col justify-between items-center relative overflow-hidden shadow-2xl bg-slate-950">
-            <div className="absolute inset-0 z-0 pointer-events-none">
-              <img src="./1791660049147.jpg" alt="Spieltisch Hintergrund" className="w-full h-full object-cover" />
-              <div className="absolute inset-0 bg-slate-950/50 backdrop-brightness-90"></div>
-            </div>
-
-            <div className="flex items-center gap-2 z-10">
-              <span className="text-[10px] font-bold text-sky-300 uppercase drop-shadow">Trumpf:</span>
+          <div className="flex-1 my-2 rounded-2xl border border-sky-500/40 p-2 flex flex-col justify-between items-center relative bg-slate-950">
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] text-sky-300">Trumpf:</span>
               {trumpCard ? <CardFace card={trumpCard} size="sm" disabled /> : <CardBack size="sm" />}
             </div>
 
-            <div className="w-full flex-1 flex items-center justify-center p-2 relative z-10">
-              <div className={`grid grid-cols-2 gap-4 items-center justify-items-center ${collectingWinnerId !== null ? (collectingWinnerId === 0 ? 'animate-fly-to-bottom' : 'animate-fly-to-top') : ''}`}>
-                {playedCards.map((pc, i) => (
-                  <div key={i} className="flex flex-col items-center">
-                    <span className="text-[9px] text-sky-200 mb-0.5 drop-shadow">{players[pc.playerId]?.name}</span>
-                    <CardFace card={pc.card} size="sm" disabled />
-                  </div>
-                ))}
-              </div>
-
-              {animatingCardId && animatingCardObj && (
-                <div className="absolute inset-0 flex flex-col items-center justify-center z-40 bg-black/60 backdrop-blur-[2px]">
-                  <div className="relative flex flex-col items-center">
-                    {renderTcgElementAnimation(animatingCardObj)}
-                    <CardFace card={animatingCardObj} size="md" disabled className="animate-tcglike-slam mt-2" />
-                  </div>
+            <div className="flex gap-3">
+              {playedCards.map((pc, i) => (
+                <div key={i} className="flex flex-col items-center">
+                  <span className="text-[9px] text-sky-200">{players[pc.playerId]?.name}</span>
+                  <CardFace card={pc.card} size="sm" disabled />
                 </div>
-              )}
+              ))}
             </div>
 
-            {phase === 'bidding' && !showDiceModal && !roundSummary && !victoryData && !showExitConfirm && (
-              <div className="w-full bg-slate-900/95 border border-sky-500/50 p-3 rounded-2xl flex flex-col items-center gap-2 shadow-2xl backdrop-blur-md z-20">
-                <div className="flex justify-between items-center w-full px-1">
-                  <span className="text-xs font-bold text-sky-300">Deine Stich-Ansage für Runde {round}:</span>
-                  <span className="text-[10px] font-extrabold text-amber-400 bg-amber-950 px-2 py-0.5 rounded-full border border-sky-500/30">Noch {biddingTimer}s</span>
-                </div>
+            {phase === 'bidding' && !showDiceModal && (
+              <div className="w-full bg-slate-900/95 p-3 rounded-2xl flex flex-col items-center gap-2 border border-sky-500/50">
+                <span className="text-xs text-sky-300 font-bold">Deine Ansage für Runde {round}:</span>
                 <div className="flex gap-2 flex-wrap justify-center">
                   {Array.from({ length: round + 1 }, (_, i) => (
-                    <button key={i} onClick={() => handleHumanBid(i)} className="w-10 h-10 rounded-full bg-gradient-to-b from-sky-500 to-sky-700 text-white font-black text-base shadow-lg border border-sky-300 active:scale-90 transition-transform">{i}</button>
+                    <button key={i} onClick={() => handleHumanBid(i)} className="w-10 h-10 rounded-full bg-sky-600 text-white font-black text-base shadow">{i}</button>
                   ))}
                 </div>
               </div>
             )}
           </div>
 
-          <div className={`p-2 rounded-2xl border transition-all ${isHumanTurn && phase === 'playing' ? 'border-sky-400 bg-slate-800/90 shadow-xl shadow-sky-500/20 ring-1 ring-sky-400/50' : 'border-slate-800 bg-slate-900'} ${collectingWinnerId === 0 ? 'ring-2 ring-amber-400 bg-amber-950/40 shadow-[0_0_20px_#f59e0b]' : ''}`}>
-            <div className="flex justify-between items-center mb-1 px-1">
-              <div className="flex items-center gap-2">
-                <div className="shrink-0 scale-75 origin-left">
-                  {renderAvatarIcon(humanPlayer.avatarObj || profile.selectedAvatar, "w-8 h-8 text-sm")}
-                </div>
-                <span className={`text-xs font-bold ${isHumanTurn && phase === 'playing' ? 'text-sky-300 animate-pulse' : 'text-slate-300'}`}>
-                  {isHumanTurn && phase === 'playing' ? 'DEINE HAND:' : 'DEINE HAND:'}
-                </span>
-                <span className="text-xs font-extrabold text-amber-400 bg-amber-950/60 px-2 py-0.5 rounded-md border border-amber-500/30">{humanPlayer.score || 0} Ptn</span>
-              </div>
-              <span className="text-xs font-bold text-sky-400">Ansage: {humanPlayer.bid !== null ? humanPlayer.bid : '-'} | Stiche: {humanPlayer.tricks}</span>
+          <div className="p-2 rounded-2xl border border-slate-800 bg-slate-900">
+            <div className="flex justify-between text-xs font-bold text-sky-300 mb-1">
+              <span>{humanPlayer.name} (Stiche: {humanPlayer.tricks})</span>
+              <span>Ansage: {humanPlayer.bid ?? '-'} | {humanPlayer.score || 0} Ptn</span>
             </div>
-
             <div className="flex gap-1.5 overflow-x-auto pb-1 justify-center">
               {humanPlayer.hand && humanPlayer.hand.map((card, i) => (
-                <CardFace key={card.id || i} card={card} size="md" disabled={phase !== 'playing' || turn !== 0 || isEvaluatingRef.current || animatingCardId !== null || collectingWinnerId !== null || showExitConfirm} onClick={() => playCard(0, i)} />
+                <CardFace key={card.id || i} card={card} size="md" disabled={phase !== 'playing' || turn !== 0} onClick={() => playCard(0, i)} />
               ))}
             </div>
           </div>
