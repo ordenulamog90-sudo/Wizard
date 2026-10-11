@@ -516,7 +516,19 @@
       const suitInfo = SUITS[card.suit] || {};
 
       const cornerText = isWizard ? 'Z' : isJester ? 'N' : card.value;
-      const artComponent = isWizard ? CardArt.wizard : isJester ? CardArt.jester : suitInfo.art;
+
+      // Farbschema für Eckzahlen je nach Farbe/Typ
+      let cornerColorClass = 'text-amber-300';
+      if (isWizard) cornerColorClass = 'text-purple-300 drop-shadow-[0_0_8px_rgba(168,85,247,0.8)]';
+      else if (isJester) {
+        if (card.suit === 'blue') cornerColorClass = 'text-sky-300 drop-shadow-[0_0_8px_rgba(56,189,248,0.8)]';
+        else if (card.suit === 'red') cornerColorClass = 'text-rose-400 drop-shadow-[0_0_8px_rgba(244,63,94,0.8)]';
+        else cornerColorClass = 'text-amber-300 drop-shadow-[0_0_8px_rgba(245,158,11,0.8)]';
+      }
+      else if (card.suit === 'blue') cornerColorClass = 'text-sky-300 drop-shadow-[0_0_8px_rgba(56,189,248,0.8)]';
+      else if (card.suit === 'red') cornerColorClass = 'text-rose-400 drop-shadow-[0_0_8px_rgba(244,63,94,0.8)]';
+      else if (card.suit === 'green') cornerColorClass = 'text-emerald-300 drop-shadow-[0_0_8px_rgba(16,185,129,0.8)]';
+      else if (card.suit === 'yellow') cornerColorClass = 'text-amber-300 drop-shadow-[0_0_8px_rgba(245,158,11,0.8)]';
 
       const bgStyle = isWizard
         ? 'from-purple-950 via-indigo-950 to-slate-950 border-amber-300'
@@ -577,12 +589,6 @@
       const isYellowTwelve = card.type === 'number' && card.suit === 'yellow' && card.value === 12;
       const isYellowThirteen = card.type === 'number' && card.suit === 'yellow' && card.value === 13;
 
-      const hasCustomImage = 
-        isBlueWizard || isRedWizard || isYellowWizard || isBlueJester || isRedJester || isYellowJester || 
-        isBlueOne || isBlueTwo || isBlueThree || isBlueFour || isBlueFive || isBlueSix || isBlueSeven || isBlueEight || isBlueNine || isBlueTen || isBlueEleven || isBlueTwelve || isBlueThirteen ||
-        isRedOne || isRedTwo || isRedThree || isRedFour || isRedFive || isRedSix || isRedSeven || isRedEight || isRedNine || isRedTen || isRedEleven || isRedTwelve || isRedThirteen ||
-        isYellowOne || isYellowTwo || isYellowThree || isYellowFour || isYellowFive || isYellowSix || isYellowSeven || isYellowEight || isYellowNine || isYellowTen || isYellowEleven || isYellowTwelve || isYellowThirteen;
-
       return (
         <div 
           onClick={!disabled ? onClick : undefined}
@@ -640,29 +646,17 @@
           {isYellowTwelve && <div className="absolute inset-0 z-0 overflow-hidden"><img src="./1791705766319.jpg" alt="Gelb 12" className="w-full h-full object-cover" /><div className="absolute inset-0 bg-amber-950/15 backdrop-brightness-95"></div></div>}
           {isYellowThirteen && <div className="absolute inset-0 z-0 overflow-hidden"><img src="./1791705774151.jpg" alt="Gelb 13" className="w-full h-full object-cover" /><div className="absolute inset-0 bg-amber-950/15 backdrop-brightness-95"></div></div>}
 
-          {!hasCustomImage && (
-            <div className="w-full flex justify-between font-black text-amber-300 text-xs drop-shadow z-10">
-              <span>{cornerText}</span>
-              <span>{cornerText}</span>
-            </div>
-          )}
+          <div className={`w-full flex justify-between font-black text-xs drop-shadow z-10 px-0.5 ${cornerColorClass}`}>
+            <span>{cornerText}</span>
+            <span>{cornerText}</span>
+          </div>
 
-          {!hasCustomImage ? (
-            <div className="card-art-box w-full flex-1 my-0.5 rounded-lg p-0.5 flex flex-col items-center justify-center relative overflow-hidden z-10">
-              <div className="w-full h-full flex items-center justify-center">
-                {artComponent}
-              </div>
-            </div>
-          ) : (
-            <div className="flex-1 my-0.5 w-full flex items-center justify-center z-10"></div>
-          )}
+          <div className="flex-1 my-0.5 w-full flex items-center justify-center z-10"></div>
 
-          {!hasCustomImage && (
-            <div className="w-full flex justify-between font-black text-amber-300 text-xs drop-shadow rotate-180 z-10">
-              <span>{cornerText}</span>
-              <span>{cornerText}</span>
-            </div>
-          )}
+          <div className={`w-full flex justify-between font-black text-xs drop-shadow rotate-180 z-10 px-0.5 ${cornerColorClass}`}>
+            <span>{cornerText}</span>
+            <span>{cornerText}</span>
+          </div>
         </div>
       );
     }
@@ -1369,7 +1363,7 @@
               </div>
 
               <span className="text-[9px] text-center text-slate-300 font-bold block mt-2 drop-shadow bg-slate-950/70 py-1 rounded-full backdrop-blur-md border border-sky-500/30">
-                MYTHOS CARD GAME V10.42
+                MYTHOS CARD GAME V10.43
               </span>
             </div>
           </div>
