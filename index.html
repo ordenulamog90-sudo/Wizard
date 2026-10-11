@@ -1585,7 +1585,7 @@
               </button>
 
               <span className="text-[9px] text-center text-slate-300 font-bold block mt-2 drop-shadow bg-slate-950/70 py-1 rounded-full backdrop-blur-md border border-sky-500/30">
-                MYTHOS CARD GAME V10.87
+                MYTHOS CARD GAME V10.88
               </span>
             </div>
           </div>
@@ -1947,7 +1947,7 @@
       const isHumanTurn = (turn === 0);
 
       return (
-        <div onClick={handleUserInteraction} className="w-full h-full flex flex-col justify-between p-1.5 bg-slate-950 relative overflow-hidden box-border">
+        <div onClick={handleUserInteraction} className="w-full h-full flex flex-col justify-between p-1.5 pb-2.5 bg-slate-950 relative overflow-hidden box-border">
           
           {showExitConfirm && (
             <div className="absolute inset-0 bg-slate-950/95 backdrop-blur-md z-50 flex flex-col items-center justify-center p-4 text-center select-none overflow-y-auto">
@@ -2112,7 +2112,7 @@
           })()}
 
           {/* OBERER BEREICH: Rundeninfo & Menü */}
-          <div className="flex justify-between items-center bg-slate-900/90 px-3 py-1 rounded-xl border border-slate-800 shrink-0 shadow">
+          <div className="flex justify-between items-center bg-slate-900/90 px-3 py-1 rounded-xl border border-slate-800 shrink-0 shadow mb-1">
             <span className="text-xs font-bold text-sky-400">Runde {round} / {maxRounds}</span>
             {phase === 'playing' && isHumanTurn && !isEvaluatingRef.current && !animatingCardId && !collectingWinnerId && !showDiceModal && !roundSummary && !victoryData && !showExitConfirm && (
               <span className="text-[11px] font-extrabold text-amber-400 bg-amber-950/90 px-2.5 py-0.5 rounded-full border border-amber-500/40 animate-pulse">Dein Zug: {turnTimer}s</span>
@@ -2121,7 +2121,7 @@
           </div>
 
           {/* GEGNER-LEISTE */}
-          <div className="grid grid-cols-3 gap-1.5 shrink-0 my-0.5">
+          <div className="grid grid-cols-3 gap-1.5 shrink-0 mb-1">
             {players.filter(p => !p.isHuman).map(p => {
               const isCurrentTurn = (turn === p.id);
               const isWinnerCollecting = (collectingWinnerId === p.id);
@@ -2141,7 +2141,7 @@
           </div>
 
           {/* HAUPT-SPIELFELD */}
-          <div className="flex-1 rounded-2xl border border-sky-500/40 p-1.5 flex flex-col justify-between items-center relative overflow-hidden shadow-2xl bg-slate-950 my-0.5">
+          <div className="flex-1 rounded-2xl border border-sky-500/40 p-1.5 flex flex-col justify-between items-center relative overflow-hidden shadow-2xl bg-slate-950 mb-1">
             <div className="absolute inset-0 z-0 pointer-events-none">
               <img src="./1791660049147.jpg" alt="Spieltisch Hintergrund" className="w-full h-full object-cover" />
               <div className="absolute inset-0 bg-slate-950/40 backdrop-brightness-95"></div>
@@ -2174,7 +2174,7 @@
             </div>
 
             {/* UNTERER BEREICH IM TISCH (Ansagen-Auswahl) */}
-            <div className="w-full h-12 flex items-center justify-center z-20 shrink-0">
+            <div className="w-full h-11 flex items-center justify-center z-20 shrink-0">
               {phase === 'bidding' && !showDiceModal && !roundSummary && !victoryData && !showExitConfirm ? (
                 <div className="w-full bg-slate-900/95 border border-sky-500/50 p-1.5 rounded-xl flex flex-col items-center gap-1 shadow-2xl backdrop-blur-md">
                   <div className="flex justify-between items-center w-full px-1">
@@ -2191,8 +2191,8 @@
             </div>
           </div>
 
-          {/* DEINE HANDKARTEN */}
-          <div className={`p-2 rounded-2xl border transition-all shrink-0 ${isHumanTurn && phase === 'playing' ? 'border-sky-400 bg-slate-800/95 shadow-2xl shadow-sky-500/30 ring-2 ring-sky-400/60' : 'border-slate-800 bg-slate-900'} ${collectingWinnerId === 0 ? 'ring-2 ring-amber-400 bg-amber-950/40 shadow-[0_0_20px_#f59e0b]' : ''}`}>
+          {/* DEINE HANDKARTEN (Etwas höher gerutscht für optimale Sichtbarkeit) */}
+          <div className={`p-2 rounded-2xl border transition-all shrink-0 mb-1 ${isHumanTurn && phase === 'playing' ? 'border-sky-400 bg-slate-800/95 shadow-2xl shadow-sky-500/30 ring-2 ring-sky-400/60' : 'border-slate-800 bg-slate-900'} ${collectingWinnerId === 0 ? 'ring-2 ring-amber-400 bg-amber-950/40 shadow-[0_0_20px_#f59e0b]' : ''}`}>
             <div className="flex justify-between items-center mb-1 px-1">
               <div className="flex items-center gap-2">
                 <div className="shrink-0 scale-75 origin-left">
