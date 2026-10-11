@@ -170,11 +170,12 @@
   <script type="text/babel">
     const { useState, useEffect, useRef } = React;
 
-    // --- SOUND & MUSIC ENGINE ---
+    // --- GLOBAL SOUND & MUSIC ENGINE (Zentrale Instanz für dauerhaften Loop) ---
     class SoundEngine {
       constructor() {
         this.ctx = null;
         this.bgMusic = null;
+        this.isInitialized = false;
       }
       init() {
         if (!this.ctx) {
@@ -186,12 +187,18 @@
         if (this.ctx && this.ctx.state === 'suspended') {
           this.ctx.resume();
         }
-      }
-      setupMusic(url, volume = 0.5) {
-        if (!this.bgMusic && url) {
-          this.bgMusic = new Audio(url);
+
+        // Musik einmalig global initialisieren und starten
+        if (!this.bgMusic) {
+          this.bgMusic = new Audio('./Mythos%20main%20menu.mp3');
           this.bgMusic.loop = true;
-          this.bgMusic.volume = volume;
+          this.bgMusic.volume = 0.5;
+        }
+
+        if (this.bgMusic && this.bgMusic.paused) {
+          this.bgMusic.play().then(() => {
+            this.isInitialized = true;
+          }).catch(e => console.log("Autoplay waiting for interaction"));
         }
       }
       setMusicVolume(volume) {
@@ -199,9 +206,17 @@
           this.bgMusic.volume = volume;
         }
       }
-      playMusic() {
-        if (this.bgMusic && this.bgMusic.paused) {
-          this.bgMusic.play().catch(e => console.log("Autoplay waiting for interaction"));
+      togglePlay() {
+        if (!this.bgMusic) {
+          this.init();
+          return true;
+        }
+        if (this.bgMusic.paused) {
+          this.bgMusic.play();
+          return true;
+        } else {
+          this.bgMusic.pause();
+          return false;
         }
       }
       playCardSound(volume = 0.5) {
@@ -862,6 +877,7 @@
       const [screen, setScreen] = useState('menu');
       const [showExitConfirm, setShowExitConfirm] = useState(false);
       const [showAvatarModal, setShowAvatarModal] = useState(false);
+      const [isPlayingMusic, setIsPlayingMusic] = useState(true);
 
       const [soundVolume, setSoundVolume] = useState(() => {
         const saved = localStorage.getItem('wizard_sound_vol');
@@ -869,9 +885,14 @@
       });
 
       useEffect(() => {
-        // Suno-Musik-Link direkt eingebunden
-        soundEngine.setupMusic("https://suno.com/s/zMVr375bxKindDRG", soundVolume);
+        // Initiale Musik-Aktivierung beim ersten Laden
+        soundEngine.init();
       }, []);
+
+      const handleToggleMusic = () => {
+        const playing = soundEngine.togglePlay();
+        setIsPlayingMusic(playing);
+      };
 
       const handleVolumeChange = (newVol) => {
         setSoundVolume(newVol);
@@ -879,13 +900,11 @@
         soundEngine.setMusicVolume(newVol);
         if (newVol > 0) {
           soundEngine.playCardSound(newVol);
-          soundEngine.playMusic();
         }
       };
 
       const handleUserInteraction = () => {
         soundEngine.init();
-        soundEngine.playMusic();
       };
       
       const [profile, setProfile] = useState(() => {
@@ -1586,10 +1605,18 @@
       // ---------------- 1. HAUPTMENÜ ----------------
       if (screen === 'menu') {
         return (
-          <div className="relative w-full h-full bg-slate-950 flex items-center justify-center p-4 overflow-hidden">
+          <div onClick={handleUserInteraction} className="relative w-full h-full bg-slate-950 flex items-center justify-center p-4 overflow-hidden">
             <div className="absolute inset-0 z-0 flex items-center justify-center">
               <img src="./1791640481183.jpg" alt="Mythos Background" className="w-full h-full object-cover drop-shadow-2xl" />
             </div>
+
+            {/* Musik-Toggle Button oben rechts */}
+            <button
+              onClick={(e) => { e.stopPropagation(); handleToggleMusic(); }}
+              className="absolute top-4 right-4 z-20 px-3 py-1.5 rounded-xl bg-slate-900/80 border border-sky-500/40 text-sky-300 text-xs font-bold backdrop-blur-md shadow-lg active:scale-95 transition-transform flex items-center gap-1.5"
+            >
+              <span>{isPlayingMusic ? '🎵 Musik AN' : '🔇 Musik AUS'}</span>
+            </button>
 
             <div className="relative z-10 w-full max-w-sm flex flex-col gap-3 my-auto">
               <button
@@ -1600,7 +1627,7 @@
               </button>
 
               <button
-                onClick={() => { handleUserInteraction(); setScreen('multiplayer'); }}
+                onClick={() => { setScreen('multiplayer'); }}
                 className="w-full py-3.5 rounded-2xl mythic-btn-menu text-sky-200 font-bold text-base active:scale-95 transition-transform flex items-center justify-center shadow-xl"
               >
                 Online-Lobby
@@ -1608,13 +1635,13 @@
 
               <div className="flex gap-2">
                 <button
-                  onClick={() => { handleUserInteraction(); setScreen('profile'); }}
+                  onClick={() => { setScreen('profile'); }}
                   className="flex-1 py-3 rounded-2xl mythic-btn-menu text-sky-300 font-bold text-xs active:scale-95 transition-transform flex items-center justify-center shadow-lg"
                 >
                   Profil & Stats
                 </button>
                 <button
-                  onClick={() => { handleUserInteraction(); setScreen('rules'); }}
+                  onClick={() => { setScreen('rules'); }}
                   className="flex-1 py-3 rounded-2xl mythic-btn-menu text-sky-300 font-bold text-xs active:scale-95 transition-transform flex items-center justify-center shadow-lg"
                 >
                   Regeln
@@ -1622,14 +1649,14 @@
               </div>
 
               <button
-                onClick={() => { handleUserInteraction(); setScreen('settings'); }}
+                onClick={() => { setScreen('settings'); }}
                 className="w-full py-3 rounded-2xl mythic-btn-menu text-sky-300 font-bold text-xs active:scale-95 transition-transform flex items-center justify-center shadow-lg"
               >
                 Einstellungen & Sound
               </button>
 
               <span className="text-[9px] text-center text-slate-300 font-bold block mt-2 drop-shadow bg-slate-950/70 py-1 rounded-full backdrop-blur-md border border-sky-500/30">
-                MYTHOS CARD GAME V10.53
+                MYTHOS CARD GAME V10.54
               </span>
             </div>
           </div>
@@ -1639,7 +1666,7 @@
       // ---------------- EINSTELLUNGEN ----------------
       if (screen === 'settings') {
         return (
-          <div className="flex flex-col h-full max-w-md mx-auto p-4 justify-between bg-slate-950 overflow-y-auto">
+          <div onClick={handleUserInteraction} className="flex flex-col h-full max-w-md mx-auto p-4 justify-between bg-slate-950 overflow-y-auto">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-xl font-bold text-sky-400">Einstellungen</h2>
               <button onClick={() => setScreen('menu')} className="text-xs bg-slate-800 text-sky-300 px-3 py-1.5 rounded-lg font-bold">Zurück</button>
@@ -1648,23 +1675,29 @@
             <div className="space-y-4 my-auto">
               <div className="bg-slate-900 p-4 rounded-2xl border border-slate-800 space-y-3 shadow-xl">
                 <div className="flex justify-between items-center">
-                  <span className="text-sm font-bold text-sky-200">Lautstärke (Musik & SFX)</span>
-                  <span className="text-xs font-black text-amber-400">{Math.round(soundVolume * 100)}%</span>
+                  <span className="text-sm font-bold text-sky-200">Musik & Soundeffekte</span>
+                  <button
+                    onClick={handleToggleMusic}
+                    className="px-3 py-1 rounded-lg bg-sky-950 border border-sky-400 text-sky-200 text-xs font-bold"
+                  >
+                    {isPlayingMusic ? 'Musik An' : 'Musik Aus'}
+                  </button>
                 </div>
 
-                <input
-                  type="range"
-                  min="0"
-                  max="1"
-                  step="0.05"
-                  value={soundVolume}
-                  onChange={(e) => handleVolumeChange(parseFloat(e.target.value))}
-                  className="w-full accent-sky-400 bg-slate-950 rounded-lg h-2 cursor-pointer"
-                />
-
-                <div className="flex justify-between text-[10px] text-slate-400 font-bold">
-                  <span>Stumm (0%)</span>
-                  <span>Maximum (100%)</span>
+                <div className="space-y-1">
+                  <div className="flex justify-between items-center">
+                    <span className="text-xs font-bold text-slate-300">Effekt-Lautstärke</span>
+                    <span className="text-xs font-black text-amber-400">{Math.round(soundVolume * 100)}%</span>
+                  </div>
+                  <input
+                    type="range"
+                    min="0"
+                    max="1"
+                    step="0.05"
+                    value={soundVolume}
+                    onChange={(e) => handleVolumeChange(parseFloat(e.target.value))}
+                    className="w-full accent-sky-400 bg-slate-950 rounded-lg h-2 cursor-pointer"
+                  />
                 </div>
               </div>
             </div>
@@ -1772,7 +1805,7 @@
         const elementXpPercent = elementLevel >= 15 ? 100 : Math.min(100, Math.round((elementXp / xpNeededForNextElement) * 100));
 
         return (
-          <div className="flex flex-col h-full max-w-md mx-auto p-4 justify-between bg-slate-950 overflow-y-auto">
+          <div onClick={handleUserInteraction} className="flex flex-col h-full max-w-md mx-auto p-4 justify-between bg-slate-950 overflow-y-auto">
             <div className="flex justify-between items-center mb-2">
               <h2 className="text-xl font-black text-sky-300">Spielerprofil</h2>
               <button onClick={() => setScreen('menu')} className="text-xs bg-slate-900 border border-slate-800 text-sky-300 px-3 py-1.5 rounded-lg font-bold">Zurück</button>
@@ -1938,7 +1971,7 @@
       // ---------------- 4. ONLINE-LOBBY ----------------
       if (screen === 'multiplayer') {
         return (
-          <div className="flex flex-col h-full max-w-md mx-auto p-4 justify-between bg-slate-950 overflow-y-auto">
+          <div onClick={handleUserInteraction} className="flex flex-col h-full max-w-md mx-auto p-4 justify-between bg-slate-950 overflow-y-auto">
             <div className="flex justify-between items-center mb-2">
               <h2 className="text-xl font-black text-sky-300">Online-Lobby</h2>
               <button onClick={() => setScreen('menu')} className="text-xs bg-slate-900 border border-slate-800 text-sky-300 px-3 py-1.5 rounded-lg font-bold">Zurück</button>
@@ -1957,7 +1990,7 @@
       // ---------------- 5. REGELN ----------------
       if (screen === 'rules') {
         return (
-          <div className="flex flex-col h-full max-w-md mx-auto p-4 justify-between bg-slate-950 overflow-y-auto">
+          <div onClick={handleUserInteraction} className="flex flex-col h-full max-w-md mx-auto p-4 justify-between bg-slate-950 overflow-y-auto">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-xl font-bold text-sky-400">Spielregeln</h2>
               <button onClick={() => setScreen('menu')} className="text-xs bg-slate-800 text-sky-300 px-3 py-1.5 rounded-lg font-bold">Zurück</button>
@@ -2164,7 +2197,12 @@
             {phase === 'playing' && isHumanTurn && !isEvaluatingRef.current && !animatingCardId && !collectingWinnerId && !showDiceModal && !roundSummary && !victoryData && !showExitConfirm && (
               <span className="text-[11px] font-extrabold text-amber-400 bg-amber-950/80 px-2.5 py-0.5 rounded-full border border-amber-500/40 animate-pulse">Dein Zug: {turnTimer}s</span>
             )}
-            <button onClick={() => setShowExitConfirm(true)} className="text-[10px] bg-slate-800 hover:bg-slate-700 active:scale-95 text-sky-300 border border-sky-500/30 px-2.5 py-1 rounded-lg font-bold transition-all shadow">Menü</button>
+            <div className="flex items-center gap-1.5">
+              <button onClick={handleToggleMusic} className="text-[10px] bg-slate-800 hover:bg-slate-700 active:scale-95 text-sky-300 border border-sky-500/30 px-2 py-1 rounded-lg font-bold transition-all shadow">
+                {isPlayingMusic ? '🎵' : '🔇'}
+              </button>
+              <button onClick={() => setShowExitConfirm(true)} className="text-[10px] bg-slate-800 hover:bg-slate-700 active:scale-95 text-sky-300 border border-sky-500/30 px-2.5 py-1 rounded-lg font-bold transition-all shadow">Menü</button>
+            </div>
           </div>
 
           <div className="grid grid-cols-3 gap-1.5">
