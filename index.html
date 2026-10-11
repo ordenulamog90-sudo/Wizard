@@ -379,6 +379,7 @@
     const renderTcgElementAnimation = (card) => {
       const isBlueWizard = card.type === 'wizard' && card.wizardIndex === 0;
       const isRedWizard = card.type === 'wizard' && card.wizardIndex === 1;
+      const isYellowWizard = card.type === 'wizard' && card.wizardIndex === 2;
 
       if (isBlueWizard) {
         return (
@@ -398,6 +399,16 @@
               <circle cx="50" cy="50" r="42" fill="#ef4444" fillOpacity="0.5" className="animate-ping" style={{ animationDuration: '1.2s' }} />
               <path d="M 50 2 Q 62 28 80 38 Q 98 50 80 68 Q 62 78 50 98 Q 38 78 20 68 Q 2 50 20 38 Q 38 28 50 2 Z" fill="#dc2626" fillOpacity="0.65" className="animate-pulse" />
               <circle cx="50" cy="50" r="25" fill="#f59e0b" fillOpacity="0.8" />
+            </svg>
+          </div>
+        );
+      }
+      if (isYellowWizard) {
+        return (
+          <div className="tcg-element-vfx text-amber-300 flex items-center justify-center">
+            <svg className="w-36 h-36" viewBox="0 0 100 100" fill="none" stroke="currentColor" strokeWidth="3">
+              <circle cx="50" cy="50" r="42" fill="#f59e0b" fillOpacity="0.5" className="animate-ping" style={{ animationDuration: '1.2s' }} />
+              <path d="M 15 30 Q 50 8 85 30 Q 50 52 15 70 Q 50 92 85 70" stroke="#fde047" strokeWidth="4" className="animate-spin" style={{ animationDuration: '2.5s' }} />
             </svg>
           </div>
         );
@@ -515,9 +526,11 @@
 
       const isBlueWizard = isWizard && card.wizardIndex === 0;
       const isRedWizard = isWizard && card.wizardIndex === 1;
+      const isYellowWizard = isWizard && card.wizardIndex === 2;
 
       const isBlueJester = isJester && card.suit === 'blue';
       const isRedJester = isJester && card.suit === 'red';
+      const isYellowJester = isJester && card.suit === 'yellow';
 
       // Blaue Zahlen
       const isBlueOne = card.type === 'number' && card.suit === 'blue' && card.value === 1;
@@ -549,6 +562,21 @@
       const isRedTwelve = card.type === 'number' && card.suit === 'red' && card.value === 12;
       const isRedThirteen = card.type === 'number' && card.suit === 'red' && card.value === 13;
 
+      // Gelbe Zahlen
+      const isYellowOne = card.type === 'number' && card.suit === 'yellow' && card.value === 1;
+      const isYellowTwo = card.type === 'number' && card.suit === 'yellow' && card.value === 2;
+      const isYellowThree = card.type === 'number' && card.suit === 'yellow' && card.value === 3;
+      const isYellowFour = card.type === 'number' && card.suit === 'yellow' && card.value === 4;
+      const isYellowFive = card.type === 'number' && card.suit === 'yellow' && card.value === 5;
+      const isYellowSix = card.type === 'number' && card.suit === 'yellow' && card.value === 6;
+      const isYellowSeven = card.type === 'number' && card.suit === 'yellow' && card.value === 7;
+      const isYellowEight = card.type === 'number' && card.suit === 'yellow' && card.value === 8;
+      const isYellowNine = card.type === 'number' && card.suit === 'yellow' && card.value === 9;
+      const isYellowTen = card.type === 'number' && card.suit === 'yellow' && card.value === 10;
+      const isYellowEleven = card.type === 'number' && card.suit === 'yellow' && card.value === 11;
+      const isYellowTwelve = card.type === 'number' && card.suit === 'yellow' && card.value === 12;
+      const isYellowThirteen = card.type === 'number' && card.suit === 'yellow' && card.value === 13;
+
       return (
         <div 
           onClick={!disabled ? onClick : undefined}
@@ -566,6 +594,12 @@
               <div className="absolute inset-0 bg-red-950/15 backdrop-brightness-95"></div>
             </div>
           )}
+          {isYellowWizard && (
+            <div className="absolute inset-0 z-0 overflow-hidden">
+              <img src="./1791705884275.jpg" alt="Gelbe Zauberin" className="w-full h-full object-cover" />
+              <div className="absolute inset-0 bg-amber-950/15 backdrop-brightness-95"></div>
+            </div>
+          )}
           {isBlueJester && (
             <div className="absolute inset-0 z-0 overflow-hidden">
               <img src="./1791660733716.jpg" alt="Blauer Narr" className="w-full h-full object-cover" />
@@ -576,6 +610,12 @@
             <div className="absolute inset-0 z-0 overflow-hidden">
               <img src="./1791698030043.jpg" alt="Roter Narr" className="w-full h-full object-cover" />
               <div className="absolute inset-0 bg-red-950/15 backdrop-brightness-95"></div>
+            </div>
+          )}
+          {isYellowJester && (
+            <div className="absolute inset-0 z-0 overflow-hidden">
+              <img src="./1791701531151.jpg" alt="Gelber Narr" className="w-full h-full object-cover" />
+              <div className="absolute inset-0 bg-amber-950/15 backdrop-brightness-95"></div>
             </div>
           )}
 
@@ -609,14 +649,30 @@
           {isRedTwelve && <div className="absolute inset-0 z-0 overflow-hidden"><img src="./1791699299500.jpg" alt="Rot 12" className="w-full h-full object-cover" /><div className="absolute inset-0 bg-red-950/15 backdrop-brightness-95"></div></div>}
           {isRedThirteen && <div className="absolute inset-0 z-0 overflow-hidden"><img src="./1791699330751.jpg" alt="Rot 13" className="w-full h-full object-cover" /><div className="absolute inset-0 bg-red-950/15 backdrop-brightness-95"></div></div>}
 
+          {/* Gelbe Zahlen */}
+          {isYellowOne && <div className="absolute inset-0 z-0 overflow-hidden"><img src="./1791701576314.jpg" alt="Gelb 1" className="w-full h-full object-cover" /><div className="absolute inset-0 bg-amber-950/15 backdrop-brightness-95"></div></div>}
+          {isYellowTwo && <div className="absolute inset-0 z-0 overflow-hidden"><img src="./1791701667083.jpg" alt="Gelb 2" className="w-full h-full object-cover" /><div className="absolute inset-0 bg-amber-950/15 backdrop-brightness-95"></div></div>}
+          {isYellowThree && <div className="absolute inset-0 z-0 overflow-hidden"><img src="./1791701691014.jpg" alt="Gelb 3" className="w-full h-full object-cover" /><div className="absolute inset-0 bg-amber-950/15 backdrop-brightness-95"></div></div>}
+          {isYellowFour && <div className="absolute inset-0 z-0 overflow-hidden"><img src="./1791701832104.jpg" alt="Gelb 4" className="w-full h-full object-cover" /><div className="absolute inset-0 bg-amber-950/15 backdrop-brightness-95"></div></div>}
+          {isYellowFive && <div className="absolute inset-0 z-0 overflow-hidden"><img src="./1791701870106.jpg" alt="Gelb 5" className="w-full h-full object-cover" /><div className="absolute inset-0 bg-amber-950/15 backdrop-brightness-95"></div></div>}
+          {isYellowSix && <div className="absolute inset-0 z-0 overflow-hidden"><img src="./1791702013917.jpg" alt="Gelb 6" className="w-full h-full object-cover" /><div className="absolute inset-0 bg-amber-950/15 backdrop-brightness-95"></div></div>}
+          {isYellowSeven && <div className="absolute inset-0 z-0 overflow-hidden"><img src="./1791702218773.jpg" alt="Gelb 7" className="w-full h-full object-cover" /><div className="absolute inset-0 bg-amber-950/15 backdrop-brightness-95"></div></div>}
+          {isYellowEight && <div className="absolute inset-0 z-0 overflow-hidden"><img src="./1791702263173.jpg" alt="Gelb 8" className="w-full h-full object-cover" /><div className="absolute inset-0 bg-amber-950/15 backdrop-brightness-95"></div></div>}
+          {isYellowNine && <div className="absolute inset-0 z-0 overflow-hidden"><img src="./1791702444012.jpg" alt="Gelb 9" className="w-full h-full object-cover" /><div className="absolute inset-0 bg-amber-950/15 backdrop-brightness-95"></div></div>}
+          {isYellowTen && <div className="absolute inset-0 z-0 overflow-hidden"><img src="./1791702517230.jpg" alt="Gelb 10" className="w-full h-full object-cover" /><div className="absolute inset-0 bg-amber-950/15 backdrop-brightness-95"></div></div>}
+          {isYellowEleven && <div className="absolute inset-0 z-0 overflow-hidden"><img src="./1791705657196.jpg" alt="Gelb 11" className="w-full h-full object-cover" /><div className="absolute inset-0 bg-amber-950/15 backdrop-brightness-95"></div></div>}
+          {isYellowTwelve && <div className="absolute inset-0 z-0 overflow-hidden"><img src="./1791705766319.jpg" alt="Gelb 12" className="w-full h-full object-cover" /><div className="absolute inset-0 bg-amber-950/15 backdrop-brightness-95"></div></div>}
+          {isYellowThirteen && <div className="absolute inset-0 z-0 overflow-hidden"><img src="./1791705774151.jpg" alt="Gelb 13" className="w-full h-full object-cover" /><div className="absolute inset-0 bg-amber-950/15 backdrop-brightness-95"></div></div>}
+
           <div className="w-full flex justify-between font-black text-amber-300 text-xs drop-shadow z-10">
             <span>{cornerText}</span>
             <span>{cornerText}</span>
           </div>
 
-          {!isBlueWizard && !isRedWizard && !isBlueJester && !isRedJester && 
+          {!isBlueWizard && !isRedWizard && !isYellowWizard && !isBlueJester && !isRedJester && !isYellowJester && 
            !isBlueOne && !isBlueTwo && !isBlueThree && !isBlueFour && !isBlueFive && !isBlueSix && !isBlueSeven && !isBlueEight && !isBlueNine && !isBlueTen && !isBlueEleven && !isBlueTwelve && !isBlueThirteen &&
-           !isRedOne && !isRedTwo && !isRedThree && !isRedFour && !isRedFive && !isRedSix && !isRedSeven && !isRedEight && !isRedNine && !isRedTen && !isRedEleven && !isRedTwelve && !isRedThirteen ? (
+           !isRedOne && !isRedTwo && !isRedThree && !isRedFour && !isRedFive && !isRedSix && !isRedSeven && !isRedEight && !isRedNine && !isRedTen && !isRedEleven && !isRedTwelve && !isRedThirteen &&
+           !isYellowOne && !isYellowTwo && !isYellowThree && !isYellowFour && !isYellowFive && !isYellowSix && !isYellowSeven && !isYellowEight && !isYellowNine && !isYellowTen && !isYellowEleven && !isYellowTwelve && !isYellowThirteen ? (
             <div className="card-art-box w-full flex-1 my-0.5 rounded-lg p-0.5 flex flex-col items-center justify-center relative overflow-hidden z-10">
               <div className="w-full h-full flex items-center justify-center">
                 {artComponent}
@@ -645,8 +701,8 @@
           name: 'Erzmagier', 
           level: 1, 
           xp: 0, 
-          activeSuit: 'red',
-          selectedAvatar: { type: 'jester', suit: 'red' },
+          activeSuit: 'yellow',
+          selectedAvatar: { type: 'jester', suit: 'yellow' },
           elementLevels: {
             red: { level: 1, xp: 0 },
             blue: { level: 1, xp: 0 },
@@ -670,7 +726,7 @@
           xp: parsed.xp ?? 0,
           elementLevels: parsed.elementLevels || defaultProf.elementLevels,
           selectedAvatar: parsed.selectedAvatar || defaultProf.selectedAvatar,
-          activeSuit: (parsed.activeSuit === 'wizard' ? 'red' : parsed.activeSuit) || defaultProf.activeSuit,
+          activeSuit: (parsed.activeSuit === 'wizard' ? 'yellow' : parsed.activeSuit) || defaultProf.activeSuit,
           offlinePlayed: parsed.offlinePlayed ?? 0,
           offlineWins: parsed.offlineWins ?? 0,
           onlinePlayed: parsed.onlinePlayed ?? 0,
@@ -839,7 +895,7 @@
             randomAvatarObj = { 
               type: 'number', 
               value: randomVal, 
-              suit: (randomVal >= 1 && randomVal <= 13 && randomSuit === 'blue') ? 'blue' : randomSuit 
+              suit: (randomVal >= 1 && randomVal <= 13 && randomSuit === 'yellow') ? 'yellow' : randomSuit 
             };
           }
 
@@ -915,14 +971,14 @@
           }
         });
         
-        // 4 Zauberer (Wizard 0 = Blau, Wizard 1 = Rot)
+        // 4 Zauberer (Wizard 0 = Blau, Wizard 1 = Rot, Wizard 2 = Gelb)
         for(let i=0; i<4; i++) {
           rawDeck.push({ type: 'wizard', wizardIndex: i, id: `w_${i}_${roundSeed}_${Math.random()}` });
         }
         
-        // 4 Narren (Blau & Rot integriert)
+        // 4 Narren (Blau, Rot & Gelb integriert)
         for(let i=0; i<4; i++) {
-          const jSuit = i % 2 === 0 ? 'blue' : 'red';
+          const jSuit = i === 0 ? 'blue' : i === 1 ? 'red' : 'yellow';
           rawDeck.push({ type: 'jester', suit: jSuit, id: `j_${i}_${roundSeed}_${Math.random()}` });
         }
 
@@ -1086,7 +1142,7 @@
           setVictoryTimer(20);
 
           const isHumanWinner = sortedFinal[0].isHuman;
-          const activeSuit = profile.activeSuit || 'red';
+          const activeSuit = profile.activeSuit || 'yellow';
           let earnedXp = isHumanWinner ? 150 : 50;
 
           const currentSuitData = profile.elementLevels[activeSuit] || { level: 1, xp: 0 };
@@ -1143,11 +1199,14 @@
       const renderAvatarIcon = (avatarObj, sizeClass = "w-16 h-16 text-2xl") => {
         if (!avatarObj) return <div className={`${sizeClass} rounded-full bg-slate-900 border border-sky-400 flex items-center justify-center`}>🃏</div>;
         
-        const suitInfo = SUITS[avatarObj.suit] || SUITS.red;
+        const suitInfo = SUITS[avatarObj.suit] || SUITS.yellow;
         const isBlueJester = avatarObj.type === 'jester' && avatarObj.suit === 'blue';
         const isRedJester = avatarObj.type === 'jester' && avatarObj.suit === 'red';
+        const isYellowJester = avatarObj.type === 'jester' && avatarObj.suit === 'yellow';
+
         const isBlueWizardAvatar = avatarObj.type === 'wizard' && avatarObj.wizardIndex === 0;
         const isRedWizardAvatar = avatarObj.type === 'wizard' && avatarObj.wizardIndex === 1;
+        const isYellowWizardAvatar = avatarObj.type === 'wizard' && avatarObj.wizardIndex === 2;
 
         // Blaue Avatare
         if (isBlueWizardAvatar) {
@@ -1181,63 +1240,50 @@
           );
         }
 
-        // Blaue Zahlen Avatare
-        const isBlueOne = avatarObj.type === 'number' && avatarObj.suit === 'blue' && avatarObj.value === 1;
-        const isBlueTwo = avatarObj.type === 'number' && avatarObj.suit === 'blue' && avatarObj.value === 2;
-        const isBlueThree = avatarObj.type === 'number' && avatarObj.suit === 'blue' && avatarObj.value === 3;
-        const isBlueFour = avatarObj.type === 'number' && avatarObj.suit === 'blue' && avatarObj.value === 4;
-        const isBlueFive = avatarObj.type === 'number' && avatarObj.suit === 'blue' && avatarObj.value === 5;
-        const isBlueSix = avatarObj.type === 'number' && avatarObj.suit === 'blue' && avatarObj.value === 6;
-        const isBlueSeven = avatarObj.type === 'number' && avatarObj.suit === 'blue' && avatarObj.value === 7;
-        const isBlueEight = avatarObj.type === 'number' && avatarObj.suit === 'blue' && avatarObj.value === 8;
-        const isBlueNine = avatarObj.type === 'number' && avatarObj.suit === 'blue' && avatarObj.value === 9;
-        const isBlueTen = avatarObj.type === 'number' && avatarObj.suit === 'blue' && avatarObj.value === 10;
-        const isBlueEleven = avatarObj.type === 'number' && avatarObj.suit === 'blue' && avatarObj.value === 11;
-        const isBlueTwelve = avatarObj.type === 'number' && avatarObj.suit === 'blue' && avatarObj.value === 12;
-        const isBlueThirteen = avatarObj.type === 'number' && avatarObj.suit === 'blue' && avatarObj.value === 13;
+        // Gelbe Avatare
+        if (isYellowWizardAvatar) {
+          return (
+            <div className={`${sizeClass} rounded-full bg-slate-900 border-2 border-amber-400 flex items-center justify-center shadow-xl relative overflow-hidden`}>
+              <img src="./1791705884275.jpg" alt="Gelbe Zauberin" className="w-full h-full object-cover" />
+            </div>
+          );
+        }
+        if (isYellowJester) {
+          return (
+            <div className={`${sizeClass} rounded-full bg-slate-900 border-2 border-amber-400 flex items-center justify-center shadow-xl relative overflow-hidden`}>
+              <img src="./1791701531151.jpg" alt="Gelber Narr" className="w-full h-full object-cover" />
+            </div>
+          );
+        }
 
-        if (isBlueOne) return <div className={`${sizeClass} rounded-full bg-slate-900 border-2 border-blue-400 overflow-hidden`}><img src="./1791660858583.jpg" alt="Blau 1" className="w-full h-full object-cover" /></div>;
-        if (isBlueTwo) return <div className={`${sizeClass} rounded-full bg-slate-900 border-2 border-blue-400 overflow-hidden`}><img src="./1791660928323.jpg" alt="Blau 2" className="w-full h-full object-cover" /></div>;
-        if (isBlueThree) return <div className={`${sizeClass} rounded-full bg-slate-900 border-2 border-blue-400 overflow-hidden`}><img src="./1791661070842.jpg" alt="Blau 3" className="w-full h-full object-cover" /></div>;
-        if (isBlueFour) return <div className={`${sizeClass} rounded-full bg-slate-900 border-2 border-blue-400 overflow-hidden`}><img src="./1791661097582.jpg" alt="Blau 4" className="w-full h-full object-cover" /></div>;
-        if (isBlueFive) return <div className={`${sizeClass} rounded-full bg-slate-900 border-2 border-blue-400 overflow-hidden`}><img src="./1791661133492.jpg" alt="Blau 5" className="w-full h-full object-cover" /></div>;
-        if (isBlueSix) return <div className={`${sizeClass} rounded-full bg-slate-900 border-2 border-blue-400 overflow-hidden`}><img src="./1791661210907.jpg" alt="Blau 6" className="w-full h-full object-cover" /></div>;
-        if (isBlueSeven) return <div className={`${sizeClass} rounded-full bg-slate-900 border-2 border-blue-400 overflow-hidden`}><img src="./1791661243460.jpg" alt="Blau 7" className="w-full h-full object-cover" /></div>;
-        if (isBlueEight) return <div className={`${sizeClass} rounded-full bg-slate-900 border-2 border-blue-400 overflow-hidden`}><img src="./1791661280244.jpg" alt="Blau 8" className="w-full h-full object-cover" /></div>;
-        if (isBlueNine) return <div className={`${sizeClass} rounded-full bg-slate-900 border-2 border-blue-400 overflow-hidden`}><img src="./1791661311268.jpg" alt="Blau 9" className="w-full h-full object-cover" /></div>;
-        if (isBlueTen) return <div className={`${sizeClass} rounded-full bg-slate-900 border-2 border-blue-400 overflow-hidden`}><img src="./1791696193138.jpg" alt="Blau 10" className="w-full h-full object-cover" /></div>;
-        if (isBlueEleven) return <div className={`${sizeClass} rounded-full bg-slate-900 border-2 border-blue-400 overflow-hidden`}><img src="./1791696234513.jpg" alt="Blau 11" className="w-full h-full object-cover" /></div>;
-        if (isBlueTwelve) return <div className={`${sizeClass} rounded-full bg-slate-900 border-2 border-blue-400 overflow-hidden`}><img src="./1791696686978.jpg" alt="Blau 12" className="w-full h-full object-cover" /></div>;
-        if (isBlueThirteen) return <div className={`${sizeClass} rounded-full bg-slate-900 border-2 border-blue-400 overflow-hidden`}><img src="./1791696606461.jpg" alt="Blau 13" className="w-full h-full object-cover" /></div>;
+        // Gelbe Zahlen Avatare
+        const isYellowOne = avatarObj.type === 'number' && avatarObj.suit === 'yellow' && avatarObj.value === 1;
+        const isYellowTwo = avatarObj.type === 'number' && avatarObj.suit === 'yellow' && avatarObj.value === 2;
+        const isYellowThree = avatarObj.type === 'number' && avatarObj.suit === 'yellow' && avatarObj.value === 3;
+        const isYellowFour = avatarObj.type === 'number' && avatarObj.suit === 'yellow' && avatarObj.value === 4;
+        const isYellowFive = avatarObj.type === 'number' && avatarObj.suit === 'yellow' && avatarObj.value === 5;
+        const isYellowSix = avatarObj.type === 'number' && avatarObj.suit === 'yellow' && avatarObj.value === 6;
+        const isYellowSeven = avatarObj.type === 'number' && avatarObj.suit === 'yellow' && avatarObj.value === 7;
+        const isYellowEight = avatarObj.type === 'number' && avatarObj.suit === 'yellow' && avatarObj.value === 8;
+        const isYellowNine = avatarObj.type === 'number' && avatarObj.suit === 'yellow' && avatarObj.value === 9;
+        const isYellowTen = avatarObj.type === 'number' && avatarObj.suit === 'yellow' && avatarObj.value === 10;
+        const isYellowEleven = avatarObj.type === 'number' && avatarObj.suit === 'yellow' && avatarObj.value === 11;
+        const isYellowTwelve = avatarObj.type === 'number' && avatarObj.suit === 'yellow' && avatarObj.value === 12;
+        const isYellowThirteen = avatarObj.type === 'number' && avatarObj.suit === 'yellow' && avatarObj.value === 13;
 
-        // Rote Zahlen Avatare
-        const isRedOne = avatarObj.type === 'number' && avatarObj.suit === 'red' && avatarObj.value === 1;
-        const isRedTwo = avatarObj.type === 'number' && avatarObj.suit === 'red' && avatarObj.value === 2;
-        const isRedThree = avatarObj.type === 'number' && avatarObj.suit === 'red' && avatarObj.value === 3;
-        const isRedFour = avatarObj.type === 'number' && avatarObj.suit === 'red' && avatarObj.value === 4;
-        const isRedFive = avatarObj.type === 'number' && avatarObj.suit === 'red' && avatarObj.value === 5;
-        const isRedSix = avatarObj.type === 'number' && avatarObj.suit === 'red' && avatarObj.value === 6;
-        const isRedSeven = avatarObj.type === 'number' && avatarObj.suit === 'red' && avatarObj.value === 7;
-        const isRedEight = avatarObj.type === 'number' && avatarObj.suit === 'red' && avatarObj.value === 8;
-        const isRedNine = avatarObj.type === 'number' && avatarObj.suit === 'red' && avatarObj.value === 9;
-        const isRedTen = avatarObj.type === 'number' && avatarObj.suit === 'red' && avatarObj.value === 10;
-        const isRedEleven = avatarObj.type === 'number' && avatarObj.suit === 'red' && avatarObj.value === 11;
-        const isRedTwelve = avatarObj.type === 'number' && avatarObj.suit === 'red' && avatarObj.value === 12;
-        const isRedThirteen = avatarObj.type === 'number' && avatarObj.suit === 'red' && avatarObj.value === 13;
-
-        if (isRedOne) return <div className={`${sizeClass} rounded-full bg-slate-900 border-2 border-red-500 overflow-hidden`}><img src="./1791698127587.jpg" alt="Rot 1" className="w-full h-full object-cover" /></div>;
-        if (isRedTwo) return <div className={`${sizeClass} rounded-full bg-slate-900 border-2 border-red-500 overflow-hidden`}><img src="./1791698174306.jpg" alt="Rot 2" className="w-full h-full object-cover" /></div>;
-        if (isRedThree) return <div className={`${sizeClass} rounded-full bg-slate-900 border-2 border-red-500 overflow-hidden`}><img src="./1791698326666.jpg" alt="Rot 3" className="w-full h-full object-cover" /></div>;
-        if (isRedFour) return <div className={`${sizeClass} rounded-full bg-slate-900 border-2 border-red-500 overflow-hidden`}><img src="./1791698382551.jpg" alt="Rot 4" className="w-full h-full object-cover" /></div>;
-        if (isRedFive) return <div className={`${sizeClass} rounded-full bg-slate-900 border-2 border-red-500 overflow-hidden`}><img src="./1791698454853.jpg" alt="Rot 5" className="w-full h-full object-cover" /></div>;
-        if (isRedSix) return <div className={`${sizeClass} rounded-full bg-slate-900 border-2 border-red-500 overflow-hidden`}><img src="./1791698493303.jpg" alt="Rot 6" className="w-full h-full object-cover" /></div>;
-        if (isRedSeven) return <div className={`${sizeClass} rounded-full bg-slate-900 border-2 border-red-500 overflow-hidden`}><img src="./1791698666487.jpg" alt="Rot 7" className="w-full h-full object-cover" /></div>;
-        if (isRedEight) return <div className={`${sizeClass} rounded-full bg-slate-900 border-2 border-red-500 overflow-hidden`}><img src="./1791698890373.jpg" alt="Rot 8" className="w-full h-full object-cover" /></div>;
-        if (isRedNine) return <div className={`${sizeClass} rounded-full bg-slate-900 border-2 border-red-500 overflow-hidden`}><img src="./1791698965723.jpg" alt="Rot 9" className="w-full h-full object-cover" /></div>;
-        if (isRedTen) return <div className={`${sizeClass} rounded-full bg-slate-900 border-2 border-red-500 overflow-hidden`}><img src="./1791699005196.jpg" alt="Rot 10" className="w-full h-full object-cover" /></div>;
-        if (isRedEleven) return <div className={`${sizeClass} rounded-full bg-slate-900 border-2 border-red-500 overflow-hidden`}><img src="./1791699250374.jpg" alt="Rot 11" className="w-full h-full object-cover" /></div>;
-        if (isRedTwelve) return <div className={`${sizeClass} rounded-full bg-slate-900 border-2 border-red-500 overflow-hidden`}><img src="./1791699299500.jpg" alt="Rot 12" className="w-full h-full object-cover" /></div>;
-        if (isRedThirteen) return <div className={`${sizeClass} rounded-full bg-slate-900 border-2 border-red-500 overflow-hidden`}><img src="./1791699330751.jpg" alt="Rot 13" className="w-full h-full object-cover" /></div>;
+        if (isYellowOne) return <div className={`${sizeClass} rounded-full bg-slate-900 border-2 border-amber-400 overflow-hidden`}><img src="./1791701576314.jpg" alt="Gelb 1" className="w-full h-full object-cover" /></div>;
+        if (isYellowTwo) return <div className={`${sizeClass} rounded-full bg-slate-900 border-2 border-amber-400 overflow-hidden`}><img src="./1791701667083.jpg" alt="Gelb 2" className="w-full h-full object-cover" /></div>;
+        if (isYellowThree) return <div className={`${sizeClass} rounded-full bg-slate-900 border-2 border-amber-400 overflow-hidden`}><img src="./1791701691014.jpg" alt="Gelb 3" className="w-full h-full object-cover" /></div>;
+        if (isYellowFour) return <div className={`${sizeClass} rounded-full bg-slate-900 border-2 border-amber-400 overflow-hidden`}><img src="./1791701832104.jpg" alt="Gelb 4" className="w-full h-full object-cover" /></div>;
+        if (isYellowFive) return <div className={`${sizeClass} rounded-full bg-slate-900 border-2 border-amber-400 overflow-hidden`}><img src="./1791701870106.jpg" alt="Gelb 5" className="w-full h-full object-cover" /></div>;
+        if (isYellowSix) return <div className={`${sizeClass} rounded-full bg-slate-900 border-2 border-amber-400 overflow-hidden`}><img src="./1791702013917.jpg" alt="Gelb 6" className="w-full h-full object-cover" /></div>;
+        if (isYellowSeven) return <div className={`${sizeClass} rounded-full bg-slate-900 border-2 border-amber-400 overflow-hidden`}><img src="./1791702218773.jpg" alt="Gelb 7" className="w-full h-full object-cover" /></div>;
+        if (isYellowEight) return <div className={`${sizeClass} rounded-full bg-slate-900 border-2 border-amber-400 overflow-hidden`}><img src="./1791702263173.jpg" alt="Gelb 8" className="w-full h-full object-cover" /></div>;
+        if (isYellowNine) return <div className={`${sizeClass} rounded-full bg-slate-900 border-2 border-amber-400 overflow-hidden`}><img src="./1791702444012.jpg" alt="Gelb 9" className="w-full h-full object-cover" /></div>;
+        if (isYellowTen) return <div className={`${sizeClass} rounded-full bg-slate-900 border-2 border-amber-400 overflow-hidden`}><img src="./1791702517230.jpg" alt="Gelb 10" className="w-full h-full object-cover" /></div>;
+        if (isYellowEleven) return <div className={`${sizeClass} rounded-full bg-slate-900 border-2 border-amber-400 overflow-hidden`}><img src="./1791705657196.jpg" alt="Gelb 11" className="w-full h-full object-cover" /></div>;
+        if (isYellowTwelve) return <div className={`${sizeClass} rounded-full bg-slate-900 border-2 border-amber-400 overflow-hidden`}><img src="./1791705766319.jpg" alt="Gelb 12" className="w-full h-full object-cover" /></div>;
+        if (isYellowThirteen) return <div className={`${sizeClass} rounded-full bg-slate-900 border-2 border-amber-400 overflow-hidden`}><img src="./1791705774151.jpg" alt="Gelb 13" className="w-full h-full object-cover" /></div>;
 
         if (avatarObj.type === 'jester') {
           return (
@@ -1277,6 +1323,9 @@
         if (suitKey === 'red') {
           list.push({ type: 'wizard', wizardIndex: 1, unlocked: true });
         }
+        if (suitKey === 'yellow') {
+          list.push({ type: 'wizard', wizardIndex: 2, unlocked: true });
+        }
 
         // Narr freigeschaltet ab Level 1
         list.push({ type: 'jester', suit: suitKey, unlocked: currentLevel >= 1 });
@@ -1287,7 +1336,7 @@
         }
 
         // Universeller Zauberer auf Level 15
-        list.push({ type: 'wizard', wizardIndex: 2, suit: suitKey, unlocked: currentLevel >= 15 });
+        list.push({ type: 'wizard', wizardIndex: 3, suit: suitKey, unlocked: currentLevel >= 15 });
 
         return list;
       };
@@ -1331,7 +1380,7 @@
               </div>
 
               <span className="text-[9px] text-center text-slate-300 font-bold block mt-2 drop-shadow bg-slate-950/70 py-1 rounded-full backdrop-blur-md border border-sky-500/30">
-                MYTHOS CARD GAME V10.38 (ROTES SET INTEGRATED)
+                MYTHOS CARD GAME V10.39 (GELBES SET INTEGRATED)
               </span>
             </div>
           </div>
@@ -1422,7 +1471,7 @@
         const onLosses = Math.max(0, onPlayed - onWins);
         const onWinrate = onPlayed > 0 ? Math.round((onWins / onPlayed) * 100) : 0;
 
-        const activeSuitKey = profile.activeSuit || 'red';
+        const activeSuitKey = profile.activeSuit || 'yellow';
         
         const globalLevel = profile.level || 1;
         const globalXp = profile.xp || 0;
@@ -1477,13 +1526,13 @@
 
                   <div className="bg-slate-900/80 border border-slate-800 p-3 rounded-2xl space-y-2">
                     <div className="text-xs font-bold text-sky-300 flex justify-between items-center">
-                      <span>Pfad für: {SUITS[activeSuitKey]?.title || 'FEUER'}</span>
+                      <span>Pfad für: {SUITS[activeSuitKey]?.title || 'WIND'}</span>
                       <span className="text-[10px] text-amber-300">Level {elementLevel} / 15</span>
                     </div>
 
                     <div className="bg-slate-950 border border-slate-800 p-2 rounded-xl space-y-1">
                       <div className="flex justify-between text-[10px] text-slate-400 font-bold">
-                        <span>Element-XP ({SUITS[activeSuitKey]?.name || 'Rot'})</span>
+                        <span>Element-XP ({SUITS[activeSuitKey]?.name || 'Gelb'})</span>
                         <span className="text-amber-400">{elementLevel >= 15 ? 'MAX' : `${elementXp} / ${xpNeededForNextElement} XP`}</span>
                       </div>
                       <div className="w-full h-2 bg-slate-900 rounded-full overflow-hidden border border-slate-800">
@@ -1752,8 +1801,8 @@
           {victoryData && !showExitConfirm && (() => {
             const winner = victoryData[0] || {};
             const winnerAvatar = winner.avatarObj || profile.selectedAvatar;
-            const winnerSuitKey = winnerAvatar?.suit || 'red';
-            const suitTheme = SUITS[winnerSuitKey] || SUITS.red;
+            const winnerSuitKey = winnerAvatar?.suit || 'yellow';
+            const suitTheme = SUITS[winnerSuitKey] || SUITS.yellow;
 
             return (
               <div onClick={finishGameAndGoMenu} className="absolute inset-0 bg-slate-950/95 backdrop-blur-md z-50 flex flex-col items-center justify-between p-4 cursor-pointer select-none overflow-y-auto">
