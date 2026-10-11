@@ -170,7 +170,7 @@
   <script type="text/babel">
     const { useState, useEffect, useRef } = React;
 
-    // --- NUR NOCH HINTERGRUNDMUSIK (Alle Soundeffekte komplett entfernt) ---
+    // --- SOUND ENGINE (Hintergrundmusik steuerbar für Menüs) ---
     class SoundEngine {
       constructor() {
         this.bgMusic = null;
@@ -182,11 +182,18 @@
           this.bgMusic.loop = true;
           this.bgMusic.volume = 0.5;
         }
-
+      }
+      playMusic() {
+        this.init();
         if (this.bgMusic && this.bgMusic.paused) {
           this.bgMusic.play().then(() => {
             this.isInitialized = true;
           }).catch(e => console.log("Autoplay waiting for interaction"));
+        }
+      }
+      stopMusic() {
+        if (this.bgMusic && !this.bgMusic.paused) {
+          this.bgMusic.pause();
         }
       }
       setMusicVolume(volume) {
@@ -735,9 +742,14 @@
         return saved !== null ? parseFloat(saved) : 0.5;
       });
 
+      // Musik nur in Menüs spielen, während des Spiels und der Siegerehrung stoppen
       useEffect(() => {
-        soundEngine.init();
-      }, []);
+        if (screen === 'menu' || screen === 'settings' || screen === 'game_setup' || screen === 'profile' || screen === 'multiplayer' || screen === 'rules') {
+          soundEngine.playMusic();
+        } else {
+          soundEngine.stopMusic();
+        }
+      }, [screen]);
 
       const handleVolumeChange = (newVol) => {
         setMusicVolume(newVol);
@@ -746,7 +758,9 @@
       };
 
       const handleUserInteraction = () => {
-        soundEngine.init();
+        if (screen === 'menu' || screen === 'settings' || screen === 'game_setup' || screen === 'profile' || screen === 'multiplayer' || screen === 'rules') {
+          soundEngine.playMusic();
+        }
       };
       
       const [profile, setProfile] = useState(() => {
@@ -1481,7 +1495,7 @@
               </button>
 
               <span className="text-[9px] text-center text-slate-300 font-bold block mt-2 drop-shadow bg-slate-950/70 py-1 rounded-full backdrop-blur-md border border-sky-500/30">
-                MYTHOS CARD GAME V10.57
+                MYTHOS CARD GAME V10.58
               </span>
             </div>
           </div>
