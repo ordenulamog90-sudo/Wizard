@@ -239,8 +239,12 @@
       return { valid: true, error: '' };
     };
 
-    const getMaxRoundsForPlayers = (numPlayers) => {
-      return Math.floor(60 / numPlayers);
+    const getRoundOptionsForPlayers = (numPlayers) => {
+      if (numPlayers === 3) return [5, 10, 15, 20];
+      if (numPlayers === 4) return [5, 8, 12, 15];
+      if (numPlayers === 5) return [3, 6, 9, 12];
+      if (numPlayers === 6) return [3, 5, 8, 10];
+      return [5, 10, 15, 20];
     };
 
     const getCryptoRandomDice = () => {
@@ -840,9 +844,10 @@
       const [maxRounds, setMaxRounds] = useState(15);
       const [difficulty, setDifficulty] = useState('Normal');
 
-      // Automatische Anpassung der max. Runden bei Spieleranzahl-Änderung
+      // Automatische Anpassung der Runden-Optionen bei Spieleranzahl-Änderung
       useEffect(() => {
-        setMaxRounds(getMaxRoundsForPlayers(playerCount));
+        const options = getRoundOptionsForPlayers(playerCount);
+        setMaxRounds(options[options.length - 1]);
       }, [playerCount]);
 
       const [round, setRound] = useState(1);
@@ -1594,7 +1599,7 @@
               </button>
 
               <span className="text-[9px] text-center text-slate-300 font-bold block mt-2 drop-shadow bg-slate-950/70 py-1 rounded-full backdrop-blur-md border border-sky-500/30">
-                MYTHOS CARD GAME V10.94
+                MYTHOS CARD GAME V10.95
               </span>
             </div>
           </div>
@@ -1637,6 +1642,8 @@
 
       // ---------------- 2. EINZELSPIEL EINSTELLUNGEN ----------------
       if (screen === 'game_setup') {
+        const currentRoundOptions = getRoundOptionsForPlayers(playerCount);
+
         return (
           <div className="flex flex-col landscape:flex-row h-full max-w-4xl mx-auto bg-slate-950 justify-between overflow-hidden">
             <div className="w-full h-24 landscape:h-full landscape:w-1/2 relative overflow-hidden border-b landscape:border-b-0 landscape:border-r border-sky-500/30 shadow-2xl shrink-0 flex items-center justify-center">
@@ -1666,13 +1673,17 @@
                 </div>
 
                 <div>
-                  <div className="flex justify-between items-center mb-1">
-                    <label className="text-[11px] font-bold text-sky-200">Rundenanzahl:</label>
-                    <span className="text-[10px] text-amber-400 font-bold">(Automatisch an Deckgröße angepasst)</span>
-                  </div>
-                  <div className="bg-slate-900 border border-slate-800 p-2.5 rounded-xl flex justify-between items-center">
-                    <span className="text-xs text-slate-300 font-bold">Max. Runden für {playerCount} Spieler:</span>
-                    <span className="text-sm font-black text-amber-400 bg-slate-950 px-3 py-1 rounded-lg border border-slate-800">{maxRounds} Runden</span>
+                  <label className="text-[11px] font-bold text-sky-200 block mb-1">Rundenanzahl:</label>
+                  <div className="grid grid-cols-4 gap-2">
+                    {currentRoundOptions.map(optRounds => (
+                      <button
+                        key={optRounds}
+                        onClick={() => setMaxRounds(optRounds)}
+                        className={`py-2 rounded-xl font-bold text-xs crystal-btn ${maxRounds === optRounds ? 'crystal-active text-white' : 'bg-slate-900 text-slate-400'}`}
+                      >
+                        {optRounds} R.
+                      </button>
+                    ))}
                   </div>
                 </div>
 
