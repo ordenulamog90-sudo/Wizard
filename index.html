@@ -557,7 +557,6 @@
       const isYellowJester = isJester && card.suit === 'yellow';
       const isGreenJester = isJester && card.suit === 'green';
 
-      // Grüne Zahlen
       const isGreenOne = card.type === 'number' && card.suit === 'green' && card.value === 1;
       const isGreenTwo = card.type === 'number' && card.suit === 'green' && card.value === 2;
       const isGreenThree = card.type === 'number' && card.suit === 'green' && card.value === 3;
@@ -572,7 +571,6 @@
       const isGreenTwelve = card.type === 'number' && card.suit === 'green' && card.value === 12;
       const isGreenThirteen = card.type === 'number' && card.suit === 'green' && card.value === 13;
 
-      // Blaue Zahlen
       const isBlueOne = card.type === 'number' && card.suit === 'blue' && card.value === 1;
       const isBlueTwo = card.type === 'number' && card.suit === 'blue' && card.value === 2;
       const isBlueThree = card.type === 'number' && card.suit === 'blue' && card.value === 3;
@@ -587,7 +585,6 @@
       const isBlueTwelve = card.type === 'number' && card.suit === 'blue' && card.value === 12;
       const isBlueThirteen = card.type === 'number' && card.suit === 'blue' && card.value === 13;
 
-      // Rote Zahlen
       const isRedOne = card.type === 'number' && card.suit === 'red' && card.value === 1;
       const isRedTwo = card.type === 'number' && card.suit === 'red' && card.value === 2;
       const isRedThree = card.type === 'number' && card.suit === 'red' && card.value === 3;
@@ -602,7 +599,6 @@
       const isRedTwelve = card.type === 'number' && card.suit === 'red' && card.value === 12;
       const isRedThirteen = card.type === 'number' && card.suit === 'red' && card.value === 13;
 
-      // Gelbe Zahlen
       const isYellowOne = card.type === 'number' && card.suit === 'yellow' && card.value === 1;
       const isYellowTwo = card.type === 'number' && card.suit === 'yellow' && card.value === 2;
       const isYellowThree = card.type === 'number' && card.suit === 'yellow' && card.value === 3;
@@ -632,7 +628,6 @@
           {isYellowJester && <div className="absolute inset-0 z-0 overflow-hidden"><img src="./1791701531151.jpg" alt="Gelber Narr" className="w-full h-full object-cover" /><div className="absolute inset-0 bg-amber-950/15 backdrop-brightness-95"></div></div>}
           {isGreenJester && <div className="absolute inset-0 z-0 overflow-hidden"><img src="./1791706548220.jpg" alt="Grüner Narr" className="w-full h-full object-cover" /><div className="absolute inset-0 bg-emerald-950/15 backdrop-brightness-95"></div></div>}
 
-          {/* Grüne Zahlen */}
           {isGreenOne && <div className="absolute inset-0 z-0 overflow-hidden"><img src="./1791706743050.jpg" alt="Grün 1" className="w-full h-full object-cover" /><div className="absolute inset-0 bg-emerald-950/15 backdrop-brightness-95"></div></div>}
           {isGreenTwo && <div className="absolute inset-0 z-0 overflow-hidden"><img src="./1791706770151.jpg" alt="Grün 2" className="w-full h-full object-cover" /><div className="absolute inset-0 bg-emerald-950/15 backdrop-brightness-95"></div></div>}
           {isGreenThree && <div className="absolute inset-0 z-0 overflow-hidden"><img src="./1791706810564.jpg" alt="Grün 3" className="w-full h-full object-cover" /><div className="absolute inset-0 bg-emerald-950/15 backdrop-brightness-95"></div></div>}
@@ -647,7 +642,6 @@
           {isGreenTwelve && <div className="absolute inset-0 z-0 overflow-hidden"><img src="./1791723966479.jpg" alt="Grün 12" className="w-full h-full object-cover" /><div className="absolute inset-0 bg-emerald-950/15 backdrop-brightness-95"></div></div>}
           {isGreenThirteen && <div className="absolute inset-0 z-0 overflow-hidden"><img src="./1791723999095.jpg" alt="Grün 13" className="w-full h-full object-cover" /><div className="absolute inset-0 bg-emerald-950/15 backdrop-brightness-95"></div></div>}
 
-          {/* Blaue Zahlen */}
           {isBlueOne && <div className="absolute inset-0 z-0 overflow-hidden"><img src="./1791660858583.jpg" alt="Blau 1" className="w-full h-full object-cover" /><div className="absolute inset-0 bg-blue-950/15 backdrop-brightness-95"></div></div>}
           {isBlueTwo && <div className="absolute inset-0 z-0 overflow-hidden"><img src="./1791660928323.jpg" alt="Blau 2" className="w-full h-full object-cover" /><div className="absolute inset-0 bg-blue-950/15 backdrop-brightness-95"></div></div>}
           {isBlueThree && <div className="absolute inset-0 z-0 overflow-hidden"><img src="./1791661070842.jpg" alt="Blau 3" className="w-full h-full object-cover" /><div className="absolute inset-0 bg-blue-950/15 backdrop-brightness-95"></div></div>}
@@ -662,7 +656,6 @@
           {isBlueTwelve && <div className="absolute inset-0 z-0 overflow-hidden"><img src="./1791696686978.jpg" alt="Blau 12" className="w-full h-full object-cover" /><div className="absolute inset-0 bg-blue-950/15 backdrop-brightness-95"></div></div>}
           {isBlueThirteen && <div className="absolute inset-0 z-0 overflow-hidden"><img src="./1791696606461.jpg" alt="Blau 13" className="w-full h-full object-cover" /><div className="absolute inset-0 bg-blue-950/15 backdrop-brightness-95"></div></div>}
 
-          {/* Rote Zahlen */}
           {isRedOne && <div className="absolute inset-0 z-0 overflow-hidden"><img src="./1791698127587.jpg" alt="Rot 1" className="w-full h-full object-cover" /><div className="absolute inset-0 bg-red-950/15 backdrop-brightness-95"></div></div>}
           {isRedTwo && <div className="absolute inset-0 z-0 overflow-hidden"><img src="./1791698174306.jpg" alt="Rot 2" className="w-full h-full object-cover" /><div className="absolute inset-0 bg-red-950/15 backdrop-brightness-95"></div></div>}
           {isRedThree && <div className="absolute inset-0 z-0 overflow-hidden"><img src="./1791698326666.jpg" alt="Rot 3" className="w-full h-full object-cover" /><div className="absolute inset-0 bg-red-950/15 backdrop-brightness-95"></div></div>}
@@ -677,7 +670,6 @@
           {isRedTwelve && <div className="absolute inset-0 z-0 overflow-hidden"><img src="./1791699299500.jpg" alt="Rot 12" className="w-full h-full object-cover" /><div className="absolute inset-0 bg-red-950/15 backdrop-brightness-95"></div></div>}
           {isRedThirteen && <div className="absolute inset-0 z-0 overflow-hidden"><img src="./1791699330751.jpg" alt="Rot 13" className="w-full h-full object-cover" /><div className="absolute inset-0 bg-red-950/15 backdrop-brightness-95"></div></div>}
 
-          {/* Gelbe Zahlen */}
           {isYellowOne && <div className="absolute inset-0 z-0 overflow-hidden"><img src="./1791701576314.jpg" alt="Gelb 1" className="w-full h-full object-cover" /><div className="absolute inset-0 bg-amber-950/15 backdrop-brightness-95"></div></div>}
           {isYellowTwo && <div className="absolute inset-0 z-0 overflow-hidden"><img src="./1791701667083.jpg" alt="Gelb 2" className="w-full h-full object-cover" /><div className="absolute inset-0 bg-amber-950/15 backdrop-brightness-95"></div></div>}
           {isYellowThree && <div className="absolute inset-0 z-0 overflow-hidden"><img src="./1791701691014.jpg" alt="Gelb 3" className="w-full h-full object-cover" /><div className="absolute inset-0 bg-amber-950/15 backdrop-brightness-95"></div></div>}
@@ -692,14 +684,12 @@
           {isYellowTwelve && <div className="absolute inset-0 z-0 overflow-hidden"><img src="./1791705766319.jpg" alt="Gelb 12" className="w-full h-full object-cover" /><div className="absolute inset-0 bg-amber-950/15 backdrop-brightness-95"></div></div>}
           {isYellowThirteen && <div className="absolute inset-0 z-0 overflow-hidden"><img src="./1791705774151.jpg" alt="Gelb 13" className="w-full h-full object-cover" /><div className="absolute inset-0 bg-amber-950/15 backdrop-brightness-95"></div></div>}
 
-          {/* Nur noch Rechts oben */}
           <div className={`w-full flex justify-end font-black text-xs drop-shadow z-10 px-1 ${cornerColorClass}`}>
             <span>{cornerText}</span>
           </div>
 
           <div className="flex-1 my-0.5 w-full flex items-center justify-center z-10"></div>
 
-          {/* Nur noch Links unten (gedreht für authentischen Look) */}
           <div className={`w-full flex justify-start font-black text-xs drop-shadow rotate-180 z-10 px-1 ${cornerColorClass}`}>
             <span>{cornerText}</span>
           </div>
@@ -988,12 +978,10 @@
           }
         });
         
-        // 4 Zauberer
         for(let i=0; i<4; i++) {
           rawDeck.push({ type: 'wizard', wizardIndex: i, id: `w_${i}_${roundSeed}_${Math.random()}` });
         }
         
-        // 4 Narren (Blau, Rot, Gelb & Grün integriert)
         for(let i=0; i<4; i++) {
           const jSuit = i === 0 ? 'blue' : i === 1 ? 'red' : i === 2 ? 'yellow' : 'green';
           rawDeck.push({ type: 'jester', suit: jSuit, id: `j_${i}_${roundSeed}_${Math.random()}` });
@@ -1066,7 +1054,6 @@
         let winningCardObj = cardsOnTable[0];
         const activeTrump = stateRef.current.trumpCard;
 
-        // Zauberer stechen IMMER absolut (der ERSTE ausgespielte Zauberer gewinnt den Stich)
         const firstWizard = cardsOnTable.find(c => c.card.type === 'wizard');
         if (firstWizard) {
           winningCardObj = firstWizard;
@@ -1215,7 +1202,7 @@
       };
 
       const renderAvatarIcon = (avatarObj, sizeClass = "w-16 h-16 text-2xl") => {
-        if (!avatarObj) return <div className={`${sizeClass} rounded-full bg-slate-900 border border-sky-400 flex items-center justify-center`}>🃏</div>;
+        if (!avatarObj) return <div className={`${sizeClass} rounded-full bg-slate-900 border border-sky-400 flex items-center justify-center`}></div>;
         
         const suitInfo = SUITS[avatarObj.suit] || SUITS.yellow;
         const isBlueJester = avatarObj.type === 'jester' && avatarObj.suit === 'blue';
@@ -1238,7 +1225,6 @@
         if (isYellowJester) return <div className={`${sizeClass} rounded-full bg-slate-900 border-2 border-amber-400 flex items-center justify-center shadow-xl relative overflow-hidden`}><img src="./1791701531151.jpg" alt="Gelber Narr" className="w-full h-full object-cover" /></div>;
         if (isGreenJester) return <div className={`${sizeClass} rounded-full bg-slate-900 border-2 border-emerald-400 flex items-center justify-center shadow-xl relative overflow-hidden`}><img src="./1791706548220.jpg" alt="Grüner Narr" className="w-full h-full object-cover" /></div>;
 
-        // Grüne Zahlen Avatare
         const isGreenOne = avatarObj.type === 'number' && avatarObj.suit === 'green' && avatarObj.value === 1;
         const isGreenTwo = avatarObj.type === 'number' && avatarObj.suit === 'green' && avatarObj.value === 2;
         const isGreenThree = avatarObj.type === 'number' && avatarObj.suit === 'green' && avatarObj.value === 3;
@@ -1267,7 +1253,6 @@
         if (isGreenTwelve) return <div className={`${sizeClass} rounded-full bg-slate-900 border-2 border-emerald-400 overflow-hidden`}><img src="./1791723966479.jpg" alt="Grün 12" className="w-full h-full object-cover" /></div>;
         if (isGreenThirteen) return <div className={`${sizeClass} rounded-full bg-slate-900 border-2 border-emerald-400 overflow-hidden`}><img src="./1791723999095.jpg" alt="Grün 13" className="w-full h-full object-cover" /></div>;
 
-        // Blaue Zahlen Avatare
         const isBlueOne = avatarObj.type === 'number' && avatarObj.suit === 'blue' && avatarObj.value === 1;
         const isBlueTwo = avatarObj.type === 'number' && avatarObj.suit === 'blue' && avatarObj.value === 2;
         const isBlueThree = avatarObj.type === 'number' && avatarObj.suit === 'blue' && avatarObj.value === 3;
@@ -1296,7 +1281,6 @@
         if (isBlueTwelve) return <div className={`${sizeClass} rounded-full bg-slate-900 border-2 border-blue-400 overflow-hidden`}><img src="./1791696686978.jpg" alt="Blau 12" className="w-full h-full object-cover" /></div>;
         if (isBlueThirteen) return <div className={`${sizeClass} rounded-full bg-slate-900 border-2 border-blue-400 overflow-hidden`}><img src="./1791696606461.jpg" alt="Blau 13" className="w-full h-full object-cover" /></div>;
 
-        // Rote Zahlen Avatare
         const isRedOne = avatarObj.type === 'number' && avatarObj.suit === 'red' && avatarObj.value === 1;
         const isRedTwo = avatarObj.type === 'number' && avatarObj.suit === 'red' && avatarObj.value === 2;
         const isRedThree = avatarObj.type === 'number' && avatarObj.suit === 'red' && avatarObj.value === 3;
@@ -1325,7 +1309,6 @@
         if (isRedTwelve) return <div className={`${sizeClass} rounded-full bg-slate-900 border-2 border-red-500 overflow-hidden`}><img src="./1791699299500.jpg" alt="Rot 12" className="w-full h-full object-cover" /></div>;
         if (isRedThirteen) return <div className={`${sizeClass} rounded-full bg-slate-900 border-2 border-red-500 overflow-hidden`}><img src="./1791699330751.jpg" alt="Rot 13" className="w-full h-full object-cover" /></div>;
 
-        // Gelbe Zahlen Avatare
         const isYellowOne = avatarObj.type === 'number' && avatarObj.suit === 'yellow' && avatarObj.value === 1;
         const isYellowTwo = avatarObj.type === 'number' && avatarObj.suit === 'yellow' && avatarObj.value === 2;
         const isYellowThree = avatarObj.type === 'number' && avatarObj.suit === 'yellow' && avatarObj.value === 3;
@@ -1384,16 +1367,10 @@
 
       const getAvailableAvatarsForSuit = (suitKey, currentLevel) => {
         const list = [];
-        
-        // 1. Narr (Level 1)
         list.push({ type: 'jester', suit: suitKey, unlocked: currentLevel >= 1 });
-
-        // 2. Zahlen 1 bis 13 (Level 2 bis 14)
         for (let v = 1; v <= 13; v++) {
           list.push({ type: 'number', value: v, suit: suitKey, unlocked: currentLevel >= (v + 1) });
         }
-
-        // 3. Zauberer als letzte Karte (Level 15)
         if (suitKey === 'blue') {
           list.push({ type: 'wizard', wizardIndex: 0, unlocked: currentLevel >= 15 });
         } else if (suitKey === 'red') {
@@ -1403,7 +1380,6 @@
         } else if (suitKey === 'green') {
           list.push({ type: 'wizard', wizardIndex: 3, unlocked: currentLevel >= 15 });
         }
-
         return list;
       };
 
@@ -1418,35 +1394,35 @@
             <div className="relative z-10 w-full max-w-sm flex flex-col gap-3 my-auto">
               <button
                 onClick={() => setScreen('game_setup')}
-                className="w-full py-4 rounded-2xl mythic-btn-primary text-white font-black text-lg active:scale-95 transition-transform flex items-center justify-center gap-2 shadow-2xl"
+                className="w-full py-4 rounded-2xl mythic-btn-primary text-white font-black text-lg active:scale-95 transition-transform flex items-center justify-center shadow-2xl"
               >
-                <span>⚔️</span> Spiel starten
+                Spiel starten
               </button>
 
               <button
                 onClick={() => setScreen('multiplayer')}
-                className="w-full py-3.5 rounded-2xl mythic-btn-menu text-sky-200 font-bold text-base active:scale-95 transition-transform flex items-center justify-center gap-2 shadow-xl"
+                className="w-full py-3.5 rounded-2xl mythic-btn-menu text-sky-200 font-bold text-base active:scale-95 transition-transform flex items-center justify-center shadow-xl"
               >
-                <span>🌐</span> Online-Lobby
+                Online-Lobby
               </button>
 
               <div className="flex gap-2">
                 <button
                   onClick={() => setScreen('profile')}
-                  className="flex-1 py-3 rounded-2xl mythic-btn-menu text-sky-300 font-bold text-xs active:scale-95 transition-transform flex items-center justify-center gap-1 shadow-lg"
+                  className="flex-1 py-3 rounded-2xl mythic-btn-menu text-sky-300 font-bold text-xs active:scale-95 transition-transform flex items-center justify-center shadow-lg"
                 >
-                  <span>👤</span> Profil & Stats
+                  Profil & Stats
                 </button>
                 <button
                   onClick={() => setScreen('rules')}
-                  className="flex-1 py-3 rounded-2xl mythic-btn-menu text-sky-300 font-bold text-xs active:scale-95 transition-transform flex items-center justify-center gap-1 shadow-lg"
+                  className="flex-1 py-3 rounded-2xl mythic-btn-menu text-sky-300 font-bold text-xs active:scale-95 transition-transform flex items-center justify-center shadow-lg"
                 >
-                  <span>📜</span> Regeln
+                  Regeln
                 </button>
               </div>
 
               <span className="text-[9px] text-center text-slate-300 font-bold block mt-2 drop-shadow bg-slate-950/70 py-1 rounded-full backdrop-blur-md border border-sky-500/30">
-                MYTHOS CARD GAME V10.49
+                MYTHOS CARD GAME V10.50
               </span>
             </div>
           </div>
@@ -1463,7 +1439,7 @@
 
             <div className="p-4 flex-1 flex flex-col gap-3 overflow-y-auto">
               <div className="flex justify-between items-center mb-1">
-                <h2 className="text-lg font-black text-sky-300 flex items-center gap-2"><span>⚔️</span> Einzelspiel</h2>
+                <h2 className="text-lg font-black text-sky-300">Einzelspiel</h2>
                 <button onClick={() => setScreen('menu')} className="text-xs bg-slate-900 border border-slate-800 text-sky-300 px-3 py-1.5 rounded-lg font-bold">Zurück</button>
               </div>
 
@@ -1518,7 +1494,7 @@
                 onClick={startNewGame}
                 className="w-full py-3.5 rounded-2xl mythic-btn-primary text-white font-black text-base active:scale-95 transition-transform shrink-0 shadow-2xl"
               >
-                Duell beginnen ⚔️
+                Duell beginnen
               </button>
             </div>
           </div>
@@ -1626,7 +1602,7 @@
                             </div>
                             {!av.unlocked && (
                               <span className="absolute inset-0 bg-black/60 rounded-xl flex items-center justify-center text-xs font-black text-amber-400">
-                                🔒
+                                LCK
                               </span>
                             )}
                           </div>
@@ -1652,9 +1628,9 @@
                     <h3 className="text-lg font-black text-sky-200">{profile.name}</h3>
                     <button 
                       onClick={() => { setIsEditingName(true); setNameInput(profile.name); setNameError(''); }}
-                      className="text-xs text-sky-400 bg-slate-900 border border-sky-500/30 px-2 py-0.5 rounded-lg"
+                      className="text-xs text-sky-400 bg-slate-900 border border-sky-500/30 px-2 py-0.5 rounded-lg font-bold"
                     >
-                      ✏️
+                      Bearbeiten
                     </button>
                   </div>
                 ) : (
@@ -1690,7 +1666,7 @@
 
               <div className="w-full bg-slate-900/90 border border-slate-800 p-3 rounded-xl text-left space-y-1.5 text-xs shadow-inner">
                 <div className="font-extrabold text-sky-300 border-b border-slate-800 pb-1 flex justify-between items-center">
-                  <span className="flex items-center gap-1.5">⚔️ Offline-Duelle (KI)</span>
+                  <span>Offline-Duelle (KI)</span>
                   <span className="text-[10px] text-slate-400 font-normal">Siegquote: {offWinrate}%</span>
                 </div>
                 <div className="flex justify-between"><span className="text-slate-400">Gespielte Matches:</span><span className="font-bold text-sky-200">{offPlayed}</span></div>
@@ -1700,7 +1676,7 @@
 
               <div className="w-full bg-purple-950/30 border border-purple-500/20 p-3 rounded-xl text-left space-y-1.5 text-xs shadow-inner">
                 <div className="font-extrabold text-purple-300 border-b border-purple-500/20 pb-1 flex justify-between items-center">
-                  <span className="flex items-center gap-1.5">🌐 Online-Duelle</span>
+                  <span>Online-Duelle</span>
                   <span className="text-[10px] text-purple-400 font-normal">Siegquote: {onWinrate}%</span>
                 </div>
                 <div className="flex justify-between"><span className="text-slate-400">Gespielte Matches:</span><span className="font-bold text-purple-200">{onPlayed}</span></div>
@@ -1724,9 +1700,8 @@
             </div>
 
             <div className="mythic-card p-5 rounded-2xl text-center space-y-4 my-auto">
-              <div className="text-4xl">🔮</div>
-              <h3 className="font-bold text-sky-200">Multiplayer-Schnittstelle</h3>
-              <p className="text-xs text-slate-400 leading-relaxed">Hier wirst du dich bald mit Freunden verbinden oder offene Räume suchen können!</p>
+              <h3 className="font-bold text-sky-200 text-sm">Multiplayer-Schnittstelle</h3>
+              <p className="text-xs text-slate-400 leading-relaxed">Hier wirst du dich bald mit Freunden verbinden oder offene Räume suchen können.</p>
             </div>
 
             <button onClick={() => setScreen('menu')} className="w-full py-3 mythic-btn-primary text-white font-bold rounded-xl">Zurück zum Menü</button>
@@ -1734,7 +1709,7 @@
         );
       }
 
-      // ---------------- 5. REGELN ----------------
+      // ---------------- 5. REGELN (ÜBERARBEITET) ----------------
       if (screen === 'rules') {
         return (
           <div className="flex flex-col h-full max-w-md mx-auto p-4 justify-between bg-slate-950 overflow-y-auto">
@@ -1742,17 +1717,30 @@
               <h2 className="text-xl font-bold text-sky-400">Spielregeln</h2>
               <button onClick={() => setScreen('menu')} className="text-xs bg-slate-800 text-sky-300 px-3 py-1.5 rounded-lg font-bold">Zurück</button>
             </div>
-            <div className="space-y-3 text-xs text-slate-300 leading-relaxed">
-              <div className="bg-slate-900 p-3 rounded-xl border border-slate-800">
-                <h3 className="font-bold text-sky-300 mb-1">1. Trumpf & Stich</h3>
-                <p>Die aufgedeckte Trumpfkarte bestimmt die Trumpffarbe. Trumpfkarten schlagen jede Leit- und Fehlfarbe. Höhere Zahlenkarten gewinnen in ihrer Kategorie.</p>
+
+            <div className="space-y-3 text-xs text-slate-300 leading-relaxed pb-4">
+              <div className="bg-slate-900 p-3 rounded-xl border border-slate-800 space-y-1">
+                <h3 className="font-bold text-sky-300 text-sm">1. Das Grundprinzip & Rundenablauf</h3>
+                <p>In jeder Runde erhält jeder Spieler eine bestimmte Anzahl an Karten (beginnend bei 1 Karte in Runde 1). Vor jedem Stich sagst du exakt voraus, wie viele Stiche du in dieser Runde gewinnen wirst. Das Ziel ist es, diese Ansage Punkt genau zu treffen.</p>
               </div>
-              <div className="bg-slate-900 p-3 rounded-xl border border-slate-800">
-                <h3 className="font-bold text-sky-300 mb-1">2. Zauberer & Narren</h3>
-                <p>Der erste Zauberer gewinnt immer. Narren verlieren, es sei denn, es liegen ausschließlich Narren auf dem Tisch.</p>
+
+              <div className="bg-slate-900 p-3 rounded-xl border border-slate-800 space-y-1">
+                <h3 className="font-bold text-sky-300 text-sm">2. Die Stich-Hierarchie</h3>
+                <p>Zauberer sind die mächtigsten Karten im Spiel und stechen alles. Der allererste ausgespielte Zauberer gewinnt den Stich bedingungslos. Narren sind die schwächsten Karten und verlieren immer, es sei denn, es werden ausschließlich Narren in einem Stich ausgespielt (dann gewinnt der erste Narr).</p>
+              </div>
+
+              <div className="bg-slate-900 p-3 rounded-xl border border-slate-800 space-y-1">
+                <h3 className="font-bold text-sky-300 text-sm">3. Farbzwang & Trumpf</h3>
+                <p>Es herrscht Farbzwang: Du musst die ausgespielte Leitfarbe bedienen, sofern du sie auf der Hand hast. Kannst du nicht bekennen, darfst du eine andere Farbe oder einen Trumpf spielen. Die aufgedeckte Trumpfkarte sticht jede Fehlfarbe. Innerhalb der Farbe oder des Trumpfs entscheidet die höhere Zahl.</p>
+              </div>
+
+              <div className="bg-slate-900 p-3 rounded-xl border border-slate-800 space-y-1">
+                <h3 className="font-bold text-sky-300 text-sm">4. Wertung & Punkte</h3>
+                <p>Triffst du deine Ansage exakt, erhältst du 20 Basispunkte plus 10 Punkte für jeden gewonnenen Stich. Liegst du daneben (zu viele oder zu wenige Stiche), gibt es Minuspunkte entsprechend der Differenz zu deiner Ansage.</p>
               </div>
             </div>
-            <button onClick={() => setScreen('menu')} className="mt-4 w-full py-3 mythic-btn-primary text-white font-bold rounded-xl">Zurück zum Menü</button>
+
+            <button onClick={() => setScreen('menu')} className="w-full py-3 mythic-btn-primary text-white font-bold rounded-xl">Zurück zum Menü</button>
           </div>
         );
       }
@@ -1767,7 +1755,6 @@
           {showExitConfirm && (
             <div className="absolute inset-0 bg-slate-950/95 backdrop-blur-md z-50 flex flex-col items-center justify-center p-4 text-center select-none overflow-y-auto">
               <div className="w-full max-w-xs mythic-card p-5 rounded-3xl flex flex-col items-center gap-4 my-auto shadow-2xl border border-sky-500/40">
-                <div className="text-4xl animate-bounce">⚠️</div>
                 <div className="space-y-1">
                   <h3 className="text-base font-black text-sky-200">Duell wirklich abbrechen?</h3>
                   <p className="text-xs text-slate-400 leading-relaxed">Dein aktueller Fortschritt in dieser Partie geht dabei verloren.</p>
@@ -1789,14 +1776,14 @@
                   <p className="text-xs text-slate-400 mt-0.5">Wer schlägt das erste Kapitel auf?</p>
                 </div>
 
-                <div className={`w-24 h-24 rounded-3xl bg-gradient-to-b from-sky-500 to-sky-800 border-2 border-sky-300 shadow-2xl flex items-center justify-center text-5xl my-1 transition-transform ${isDiceRolling ? 'animate-dice-active' : 'shadow-sky-500/30'}`}>
-                  {isDiceRolling ? '🎲' : diceRolls ? `🎲 ${diceRolls[0]}` : '🎲'}
+                <div className={`w-24 h-24 rounded-3xl bg-gradient-to-b from-sky-500 to-sky-800 border-2 border-sky-300 shadow-2xl flex items-center justify-center text-3xl font-black my-1 transition-transform ${isDiceRolling ? 'animate-dice-active' : 'shadow-sky-500/30'}`}>
+                  {isDiceRolling ? '...' : diceRolls ? diceRolls[0] : '?'}
                 </div>
 
                 {!diceRolls && !isDiceRolling && (
                   <div className="flex flex-col items-center gap-1">
-                    <span className="text-xs font-black text-amber-400 animate-pulse">👉 Tippe auf den Bildschirm zum Würfeln!</span>
-                    <span className="text-[11px] text-sky-400 font-extrabold bg-sky-950 px-3 py-1 rounded-full border border-sky-500/30">⏱️ Auto-Würfeln in {diceTimer}s</span>
+                    <span className="text-xs font-black text-amber-400 animate-pulse">Tippe auf den Bildschirm zum Würfeln</span>
+                    <span className="text-[11px] text-sky-400 font-extrabold bg-sky-950 px-3 py-1 rounded-full border border-sky-500/30">Auto-Würfeln in {diceTimer}s</span>
                   </div>
                 )}
 
@@ -1807,19 +1794,19 @@
                       {players.map((p, idx) => (
                         <div key={p.id} className={`p-1.5 rounded-xl flex justify-between items-center ${diceWinner === idx ? 'bg-sky-950 border border-sky-400 text-sky-200' : 'bg-slate-950/60 text-slate-400'}`}>
                           <span className="font-bold truncate text-xs">{p.name}:</span>
-                          <span className="font-black text-amber-400 text-xs">🎲 {diceRolls[idx]}</span>
+                          <span className="font-black text-amber-400 text-xs">{diceRolls[idx]}</span>
                         </div>
                       ))}
                     </div>
 
                     <div className="bg-emerald-950/80 border border-emerald-500/50 p-2 rounded-xl text-center text-xs text-emerald-300 mt-2 font-bold">
-                      🏆 {players[diceWinner]?.name} gewinnt und beginnt Runde 1!
+                      {players[diceWinner]?.name} gewinnt und beginnt Runde 1!
                     </div>
 
                     <div className="pt-2 flex flex-col items-center gap-1 border-t border-slate-800 mt-2">
                       <button onClick={(e) => { e.stopPropagation(); startRoundAfterDice(); }} className="w-full py-3 mythic-btn-primary text-white font-black text-xs rounded-xl shadow-2xl active:scale-95 transition-transform flex items-center justify-center gap-2">
-                        <span>Weiter zum Spiel ⚔️</span>
-                        <span className="bg-sky-950/80 border border-sky-400/60 px-2 py-0.5 rounded-md text-[11px] font-bold text-amber-300">⏱️ {resultTimer}s</span>
+                        <span>Weiter zum Spiel</span>
+                        <span className="bg-sky-950/80 border border-sky-400/60 px-2 py-0.5 rounded-md text-[11px] font-bold text-amber-300">{resultTimer}s</span>
                       </button>
                       <span className="text-[10px] text-slate-400 font-bold">Automatisch weiter in {resultTimer} Sekunden</span>
                     </div>
@@ -1850,11 +1837,11 @@
                   ))}
 
                   <div className="bg-sky-950/80 border border-sky-400/50 p-3 rounded-2xl text-center text-xs text-sky-200 mt-3 font-bold space-y-2.5 shadow-2xl">
-                    <div>👑 {roundSummary.calculatedPlayers.find(p => p.id === roundSummary.nextStarterId)?.name} beginnt Runde {roundSummary.round + 1}!</div>
+                    <div>{roundSummary.calculatedPlayers.find(p => p.id === roundSummary.nextStarterId)?.name} beginnt Runde {roundSummary.round + 1}!</div>
                     <div className="pt-2 border-t border-sky-500/30 flex flex-col items-center gap-1">
                       <button onClick={(e) => { e.stopPropagation(); proceedToNextRound(); }} className="w-full py-2.5 mythic-btn-primary text-white font-black text-xs rounded-xl shadow-xl active:scale-95 transition-transform flex items-center justify-center gap-2">
-                        <span>Nächste Runde starten ⚔️</span>
-                        <span className="bg-sky-950/90 border border-sky-400/60 px-2 py-0.5 rounded-md text-[11px] font-bold text-amber-300">⏱️ {summaryTimer}s</span>
+                        <span>Nächste Runde starten</span>
+                        <span className="bg-sky-950/90 border border-sky-400/60 px-2 py-0.5 rounded-md text-[11px] font-bold text-amber-300">{summaryTimer}s</span>
                       </button>
                       <span className="text-[10px] text-slate-400 font-bold">Automatisch weiter in {summaryTimer} Sekunden</span>
                     </div>
@@ -1873,14 +1860,13 @@
             return (
               <div onClick={finishGameAndGoMenu} className="absolute inset-0 bg-slate-950/95 backdrop-blur-md z-50 flex flex-col items-center justify-between p-4 cursor-pointer select-none overflow-y-auto">
                 <div className="text-center mt-2">
-                  <h2 className="text-2xl font-black drop-shadow tracking-widest" style={{ color: suitTheme.primaryColor }}>👑 SIEGEREHRUNG 👑</h2>
-                  <p className="text-xs text-sky-300 font-bold mt-0.5">Das große Turnier ist zu Ende!</p>
+                  <h2 className="text-2xl font-black drop-shadow tracking-widest" style={{ color: suitTheme.primaryColor }}>SIEGEREHRUNG</h2>
+                  <p className="text-xs text-sky-300 font-bold mt-0.5">Das große Turnier ist zu Ende</p>
                 </div>
 
                 <div className="my-auto flex flex-col items-center w-full">
                   <div className="relative flex flex-col items-center mb-3">
                     
-                    {/* MAJESTÄTISCHE ELEMENT-KRONE ÜBER DEM PROFILBILD */}
                     <div className="relative z-20 flex flex-col items-center">
                       <div className="absolute -top-7 animate-bounce drop-shadow z-30">
                         {suitTheme.crownSvg}
@@ -1894,7 +1880,6 @@
                       </div>
                     </div>
                     
-                    {/* ELEMENT-PODEST */}
                     <div 
                       className={`w-48 h-20 mt-[-16px] flex flex-col items-center justify-center element-podium-active z-10 ${suitTheme.podiumClass} ${winnerSuitKey === 'yellow' ? 'animate-tornado' : ''}`}
                       style={{ '--glow-color': suitTheme.glowColor }}
@@ -1922,8 +1907,8 @@
                 </div>
 
                 <div className="w-full flex flex-col items-center gap-1 mb-2">
-                  <button onClick={finishGameAndGoMenu} className="w-full py-3.5 mythic-btn-primary text-white font-black text-sm rounded-2xl shadow-2xl active:scale-95 transition-transform">Zurück zum Hauptmenü 🏰</button>
-                  <span className="text-[11px] text-sky-400 font-extrabold bg-sky-950 px-3 py-1 rounded-full border border-sky-500/30">⏱️ Schließt in {victoryTimer}s</span>
+                  <button onClick={finishGameAndGoMenu} className="w-full py-3.5 mythic-btn-primary text-white font-black text-sm rounded-2xl shadow-2xl active:scale-95 transition-transform">Zurück zum Hauptmenü</button>
+                  <span className="text-[11px] text-sky-400 font-extrabold bg-sky-950 px-3 py-1 rounded-full border border-sky-500/30">Schließt in {victoryTimer}s</span>
                 </div>
               </div>
             );
@@ -1932,7 +1917,7 @@
           <div className="flex justify-between items-center mb-1 bg-slate-900/80 p-2 rounded-xl border border-slate-800">
             <span className="text-xs font-bold text-sky-400">Runde {round} / {maxRounds}</span>
             {phase === 'playing' && isHumanTurn && !isEvaluatingRef.current && !animatingCardId && !collectingWinnerId && !showDiceModal && !roundSummary && !victoryData && !showExitConfirm && (
-              <span className="text-[11px] font-extrabold text-amber-400 bg-amber-950/80 px-2.5 py-0.5 rounded-full border border-amber-500/40 animate-pulse">⏱️ Dein Zug: {turnTimer}s</span>
+              <span className="text-[11px] font-extrabold text-amber-400 bg-amber-950/80 px-2.5 py-0.5 rounded-full border border-amber-500/40 animate-pulse">Dein Zug: {turnTimer}s</span>
             )}
             <button onClick={() => setShowExitConfirm(true)} className="text-[10px] bg-slate-800 hover:bg-slate-700 active:scale-95 text-sky-300 border border-sky-500/30 px-2.5 py-1 rounded-lg font-bold transition-all shadow">Menü</button>
           </div>
@@ -1947,7 +1932,7 @@
                     {renderAvatarIcon(p.avatarObj, "w-10 h-10 text-base")}
                   </div>
                   <div className="min-w-0 flex-1">
-                    <div className={`font-bold truncate text-[11px] ${isCurrentTurn ? 'text-sky-300' : 'text-slate-300'}`}>{isCurrentTurn ? `▶ ${p.name}` : p.name}</div>
+                    <div className={`font-bold truncate text-[11px] ${isCurrentTurn ? 'text-sky-300' : 'text-slate-300'}`}>{isCurrentTurn ? `> ${p.name}` : p.name}</div>
                     <div className="text-[10px] font-bold text-amber-400">{p.score} Ptn</div>
                     <div className="text-[9px] text-slate-300">Ansage: {p.bid !== null ? p.bid : '?'} | Stiche: {p.tricks}</div>
                   </div>
@@ -1956,7 +1941,6 @@
             })}
           </div>
 
-          {/* ZENTRALER SPIELTISCH MIT HINTERGRUNDBILD */}
           <div className="flex-1 my-2 rounded-2xl border border-sky-500/40 p-2 flex flex-col justify-between items-center relative overflow-hidden shadow-2xl bg-slate-950">
             <div className="absolute inset-0 z-0 pointer-events-none">
               <img src="./1791660049147.jpg" alt="Spieltisch Hintergrund" className="w-full h-full object-cover" />
@@ -1978,7 +1962,6 @@
                 ))}
               </div>
 
-              {/* TCG ELEMENT-ANIMATION */}
               {animatingCardId && animatingCardObj && (
                 <div className="absolute inset-0 flex flex-col items-center justify-center z-40 bg-black/60 backdrop-blur-[2px]">
                   <div className="relative flex flex-col items-center">
@@ -1993,7 +1976,7 @@
               <div className="w-full bg-slate-900/95 border border-sky-500/50 p-3 rounded-2xl flex flex-col items-center gap-2 shadow-2xl backdrop-blur-md z-20">
                 <div className="flex justify-between items-center w-full px-1">
                   <span className="text-xs font-bold text-sky-300">Deine Stich-Ansage für Runde {round}:</span>
-                  <span className="text-[10px] font-extrabold text-amber-400 bg-amber-950 px-2 py-0.5 rounded-full border border-sky-500/30">⏱️ Noch {biddingTimer}s</span>
+                  <span className="text-[10px] font-extrabold text-amber-400 bg-amber-950 px-2 py-0.5 rounded-full border border-sky-500/30">Noch {biddingTimer}s</span>
                 </div>
                 <div className="flex gap-2 flex-wrap justify-center">
                   {Array.from({ length: round + 1 }, (_, i) => (
@@ -2011,7 +1994,7 @@
                   {renderAvatarIcon(humanPlayer.avatarObj || profile.selectedAvatar, "w-8 h-8 text-sm")}
                 </div>
                 <span className={`text-xs font-bold ${isHumanTurn && phase === 'playing' ? 'text-sky-300 animate-pulse' : 'text-slate-300'}`}>
-                  {isHumanTurn && phase === 'playing' ? '▶ DEINE HAND:' : 'DEINE HAND:'}
+                  {isHumanTurn && phase === 'playing' ? 'DEINE HAND:' : 'DEINE HAND:'}
                 </span>
                 <span className="text-xs font-extrabold text-amber-400 bg-amber-950/60 px-2 py-0.5 rounded-md border border-amber-500/30">{humanPlayer.score || 0} Ptn</span>
               </div>
