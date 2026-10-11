@@ -202,7 +202,6 @@
         if (this.menuMusic && !this.menuMusic.paused) {
           this.menuMusic.pause();
         }
-        // Läuft nur neu an, wenn sie pausiert ist oder gestoppt wurde (verhindert Neustart bei Re-Renders)
         if (this.playMusicAudio && this.playMusicAudio.paused) {
           this.playMusicAudio.play().catch(e => console.log("Autoplay waiting for interaction"));
         }
@@ -760,7 +759,6 @@
         return saved !== null ? parseFloat(saved) : 0.5;
       });
 
-      // Musiksteuerung: Menü-Musik in Menüs, Spiel-Musik (mythosplay.mp3) während des Spiels (inkl. Ansagen und Rundenwechsel)
       useEffect(() => {
         if (screen === 'menu' || screen === 'settings' || screen === 'game_setup' || screen === 'profile' || screen === 'multiplayer' || screen === 'rules') {
           soundEngine.playMenu();
@@ -2072,7 +2070,7 @@
             })}
           </div>
 
-          <div className="flex-1 my-2 rounded-2xl border border-sky-500/40 p-2 flex flex-col justify-between items-center relative overflow-hidden shadow-2xl bg-slate-950">
+          <div className="my-2 rounded-2xl border border-sky-500/40 p-2 flex flex-col justify-between items-center relative overflow-hidden shadow-2xl bg-slate-950">
             <div className="absolute inset-0 z-0 pointer-events-none">
               <img src="./1791660049147.jpg" alt="Spieltisch Hintergrund" className="w-full h-full object-cover" />
               <div className="absolute inset-0 bg-slate-950/50 backdrop-brightness-90"></div>
@@ -2083,8 +2081,9 @@
               {trumpCard ? <CardFace card={trumpCard} size="sm" disabled /> : <CardBack size="sm" />}
             </div>
 
-            <div className="w-full flex-1 flex items-center justify-center p-2 relative z-10">
-              <div className={`grid grid-cols-2 gap-4 items-center justify-items-center ${collectingWinnerId !== null ? (collectingWinnerId === 0 ? 'animate-fly-to-bottom' : 'animate-fly-to-top') : ''}`}>
+            {/* Feste Höhe (h-36) und min-h-[130px] verhindern das Hüpfen/Verschieben */}
+            <div className="w-full h-36 flex items-center justify-center p-2 relative z-10 shrink-0">
+              <div className={`grid grid-cols-2 gap-4 items-center justify-items-center min-h-[130px] ${collectingWinnerId !== null ? (collectingWinnerId === 0 ? 'animate-fly-to-bottom' : 'animate-fly-to-top') : ''}`}>
                 {playedCards.map((pc, i) => (
                   <div key={i} className="flex flex-col items-center">
                     <span className="text-[9px] text-sky-200 mb-0.5 drop-shadow">{players[pc.playerId]?.name}</span>
