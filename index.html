@@ -885,7 +885,6 @@
       });
 
       useEffect(() => {
-        // Initiale Musik-Aktivierung beim ersten Laden
         soundEngine.init();
       }, []);
 
@@ -1620,7 +1619,7 @@
 
             <div className="relative z-10 w-full max-w-sm flex flex-col gap-3 my-auto">
               <button
-                onClick={startNewGame}
+                onClick={() => { handleUserInteraction(); setScreen('game_setup'); }}
                 className="w-full py-4 rounded-2xl mythic-btn-primary text-white font-black text-lg active:scale-95 transition-transform flex items-center justify-center shadow-2xl"
               >
                 Spiel starten
