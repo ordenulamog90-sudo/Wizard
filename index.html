@@ -771,7 +771,7 @@
         } else {
           soundEngine.playMenu();
         }
-      }, [screen, showDiceModal, victoryData, showExitConfirm]);
+      }, [screen, showExitConfirm]);
 
       const handleVolumeChange = (newVol) => {
         setMusicVolume(newVol);
@@ -1520,7 +1520,7 @@
               </button>
 
               <span className="text-[9px] text-center text-slate-300 font-bold block mt-2 drop-shadow bg-slate-950/70 py-1 rounded-full backdrop-blur-md border border-sky-500/30">
-                MYTHOS CARD GAME V10.62
+                MYTHOS CARD GAME V10.63
               </span>
             </div>
           </div>
@@ -2144,7 +2144,7 @@
       );
     }
 
-    ReactDOM.createRoot(getElementById('root')).render(<App />);
+    ReactDOM.createRoot(document.getElementById('root')).render(<App />);
   </script>
 </body>
 </html>
