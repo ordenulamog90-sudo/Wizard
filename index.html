@@ -58,6 +58,19 @@
       transform: scale(1.05);
     }
 
+    /* Scrollbar für Handkarten optimieren */
+    .hand-scroll-container::-webkit-scrollbar {
+      height: 6px;
+    }
+    .hand-scroll-container::-webkit-scrollbar-track {
+      background: rgba(3, 7, 18, 0.5);
+      border-radius: 4px;
+    }
+    .hand-scroll-container::-webkit-scrollbar-thumb {
+      background: rgba(56, 189, 248, 0.4);
+      border-radius: 4px;
+    }
+
     /* Animations */
     @keyframes rollDiceAction {
       0% { transform: rotate(0deg) scale(0.6); }
@@ -76,50 +89,29 @@
       animation: elementPodiumGlow 2.5s infinite ease-in-out;
     }
 
-    /* GESCHWUNGENES WELLEN-WASSER-PODEST */
+    /* PODESTE */
     .podium-water {
       background: linear-gradient(135deg, rgba(3, 105, 161, 0.95), rgba(2, 132, 199, 0.9), rgba(3, 7, 18, 0.98));
       border: 2px solid #38bdf8;
       clip-path: polygon(10% 15%, 30% 0%, 50% 15%, 70% 0%, 90% 15%, 100% 35%, 95% 100%, 5% 100%, 0% 35%);
-      background-image: 
-        radial-gradient(circle at 50% 30%, rgba(186, 230, 253, 0.35) 0%, transparent 60%),
-        repeating-linear-gradient(-30deg, rgba(56, 189, 248, 0.2) 0px, rgba(56, 189, 248, 0.2) 10px, transparent 10px, transparent 20px);
-      background-size: 100% 100%, 100% 100%;
     }
-
-    /* LODERNDES FEUER-PODEST */
     .podium-fire {
       background: linear-gradient(135deg, rgba(220, 38, 38, 0.95), rgba(185, 28, 28, 0.9), rgba(3, 7, 18, 0.98));
       border: 2px solid #ef4444;
       clip-path: polygon(15% 0%, 85% 0%, 100% 25%, 90% 100%, 10% 100%, 0% 25%);
-      background-image: 
-        repeating-linear-gradient(45deg, rgba(252, 165, 165, 0.2) 0, rgba(252, 165, 165, 0.2) 12px, transparent 12px, transparent 24px),
-        radial-gradient(circle at 50% 100%, rgba(245, 158, 11, 0.6) 0%, transparent 70%);
-      background-size: 100% 100%, 100% 100%;
     }
-
-    /* DIAMANTEN-KRISTALL-PODEST */
     .podium-diamond {
       background: linear-gradient(135deg, rgba(5, 150, 105, 0.95), rgba(4, 120, 87, 0.9), rgba(3, 7, 18, 0.98));
       border: 2px solid #34d399;
       clip-path: polygon(15% 0%, 85% 0%, 100% 30%, 95% 100%, 5% 100%, 0% 30%);
-      background-image: 
-        linear-gradient(60deg, rgba(167, 243, 208, 0.25) 25%, transparent 25%), 
-        linear-gradient(120deg, rgba(167, 243, 208, 0.25) 25%, transparent 25%),
-        linear-gradient(180deg, rgba(5, 150, 105, 0.4) 0%, rgba(3, 7, 18, 0.8) 100%);
-      background-size: 20px 20px, 20px 20px, 100% 100%;
     }
-
-    /* FESTES WIND-PODEST (Ohne Drehung) */
     .podium-wind {
       background: linear-gradient(to bottom, rgba(217, 119, 6, 0.9), rgba(15, 23, 42, 0.98));
       border: 2px solid #f59e0b;
       border-radius: 2rem;
       box-shadow: inset 0 0 25px rgba(252, 211, 77, 0.4);
-      background-image: repeating-linear-gradient(-45deg, rgba(253, 230, 138, 0.15) 0px, rgba(253, 230, 138, 0.15) 12px, transparent 12px, transparent 24px);
     }
 
-    /* Wuchtige TCG Impact-Slam Animation */
     @keyframes tcglikeSlam {
       0% { transform: translateY(180px) scale(1.7) rotate(-15deg); opacity: 0; filter: brightness(2.5) contrast(1.5); }
       35% { opacity: 1; transform: translateY(-16px) scale(1.2) rotate(4deg); }
@@ -131,7 +123,6 @@
       z-index: 30;
     }
 
-    /* Epische TCG Element-Grafik-VFX */
     @keyframes elementVfxBurst {
       0% { transform: scale(0.3) rotate(0deg); opacity: 0; }
       40% { transform: scale(1.4) rotate(120deg); opacity: 1; filter: drop-shadow(0 0 35px currentColor); }
@@ -144,7 +135,6 @@
       z-index: 40;
     }
 
-    /* Animation: Karten schweben zum Gewinner des Stiches */
     @keyframes floatToWinnerTop {
       0% { transform: translateY(0) scale(1); opacity: 1; }
       100% { transform: translateY(-180px) scale(0.3); opacity: 0; filter: drop-shadow(0 0 20px #f59e0b); }
@@ -1595,7 +1585,7 @@
               </button>
 
               <span className="text-[9px] text-center text-slate-300 font-bold block mt-2 drop-shadow bg-slate-950/70 py-1 rounded-full backdrop-blur-md border border-sky-500/30">
-                MYTHOS CARD GAME V10.80
+                MYTHOS CARD GAME V10.85
               </span>
             </div>
           </div>
@@ -1888,7 +1878,7 @@
                 </div>
                 <div className="flex justify-between"><span className="text-slate-400">Gespielte Matches:</span><span className="font-bold text-purple-200">{onPlayed}</span></div>
                 <div className="flex justify-between"><span className="text-slate-400">Siege:</span><span className="font-bold text-emerald-400">{onWins}</span></div>
-                <div className="flex justify-between"><span className="text-slate-400">Niederlagen:</span><span className="font-bold text-red-400">{onLosses}</span></div>
+                <div className="flex justify-between"><span className="text-slate-400">Niederlagen:</span><span className="font-bold text-red-400">{offLosses}</span></div>
               </div>
             </div>
 
@@ -2131,42 +2121,42 @@
           </div>
 
           {/* GEGNER-LEISTE */}
-          <div className="grid grid-cols-3 gap-1.5 shrink-0 my-1">
+          <div className="grid grid-cols-3 gap-1.5 shrink-0 my-0.5">
             {players.filter(p => !p.isHuman).map(p => {
               const isCurrentTurn = (turn === p.id);
               const isWinnerCollecting = (collectingWinnerId === p.id);
               return (
-                <div key={p.id} className={`p-1.5 rounded-xl border flex items-center gap-2 text-xs transition-all ${isCurrentTurn ? 'border-sky-400 bg-slate-800 shadow-lg shadow-sky-500/25' : 'border-slate-800 bg-slate-900/60'} ${isWinnerCollecting ? 'ring-2 ring-amber-400 bg-amber-950/40 shadow-[0_0_15px_#f59e0b]' : ''}`}>
-                  <div className="shrink-0 scale-90 origin-left">
-                    {renderAvatarIcon(p.avatarObj, "w-10 h-10 text-base")}
+                <div key={p.id} className={`p-1 rounded-xl border flex items-center gap-1.5 text-xs transition-all ${isCurrentTurn ? 'border-sky-400 bg-slate-800 shadow-lg shadow-sky-500/25' : 'border-slate-800 bg-slate-900/60'} ${isWinnerCollecting ? 'ring-2 ring-amber-400 bg-amber-950/40 shadow-[0_0_15px_#f59e0b]' : ''}`}>
+                  <div className="shrink-0 scale-75 origin-left">
+                    {renderAvatarIcon(p.avatarObj, "w-8 h-8 text-xs")}
                   </div>
                   <div className="min-w-0 flex-1 overflow-hidden">
-                    <div className={`font-bold truncate text-xs ${isCurrentTurn ? 'text-sky-300' : 'text-slate-300'}`}>{isCurrentTurn ? `> ${p.name}` : p.name}</div>
-                    <div className="text-[11px] font-bold text-amber-400">{p.score} Ptn</div>
-                    <div className="text-[10px] text-slate-300">Ans: {p.bid !== null ? p.bid : '?'} | Stich: {p.tricks}</div>
+                    <div className={`font-bold truncate text-[11px] ${isCurrentTurn ? 'text-sky-300' : 'text-slate-300'}`}>{isCurrentTurn ? `> ${p.name}` : p.name}</div>
+                    <div className="text-[10px] font-bold text-amber-400">{p.score} Ptn</div>
+                    <div className="text-[9px] text-slate-300">Ans: {p.bid !== null ? p.bid : '?'} | Stich: {p.tricks}</div>
                   </div>
                 </div>
               );
             })}
           </div>
 
-          {/* HAUPT-SPIELFELD */}
-          <div className="flex-1 rounded-2xl border border-sky-500/40 p-2 flex flex-col justify-between items-center relative overflow-hidden shadow-2xl bg-slate-950 my-1">
+          {/* HAUPT-SPIELFELD (Kompakter für perfekten Platz) */}
+          <div className="flex-1 rounded-2xl border border-sky-500/40 p-1.5 flex flex-col justify-between items-center relative overflow-hidden shadow-2xl bg-slate-950 my-0.5">
             <div className="absolute inset-0 z-0 pointer-events-none">
               <img src="./1791660049147.jpg" alt="Spieltisch Hintergrund" className="w-full h-full object-cover" />
               <div className="absolute inset-0 bg-slate-950/40 backdrop-brightness-95"></div>
             </div>
 
             <div className="flex items-center gap-2 z-10 shrink-0">
-              <span className="text-xs font-bold text-sky-300 uppercase drop-shadow">Trumpf:</span>
+              <span className="text-[11px] font-bold text-sky-300 uppercase drop-shadow">Trumpf:</span>
               {trumpCard ? <CardFace card={trumpCard} size="sm" disabled /> : <CardBack size="sm" />}
             </div>
 
             {/* ABLAGE-TISCH IM 3ER-GRID */}
-            <div className="w-full flex-1 flex items-center justify-center p-1 relative z-10 overflow-y-auto">
-              <div className={`grid grid-cols-3 gap-2.5 items-center justify-items-center max-w-xs ${collectingWinnerId !== null ? (collectingWinnerId === 0 ? 'animate-fly-to-bottom' : 'animate-fly-to-top') : ''}`}>
+            <div className="w-full flex-1 flex items-center justify-center p-0.5 relative z-10 overflow-y-auto">
+              <div className={`grid grid-cols-3 gap-2 items-center justify-items-center max-w-xs ${collectingWinnerId !== null ? (collectingWinnerId === 0 ? 'animate-fly-to-bottom' : 'animate-fly-to-top') : ''}`}>
                 {playedCards.map((pc, i) => (
-                  <div key={i} className="flex flex-col items-center scale-90 origin-center">
+                  <div key={i} className="flex flex-col items-center scale-75 origin-center">
                     <span className="text-[9px] text-sky-200 mb-0.5 truncate max-w-[70px] drop-shadow">{players[pc.playerId]?.name}</span>
                     <CardFace card={pc.card} size="sm" disabled />
                   </div>
@@ -2183,17 +2173,17 @@
               )}
             </div>
 
-            {/* UNTERER BEREICH IM TISCH */}
-            <div className="w-full h-14 flex items-center justify-center z-20 shrink-0">
+            {/* UNTERER BEREICH IM TISCH (Ansagen-Auswahl) */}
+            <div className="w-full h-12 flex items-center justify-center z-20 shrink-0">
               {phase === 'bidding' && !showDiceModal && !roundSummary && !victoryData && !showExitConfirm ? (
-                <div className="w-full bg-slate-900/95 border border-sky-500/50 p-2 rounded-xl flex flex-col items-center gap-1 shadow-2xl backdrop-blur-md">
+                <div className="w-full bg-slate-900/95 border border-sky-500/50 p-1.5 rounded-xl flex flex-col items-center gap-1 shadow-2xl backdrop-blur-md">
                   <div className="flex justify-between items-center w-full px-1">
-                    <span className="text-[11px] font-bold text-sky-300">Ansage (Runde {round}):</span>
+                    <span className="text-[10px] font-bold text-sky-300">Ansage (Runde {round}):</span>
                     <span className="text-[10px] font-extrabold text-amber-400 bg-amber-950 px-2 py-0.5 rounded-full border border-sky-500/30">{biddingTimer}s</span>
                   </div>
-                  <div className="flex gap-1.5 flex-wrap justify-center overflow-x-auto max-w-full">
+                  <div className="flex gap-1 flex-wrap justify-center overflow-x-auto max-w-full">
                     {Array.from({ length: round + 1 }, (_, i) => (
-                      <button key={i} onClick={() => handleHumanBid(i)} className="w-7 h-7 rounded-full bg-gradient-to-b from-sky-500 to-sky-700 text-white font-black text-xs shadow border border-sky-300 active:scale-90 transition-transform">{i}</button>
+                      <button key={i} onClick={() => handleHumanBid(i)} className="w-6 h-6 rounded-full bg-gradient-to-b from-sky-500 to-sky-700 text-white font-black text-[10px] shadow border border-sky-300 active:scale-90 transition-transform">{i}</button>
                     ))}
                   </div>
                 </div>
@@ -2201,50 +2191,33 @@
             </div>
           </div>
 
-          {/* DEINE HANDKARTEN (FLEXIBLES OVERLAP-LAYOUT OHNE BLACKSCREEN-RISIKO) */}
-          <div className={`p-2.5 rounded-2xl border transition-all shrink-0 ${isHumanTurn && phase === 'playing' ? 'border-sky-400 bg-slate-800/95 shadow-2xl shadow-sky-500/30 ring-2 ring-sky-400/60' : 'border-slate-800 bg-slate-900'} ${collectingWinnerId === 0 ? 'ring-2 ring-amber-400 bg-amber-950/40 shadow-[0_0_20px_#f59e0b]' : ''}`}>
-            <div className="flex justify-between items-center mb-1.5 px-1">
+          {/* DEINE HANDKARTEN (Sicherer, horizontal scrollbarer Bereich - NIEMALS ABGESCHNITTEN) */}
+          <div className={`p-2 rounded-2xl border transition-all shrink-0 ${isHumanTurn && phase === 'playing' ? 'border-sky-400 bg-slate-800/95 shadow-2xl shadow-sky-500/30 ring-2 ring-sky-400/60' : 'border-slate-800 bg-slate-900'} ${collectingWinnerId === 0 ? 'ring-2 ring-amber-400 bg-amber-950/40 shadow-[0_0_20px_#f59e0b]' : ''}`}>
+            <div className="flex justify-between items-center mb-1 px-1">
               <div className="flex items-center gap-2">
-                <div className="shrink-0 scale-90 origin-left">
-                  {renderAvatarIcon(humanPlayer.avatarObj || profile.selectedAvatar, "w-9 h-9 text-base")}
+                <div className="shrink-0 scale-75 origin-left">
+                  {renderAvatarIcon(humanPlayer.avatarObj || profile.selectedAvatar, "w-8 h-8 text-xs")}
                 </div>
-                <span className={`text-xs font-black tracking-wide ${isHumanTurn && phase === 'playing' ? 'text-sky-300 animate-pulse' : 'text-slate-300'}`}>
+                <span className={`text-[11px] font-black tracking-wide ${isHumanTurn && phase === 'playing' ? 'text-sky-300 animate-pulse' : 'text-slate-300'}`}>
                   DEINE HAND:
                 </span>
-                <span className="text-xs font-black text-amber-400 bg-amber-950/80 px-2.5 py-0.5 rounded-md border border-amber-500/40">{humanPlayer.score || 0} Ptn</span>
+                <span className="text-[11px] font-black text-amber-400 bg-amber-950/80 px-2 py-0.5 rounded-md border border-amber-500/40">{humanPlayer.score || 0} Ptn</span>
               </div>
-              <span className="text-xs font-bold text-sky-400">Ans: {humanPlayer.bid !== null ? humanPlayer.bid : '-'} | Stich: {humanPlayer.tricks}</span>
+              <span className="text-[11px] font-bold text-sky-400">Ans: {humanPlayer.bid !== null ? humanPlayer.bid : '-'} | Stich: {humanPlayer.tricks}</span>
             </div>
 
-            {/* HANDKARTEN CONTAINER */}
-            <div className="w-full flex justify-center items-end py-1 overflow-x-auto">
-              <div className="flex items-end justify-center min-h-[8rem] py-2 px-2">
-                {(() => {
-                  const hand = humanPlayer.hand || [];
-                  const total = hand.length;
-                  if (total === 0) return null;
-
-                  return hand.map((card, idx) => {
-                    // Ab 6 Karten überlappen sie sich leicht negativ in den Margins, damit alle sauber reinpassen
-                    const marginLeft = (total > 5 && idx > 0) ? '-2.5rem' : '0.3rem';
-                    const marginRight = (total > 5 && idx < total - 1) ? '-2.5rem' : '0.3rem';
-
-                    return (
-                      <div 
-                        key={card.id || idx} 
-                        style={{ marginLeft: idx > 0 ? marginLeft : 0, marginRight: idx < total - 1 ? marginRight : 0, zIndex: idx }}
-                        className="transition-all duration-200 hover:z-50 hover:-translate-y-4 shrink-0"
-                      >
-                        <CardFace 
-                          card={card} 
-                          size="md" 
-                          disabled={phase !== 'playing' || turn !== 0 || isEvaluatingRef.current || animatingCardId !== null || collectingWinnerId !== null || showExitConfirm} 
-                          onClick={() => playCard(0, idx)} 
-                        />
-                      </div>
-                    );
-                  });
-                })()}
+            {/* HANDKARTEN CONTAINER (Horizontal scrollbar für perfekten Überblick) */}
+            <div className="w-full flex justify-start sm:justify-center items-end py-1 overflow-x-auto hand-scroll-container">
+              <div className="flex items-end gap-2.5 px-1 py-1 min-w-full justify-start sm:justify-center">
+                {humanPlayer.hand && humanPlayer.hand.map((card, idx) => (
+                  <CardFace 
+                    key={card.id || idx} 
+                    card={card} 
+                    size="md" 
+                    disabled={phase !== 'playing' || turn !== 0 || isEvaluatingRef.current || animatingCardId !== null || collectingWinnerId !== null || showExitConfirm} 
+                    onClick={() => playCard(0, idx)} 
+                  />
+                ))}
               </div>
             </div>
           </div>
