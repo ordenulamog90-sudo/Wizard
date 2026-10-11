@@ -239,6 +239,10 @@
       return { valid: true, error: '' };
     };
 
+    const getMaxRoundsForPlayers = (numPlayers) => {
+      return Math.floor(60 / numPlayers);
+    };
+
     const getCryptoRandomDice = () => {
       const array = new Uint32Array(1);
       window.crypto.getRandomValues(array);
@@ -835,6 +839,11 @@
       const [playerCount, setPlayerCount] = useState(4);
       const [maxRounds, setMaxRounds] = useState(15);
       const [difficulty, setDifficulty] = useState('Normal');
+
+      // Automatische Anpassung der max. Runden bei Spieleranzahl-Änderung
+      useEffect(() => {
+        setMaxRounds(getMaxRoundsForPlayers(playerCount));
+      }, [playerCount]);
 
       const [round, setRound] = useState(1);
       const [phase, setPhase] = useState('bidding');
@@ -1585,7 +1594,7 @@
               </button>
 
               <span className="text-[9px] text-center text-slate-300 font-bold block mt-2 drop-shadow bg-slate-950/70 py-1 rounded-full backdrop-blur-md border border-sky-500/30">
-                MYTHOS CARD GAME V10.93
+                MYTHOS CARD GAME V10.94
               </span>
             </div>
           </div>
@@ -1657,17 +1666,13 @@
                 </div>
 
                 <div>
-                  <label className="text-[11px] font-bold text-sky-200 block mb-1">Rundenanzahl:</label>
-                  <div className="grid grid-cols-3 gap-2">
-                    {[5, 10, 15].map(num => (
-                      <button
-                        key={num}
-                        onClick={() => setMaxRounds(num)}
-                        className={`py-2 rounded-xl font-bold text-xs crystal-btn ${maxRounds === num ? 'crystal-active text-white' : 'bg-slate-900 text-slate-400'}`}
-                      >
-                        {num} R.
-                      </button>
-                    ))}
+                  <div className="flex justify-between items-center mb-1">
+                    <label className="text-[11px] font-bold text-sky-200">Rundenanzahl:</label>
+                    <span className="text-[10px] text-amber-400 font-bold">(Automatisch an Deckgröße angepasst)</span>
+                  </div>
+                  <div className="bg-slate-900 border border-slate-800 p-2.5 rounded-xl flex justify-between items-center">
+                    <span className="text-xs text-slate-300 font-bold">Max. Runden für {playerCount} Spieler:</span>
+                    <span className="text-sm font-black text-amber-400 bg-slate-950 px-3 py-1 rounded-lg border border-slate-800">{maxRounds} Runden</span>
                   </div>
                 </div>
 
