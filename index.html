@@ -1595,7 +1595,7 @@
               </button>
 
               <span className="text-[9px] text-center text-slate-300 font-bold block mt-2 drop-shadow bg-slate-950/70 py-1 rounded-full backdrop-blur-md border border-sky-500/30">
-                MYTHOS CARD GAME V10.79
+                MYTHOS CARD GAME V10.80
               </span>
             </div>
           </div>
@@ -2108,7 +2108,7 @@
                           <span className="font-bold truncate">{p.name}</span>
                         </div>
                         <span className="font-black text-amber-400">{p.score} Ptn</span>
-                      </div> nebeneinander
+                      </div>
                     ))}
                   </div>
                 </div>
@@ -2201,7 +2201,7 @@
             </div>
           </div>
 
-          {/* DEINE HANDKARTEN (BIS 5 KARTEN NEBENEINANDER, AB DER 6. KARTE ÜBEREINANDER GESTAPELT MIT SICHTBAREM KOPF) */}
+          {/* DEINE HANDKARTEN (FLEXIBLES OVERLAP-LAYOUT OHNE BLACKSCREEN-RISIKO) */}
           <div className={`p-2.5 rounded-2xl border transition-all shrink-0 ${isHumanTurn && phase === 'playing' ? 'border-sky-400 bg-slate-800/95 shadow-2xl shadow-sky-500/30 ring-2 ring-sky-400/60' : 'border-slate-800 bg-slate-900'} ${collectingWinnerId === 0 ? 'ring-2 ring-amber-400 bg-amber-950/40 shadow-[0_0_20px_#f59e0b]' : ''}`}>
             <div className="flex justify-between items-center mb-1.5 px-1">
               <div className="flex items-center gap-2">
@@ -2216,18 +2216,25 @@
               <span className="text-xs font-bold text-sky-400">Ans: {humanPlayer.bid !== null ? humanPlayer.bid : '-'} | Stich: {humanPlayer.tricks}</span>
             </div>
 
-            {/* HANDKARTEN CONTAINER: NEBENEINANDER BIS 5 KARTEN, AB KARTE 6 GESTAPELT */}
-            <div className="w-full flex justify-center items-end py-1 h-36 overflow-x-auto">
-              <div className="flex items-end justify-center relative w-full max-w-lg h-32 px-1">
+            {/* HANDKARTEN CONTAINER */}
+            <div className="w-full flex justify-center items-end py-1 overflow-x-auto">
+              <div className="flex items-end justify-center min-h-[8rem] py-2 px-2">
                 {(() => {
                   const hand = humanPlayer.hand || [];
                   const total = hand.length;
                   if (total === 0) return null;
 
-                  if (total <= 5) {
-                    // Bis zu 5 Karten ganz normal nebeneinander
-                    return hand.map((card, idx) => (
-                      <div key={card.id || idx} className="mx-1 transition-all duration-200 hover:-translate-y-3">
+                  return hand.map((card, idx) => {
+                    // Ab 6 Karten überlappen sie sich leicht negativ in den Margins, damit alle sauber reinpassen
+                    const marginLeft = (total > 5 && idx > 0) ? '-2.5rem' : '0.3rem';
+                    const marginRight = (total > 5 && idx < total - 1) ? '-2.5rem' : '0.3rem';
+
+                    return (
+                      <div 
+                        key={card.id || idx} 
+                        style={{ marginLeft: idx > 0 ? marginLeft : 0, marginRight: idx < total - 1 ? marginRight : 0, zIndex: idx }}
+                        className="transition-all duration-200 hover:z-50 hover:-translate-y-4 shrink-0"
+                      >
                         <CardFace 
                           card={card} 
                           size="md" 
@@ -2235,31 +2242,8 @@
                           onClick={() => playCard(0, idx)} 
                         />
                       </div>
-                    ));
-                  } else {
-                    // Ab 6 Karten: In Fächer/Stapel aufgeteilt oder leicht überlappend, so dass alle Köpfe erkennbar sind
-                    return hand.map((card, idx) => {
-                      const leftOffset = (idx / (total - 1)) * 260; // Fächert sich horizontal auf
-                      return (
-                        <div 
-                          key={card.id || idx} 
-                          style={{ 
-                            position: 'absolute', 
-                            left: `calc(50% - 40px + ${leftOffset - 130}px)`, 
-                            zIndex: idx 
-                          }} 
-                          className="transition-all duration-200 hover:z-50 hover:-translate-y-4"
-                        >
-                          <CardFace 
-                            card={card} 
-                            size="md" 
-                            disabled={phase !== 'playing' || turn !== 0 || isEvaluatingRef.current || animatingCardId !== null || collectingWinnerId !== null || showExitConfirm} 
-                            onClick={() => playCard(0, idx)} 
-                          />
-                        </div>
-                      );
-                    });
-                  }
+                    );
+                  });
                 })()}
               </div>
             </div>
