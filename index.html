@@ -2140,7 +2140,7 @@
             })}
           </div>
 
-          {/* HAUPT-SPIELFELD (Karten wieder in normaler, schöner Größe wie zuvor) */}
+          {/* HAUPT-SPIELFELD */}
           <div className="flex-1 rounded-2xl border border-sky-500/40 p-1.5 flex flex-col justify-between items-center relative overflow-hidden shadow-2xl bg-slate-950 my-0.5">
             <div className="absolute inset-0 z-0 pointer-events-none">
               <img src="./1791660049147.jpg" alt="Spieltisch Hintergrund" className="w-full h-full object-cover" />
@@ -2191,7 +2191,7 @@
             </div>
           </div>
 
-          {/* DEINE HANDKARTEN (Perfekte, große Originalgröße, sicher platziert und voll scrollbar) */}
+          {/* DEINE HANDKARTEN */}
           <div className={`p-2 rounded-2xl border transition-all shrink-0 ${isHumanTurn && phase === 'playing' ? 'border-sky-400 bg-slate-800/95 shadow-2xl shadow-sky-500/30 ring-2 ring-sky-400/60' : 'border-slate-800 bg-slate-900'} ${collectingWinnerId === 0 ? 'ring-2 ring-amber-400 bg-amber-950/40 shadow-[0_0_20px_#f59e0b]' : ''}`}>
             <div className="flex justify-between items-center mb-1 px-1">
               <div className="flex items-center gap-2">
@@ -2206,7 +2206,7 @@
               <span className="text-[11px] font-bold text-sky-400">Ans: {humanPlayer.bid !== null ? humanPlayer.bid : '-'} | Stich: {humanPlayer.tricks}</span>
             </div>
 
-            {/* HANDKARTEN CONTAINER (Horizontal scrollbar für perfekten Überblick) */}
+            {/* HANDKARTEN CONTAINER */}
             <div className="w-full flex justify-start sm:justify-center items-end py-1 overflow-x-auto hand-scroll-container">
               <div className="flex items-end gap-2.5 px-1 py-1 min-w-full justify-start sm:justify-center">
                 {humanPlayer.hand && humanPlayer.hand.map((card, idx) => (
@@ -2225,7 +2225,7 @@
       );
     }
 
-    ReactDOM.createRoot(getElementById('root')).render(<App />);
+    ReactDOM.createRoot(document.getElementById('root')).render(<App />);
   </script>
 </body>
 </html>
