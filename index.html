@@ -1385,23 +1385,23 @@
       const getAvailableAvatarsForSuit = (suitKey, currentLevel) => {
         const list = [];
         
-        if (suitKey === 'blue') {
-          list.push({ type: 'wizard', wizardIndex: 0, unlocked: true });
-        }
-        if (suitKey === 'red') {
-          list.push({ type: 'wizard', wizardIndex: 1, unlocked: true });
-        }
-        if (suitKey === 'yellow') {
-          list.push({ type: 'wizard', wizardIndex: 2, unlocked: true });
-        }
-        if (suitKey === 'green') {
-          list.push({ type: 'wizard', wizardIndex: 3, unlocked: true });
-        }
-
+        // 1. Narr (Level 1)
         list.push({ type: 'jester', suit: suitKey, unlocked: currentLevel >= 1 });
 
+        // 2. Zahlen 1 bis 13 (Level 2 bis 14)
         for (let v = 1; v <= 13; v++) {
           list.push({ type: 'number', value: v, suit: suitKey, unlocked: currentLevel >= (v + 1) });
+        }
+
+        // 3. Zauberer als letzte Karte (Level 15)
+        if (suitKey === 'blue') {
+          list.push({ type: 'wizard', wizardIndex: 0, unlocked: currentLevel >= 15 });
+        } else if (suitKey === 'red') {
+          list.push({ type: 'wizard', wizardIndex: 1, unlocked: currentLevel >= 15 });
+        } else if (suitKey === 'yellow') {
+          list.push({ type: 'wizard', wizardIndex: 2, unlocked: currentLevel >= 15 });
+        } else if (suitKey === 'green') {
+          list.push({ type: 'wizard', wizardIndex: 3, unlocked: currentLevel >= 15 });
         }
 
         return list;
@@ -1446,7 +1446,7 @@
               </div>
 
               <span className="text-[9px] text-center text-slate-300 font-bold block mt-2 drop-shadow bg-slate-950/70 py-1 rounded-full backdrop-blur-md border border-sky-500/30">
-                MYTHOS CARD GAME V10.46
+                MYTHOS CARD GAME V10.49
               </span>
             </div>
           </div>
