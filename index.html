@@ -674,7 +674,7 @@
       return (
         <div 
           onClick={!disabled ? onClick : undefined}
-          className={`${dim} rounded-xl bg-gradient-to-b ${bgStyle} border-2 p-1 flex flex-col justify-between items-center relative shadow-2xl cursor-pointer active:scale-95 transition-transform overflow-hidden shrink-0 ${className}`}
+          className={`${dim} rounded-xl bg-gradient-to-b ${bgStyle} border-2 p-1 flex flex-col justify-between items-center relative shadow-2xl cursor-pointer hover:-translate-y-2 active:scale-95 transition-transform overflow-hidden shrink-0 ${className}`}
         >
           {isBlueWizard && <div className="absolute inset-0 z-0 overflow-hidden"><img src="./1791696520870.jpg" alt="Blaue Zauberin" className="w-full h-full object-cover" /><div className="absolute inset-0 bg-blue-950/15 backdrop-brightness-95"></div></div>}
           {isRedWizard && <div className="absolute inset-0 z-0 overflow-hidden"><img src="./1791699383284.jpg" alt="Roter Zauberer" className="w-full h-full object-cover" /><div className="absolute inset-0 bg-red-950/15 backdrop-brightness-95"></div></div>}
@@ -888,7 +888,7 @@
       useEffect(() => {
         let interval = null;
         if (showDiceModal && !diceRolls && !isDiceRolling) {
-          setDiceTimer(20); // Setzt den Timer beim Öffnen frisch auf 20 Sekunden zurück
+          setDiceTimer(20);
           interval = setInterval(() => {
             setDiceTimer(prev => { 
               if (prev <= 1) { 
@@ -906,7 +906,7 @@
       useEffect(() => {
         let interval = null;
         if (showDiceModal && diceRolls && !isDiceRolling) {
-          setResultTimer(10); // Setzt den Timer frisch auf 10 Sekunden zurück
+          setResultTimer(10);
           interval = setInterval(() => {
             setResultTimer(prev => { 
               if (prev <= 1) { 
@@ -924,7 +924,7 @@
       useEffect(() => {
         let interval = null;
         if (screen === 'game' && phase === 'bidding' && !showDiceModal && !roundSummary && !victoryData && !showExitConfirm) {
-          setBiddingTimer(20); // Setzt den Ansage-Timer frisch auf 20 Sekunden zurück
+          setBiddingTimer(20);
           interval = setInterval(() => {
             setBiddingTimer(prev => { 
               if (prev <= 1) { 
@@ -942,7 +942,7 @@
       useEffect(() => {
         let interval = null;
         if (screen === 'game' && phase === 'playing' && turn === 0 && !isEvaluatingRef.current && !animatingCardId && !collectingWinnerId && playedCards.length < players.length && !showDiceModal && !roundSummary && !victoryData && !showExitConfirm) {
-          setTurnTimer(20); // Setzt den Zug-Timer frisch auf 20 Sekunden zurück
+          setTurnTimer(20);
           interval = setInterval(() => {
             setTurnTimer(prev => {
               if (prev <= 1) { 
@@ -975,7 +975,7 @@
       useEffect(() => {
         let interval = null;
         if (roundSummary && !showExitConfirm) {
-          setSummaryTimer(10); // Setzt den Timer frisch auf 10 Sekunden zurück
+          setSummaryTimer(10);
           interval = setInterval(() => {
             setSummaryTimer(prev => { 
               if (prev <= 1) { 
@@ -993,7 +993,7 @@
       useEffect(() => {
         let interval = null;
         if (victoryData && !showExitConfirm) {
-          setVictoryTimer(20); // Setzt den Timer frisch auf 20 Sekunden zurück
+          setVictoryTimer(20);
           interval = setInterval(() => {
             setVictoryTimer(prev => { 
               if (prev <= 1) { 
@@ -1571,7 +1571,7 @@
               </button>
 
               <span className="text-[9px] text-center text-slate-300 font-bold block mt-2 drop-shadow bg-slate-950/70 py-1 rounded-full backdrop-blur-md border border-sky-500/30">
-                MYTHOS CARD GAME V10.70
+                MYTHOS CARD GAME V10.75
               </span>
             </div>
           </div>
@@ -2176,7 +2176,7 @@
             </div>
           </div>
 
-          {/* DEINE HANDKARTEN */}
+          {/* DEINE HANDKARTEN (FÄCHER-SYSTEM) */}
           <div className={`p-2.5 rounded-2xl border transition-all shrink-0 ${isHumanTurn && phase === 'playing' ? 'border-sky-400 bg-slate-800/95 shadow-2xl shadow-sky-500/30 ring-2 ring-sky-400/60' : 'border-slate-800 bg-slate-900'} ${collectingWinnerId === 0 ? 'ring-2 ring-amber-400 bg-amber-950/40 shadow-[0_0_20px_#f59e0b]' : ''}`}>
             <div className="flex justify-between items-center mb-1.5 px-1">
               <div className="flex items-center gap-2">
@@ -2191,10 +2191,43 @@
               <span className="text-xs font-bold text-sky-400">Ans: {humanPlayer.bid !== null ? humanPlayer.bid : '-'} | Stich: {humanPlayer.tricks}</span>
             </div>
 
-            <div className="flex gap-2 overflow-x-auto pb-1.5 justify-center">
-              {humanPlayer.hand && humanPlayer.hand.map((card, i) => (
-                <CardFace key={card.id || i} card={card} size="md" disabled={phase !== 'playing' || turn !== 0 || isEvaluatingRef.current || animatingCardId !== null || collectingWinnerId !== null || showExitConfirm} onClick={() => playCard(0, i)} />
-              ))}
+            {/* Fächer-Container: Bis zu 5 Karten nebeneinander, ab Karte 6 elegant überlappend */}
+            <div className="w-full flex justify-center items-end py-1 h-36 overflow-x-visible">
+              <div className="flex items-end justify-center relative w-full max-w-sm h-32">
+                {humanPlayer.hand && humanPlayer.hand.map((card, i, arr) => {
+                  const total = arr.length;
+                  // Wenn 5 oder weniger Karten: feste Abstände, ab 6 Karten rücken sie näher zusammen (Fächer)
+                  const isOverlapping = total > 5;
+                  
+                  let styleObj = {};
+                  if (isOverlapping) {
+                    // Berechnet den horizontalen Abstand so, dass alle perfekt in den Container passen
+                    const offsetPercentage = (i / (total - 1)) * 100;
+                    styleObj = {
+                      position: 'absolute',
+                      left: `${offsetPercentage}%`,
+                      transform: `translateX(-50%)`,
+                      zIndex: i + 1
+                    };
+                  } else {
+                    styleObj = {
+                      zIndex: i + 1,
+                      margin: '0 -10px'
+                    };
+                  }
+
+                  return (
+                    <div key={card.id || i} style={styleObj} className="transition-all duration-200 hover:z-50 hover:-translate-y-4">
+                      <CardFace 
+                        card={card} 
+                        size="md" 
+                        disabled={phase !== 'playing' || turn !== 0 || isEvaluatingRef.current || animatingCardId !== null || collectingWinnerId !== null || showExitConfirm} 
+                        onClick={() => playCard(0, i)} 
+                      />
+                    </div>
+                  );
+                })}
+              </div>
             </div>
           </div>
         </div>
