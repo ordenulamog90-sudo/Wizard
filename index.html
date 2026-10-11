@@ -763,15 +763,14 @@
         return saved !== null ? parseFloat(saved) : 0.5;
       });
 
-      // Sauberer Audio-Wechsel basierend auf dem Screen-Status
+      // ABSOLUTE TRENNUNG: Schaltet die Musik AUSSCHLIESSLICH beim Wechsel des Haupt-Screens um
       useEffect(() => {
-        const isGameActive = screen === 'game' && !showDiceModal && !victoryData && !showExitConfirm;
-        if (isGameActive) {
+        if (screen === 'game') {
           soundEngine.playBattle();
         } else {
           soundEngine.playMenu();
         }
-      }, [screen, showExitConfirm]);
+      }, [screen]);
 
       const handleVolumeChange = (newVol) => {
         setMusicVolume(newVol);
@@ -780,12 +779,8 @@
       };
 
       const handleUserInteraction = () => {
-        const isGameActive = screen === 'game' && !showDiceModal && !victoryData && !showExitConfirm;
-        if (isGameActive) {
-          soundEngine.playBattle();
-        } else {
-          soundEngine.playMenu();
-        }
+        // Init-Trigger für Browser-Autoplay ohne Musik-Umschaltung
+        soundEngine.init();
       };
       
       const [profile, setProfile] = useState(() => {
@@ -1520,7 +1515,7 @@
               </button>
 
               <span className="text-[9px] text-center text-slate-300 font-bold block mt-2 drop-shadow bg-slate-950/70 py-1 rounded-full backdrop-blur-md border border-sky-500/30">
-                MYTHOS CARD GAME V10.63
+                MYTHOS CARD GAME V10.64
               </span>
             </div>
           </div>
