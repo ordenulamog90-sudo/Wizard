@@ -71,6 +71,19 @@
       border-radius: 4px;
     }
 
+    /* Scrollbar für Menüs */
+    .menu-scroll-container::-webkit-scrollbar {
+      width: 5px;
+    }
+    .menu-scroll-container::-webkit-scrollbar-track {
+      background: rgba(3, 7, 18, 0.5);
+      border-radius: 4px;
+    }
+    .menu-scroll-container::-webkit-scrollbar-thumb {
+      background: rgba(56, 189, 248, 0.4);
+      border-radius: 4px;
+    }
+
     /* Animations */
     @keyframes rollDiceAction {
       0% { transform: rotate(0deg) scale(0.6); }
@@ -1601,7 +1614,7 @@
               </button>
 
               <span className="text-[9px] text-center text-slate-300 font-bold block mt-2 drop-shadow bg-slate-950/70 py-1 rounded-full backdrop-blur-md border border-sky-500/30">
-                MYTHOS CARD GAME V10.96
+                MYTHOS CARD GAME V10.97
               </span>
             </div>
           </div>
@@ -1611,7 +1624,7 @@
       // ---------------- EINSTELLUNGEN ----------------
       if (screen === 'settings') {
         return (
-          <div onClick={handleUserInteraction} className="flex flex-col h-full max-w-md mx-auto p-4 justify-between bg-slate-950 overflow-y-auto">
+          <div onClick={handleUserInteraction} className="flex flex-col h-full max-w-md mx-auto p-4 justify-between bg-slate-950 overflow-y-auto menu-scroll-container">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-xl font-bold text-sky-400">Einstellungen</h2>
               <button onClick={() => setScreen('menu')} className="text-xs bg-slate-800 text-sky-300 px-3 py-1.5 rounded-lg font-bold">Zurück</button>
@@ -1637,7 +1650,7 @@
               </div>
             </div>
 
-            <button onClick={() => setScreen('menu')} className="w-full py-3 mythic-btn-primary text-white font-bold rounded-xl">Zurück zum Menü</button>
+            <button onClick={() => setScreen('menu')} className="w-full py-3 mythic-btn-primary text-white font-bold rounded-xl mt-4">Zurück zum Menü</button>
           </div>
         );
       }
@@ -1647,7 +1660,7 @@
         const currentRoundOptions = getRoundOptionsForPlayers(playerCount);
 
         return (
-          <div className="flex flex-col landscape:flex-row h-full max-w-4xl mx-auto bg-slate-950 justify-between overflow-hidden">
+          <div className="flex flex-col landscape:flex-row h-full max-w-4xl mx-auto bg-slate-950 justify-between overflow-y-auto menu-scroll-container">
             <div className="w-full h-24 landscape:h-full landscape:w-1/2 relative overflow-hidden border-b landscape:border-b-0 landscape:border-r border-sky-500/30 shadow-2xl shrink-0 flex items-center justify-center">
               <img src="./1791640481183.jpg" alt="Mythos Header" className="w-full h-full object-cover" />
             </div>
@@ -1742,14 +1755,14 @@
         const elementXpPercent = elementLevel >= 15 ? 100 : Math.min(100, Math.round((elementXp / xpNeededForNextElement) * 100));
 
         return (
-          <div onClick={handleUserInteraction} className="flex flex-col h-full max-w-md mx-auto p-4 justify-between bg-slate-950 overflow-y-auto">
+          <div onClick={handleUserInteraction} className="flex flex-col h-full max-w-md mx-auto p-4 justify-between bg-slate-950 overflow-y-auto menu-scroll-container">
             <div className="flex justify-between items-center mb-2">
               <h2 className="text-xl font-black text-sky-300">Spielerprofil</h2>
               <button onClick={() => setScreen('menu')} className="text-xs bg-slate-900 border border-slate-800 text-sky-300 px-3 py-1.5 rounded-lg font-bold">Zurück</button>
             </div>
 
             {showAvatarModal && (
-              <div className="absolute inset-0 bg-slate-950/95 backdrop-blur-md z-50 flex flex-col p-4 overflow-y-auto">
+              <div className="absolute inset-0 bg-slate-950/95 backdrop-blur-md z-50 flex flex-col p-4 overflow-y-auto menu-scroll-container">
                 <div className="flex justify-between items-center mb-3 border-b border-sky-500/30 pb-2">
                   <h3 className="font-black text-sky-300 text-sm">Avatar & Element wählen</h3>
                   <button onClick={() => setShowAvatarModal(false)} className="text-xs bg-slate-800 text-sky-300 px-3 py-1 rounded-lg font-bold">Fertig</button>
@@ -1797,7 +1810,7 @@
                       </div>
                     </div>
 
-                    <div className="grid grid-cols-4 gap-2 max-h-56 overflow-y-auto p-1">
+                    <div className="grid grid-cols-4 gap-2 max-h-56 overflow-y-auto p-1 menu-scroll-container">
                       {getAvailableAvatarsForSuit(activeSuitKey, elementLevel).map((av, idx) => {
                         const isCurrentActive = profile.selectedAvatar?.type === av.type && profile.selectedAvatar?.suit === av.suit && profile.selectedAvatar?.wizardIndex === av.wizardIndex && profile.selectedAvatar?.value === av.value;
                         return (
@@ -1900,7 +1913,7 @@
               </div>
             </div>
 
-            <button onClick={() => setScreen('menu')} className="w-full py-3 mythic-btn-primary text-white font-bold rounded-xl mt-2">Zurück zum Hauptmenü</button>
+            <button onClick={() => setScreen('menu')} className="w-full py-3 mythic-btn-primary text-white font-bold rounded-xl mt-4">Zurück zum Hauptmenü</button>
           </div>
         );
       }
@@ -1908,7 +1921,7 @@
       // ---------------- 4. ONLINE-LOBBY ----------------
       if (screen === 'multiplayer') {
         return (
-          <div onClick={handleUserInteraction} className="flex flex-col h-full max-w-md mx-auto p-4 justify-between bg-slate-950 overflow-y-auto">
+          <div onClick={handleUserInteraction} className="flex flex-col h-full max-w-md mx-auto p-4 justify-between bg-slate-950 overflow-y-auto menu-scroll-container">
             <div className="flex justify-between items-center mb-2">
               <h2 className="text-xl font-black text-sky-300">Online-Lobby</h2>
               <button onClick={() => setScreen('menu')} className="text-xs bg-slate-900 border border-slate-800 text-sky-300 px-3 py-1.5 rounded-lg font-bold">Zurück</button>
@@ -1919,7 +1932,7 @@
               <p className="text-xs text-slate-400 leading-relaxed">Hier wirst du dich bald mit Freunden verbinden oder offene Räume suchen können.</p>
             </div>
 
-            <button onClick={() => setScreen('menu')} className="w-full py-3 mythic-btn-primary text-white font-bold rounded-xl">Zurück zum Menü</button>
+            <button onClick={() => setScreen('menu')} className="w-full py-3 mythic-btn-primary text-white font-bold rounded-xl mt-4">Zurück zum Menü</button>
           </div>
         );
       }
@@ -1927,9 +1940,9 @@
       // ---------------- 5. REGELN ----------------
       if (screen === 'rules') {
         return (
-          <div onClick={handleUserInteraction} className="flex flex-col h-full max-w-md mx-auto p-4 justify-between bg-slate-950 overflow-y-auto">
+          <div onClick={handleUserInteraction} className="flex flex-col h-full max-w-md mx-auto p-4 justify-between bg-slate-950 overflow-y-auto menu-scroll-container">
             <div className="flex justify-between items-center mb-4">
-              <h2 className="text-xl font-bold text-sky-400">Spielregeln</h2>
+              <h2 className="text-xl font-bold text-sky-400">Spielregeln & Punkte</h2>
               <button onClick={() => setScreen('menu')} className="text-xs bg-slate-800 text-sky-300 px-3 py-1.5 rounded-lg font-bold">Zurück</button>
             </div>
 
@@ -1950,12 +1963,16 @@
               </div>
 
               <div className="bg-slate-900 p-3 rounded-xl border border-slate-800 space-y-1">
-                <h3 className="font-bold text-sky-300 text-sm">4. Wertung & Punkte</h3>
-                <p>Triffst du deine Ansage exakt, erhältst du 20 Basispunkte plus 10 Punkte für jeden gewonnenen Stich. Liegst du daneben (zu viele oder zu wenige Stiche), gibt es Minuspunkte entsprechend der Differenz zu deiner Ansage.</p>
+                <h3 className="font-bold text-amber-300 text-sm">4. Punktewertung (Wie man Punkte bekommt)</h3>
+                <p className="mb-1">Am Ende jeder Runde werden die gemachten Stiche mit deiner vorherigen Ansage verglichen:</p>
+                <ul className="list-disc pl-4 space-y-1 text-slate-200">
+                  <li><strong className="text-emerald-400">Ansage exakt getroffen:</strong> Du erhältst <span className="font-bold text-amber-300">20 Basispunkte</span> plus <span className="font-bold text-amber-300">10 Punkte zusätzlich für jeden gewonnenen Stich</span> (z.B. bei Ansage 2 und 2 Stichen = 20 + 20 = 40 Pluspunkte).</li>
+                  <li><strong className="text-red-400">Ansage verfehlt (zu viele oder zu wenige Stiche):</strong> Du bekommst Minuspunkte. Für jede Abweichung (egal ob zu viel oder zu wenig) werden dir <span className="font-bold text-red-400">10 Minuspunkte pro Stich Differenz</span> abgezogen.</li>
+                </ul>
               </div>
             </div>
 
-            <button onClick={() => setScreen('menu')} className="w-full py-3 mythic-btn-primary text-white font-bold rounded-xl">Zurück zum Menü</button>
+            <button onClick={() => setScreen('menu')} className="w-full py-3 mythic-btn-primary text-white font-bold rounded-xl mt-4">Zurück zum Menü</button>
           </div>
         );
       }
@@ -1992,7 +2009,7 @@
           )}
 
           {showExitConfirm && (
-            <div className="absolute inset-0 bg-slate-950/95 backdrop-blur-md z-50 flex flex-col items-center justify-center p-4 text-center select-none overflow-y-auto">
+            <div className="absolute inset-0 bg-slate-950/95 backdrop-blur-md z-50 flex flex-col items-center justify-center p-4 text-center select-none overflow-y-auto menu-scroll-container">
               <div className="w-full max-w-xs mythic-card p-5 rounded-3xl flex flex-col items-center gap-4 my-auto shadow-2xl border border-sky-500/40">
                 <div className="space-y-1">
                   <h3 className="text-base font-black text-sky-200">Duell wirklich abbrechen?</h3>
@@ -2008,7 +2025,7 @@
           )}
 
           {showDiceModal && !showExitConfirm && (
-            <div onClick={handleDiceOverlayClick} className="absolute inset-0 bg-slate-950/95 backdrop-blur-md z-50 flex flex-col items-center justify-center p-4 text-center cursor-pointer select-none overflow-y-auto">
+            <div onClick={handleDiceOverlayClick} className="absolute inset-0 bg-slate-950/95 backdrop-blur-md z-50 flex flex-col items-center justify-center p-4 text-center cursor-pointer select-none overflow-y-auto menu-scroll-container">
               <div className="w-full max-w-xs flex flex-col items-center gap-3 my-auto">
                 <div>
                   <h2 className="text-xl font-black text-sky-300">Duell-Eröffnung</h2>
@@ -2056,7 +2073,7 @@
           )}
 
           {roundSummary && !showExitConfirm && (
-            <div onClick={proceedToNextRound} className="absolute inset-0 bg-slate-950/95 backdrop-blur-md z-50 flex flex-col items-center justify-center p-4 cursor-pointer select-none overflow-y-auto">
+            <div onClick={proceedToNextRound} className="absolute inset-0 bg-slate-950/95 backdrop-blur-md z-50 flex flex-col items-center justify-center p-4 cursor-pointer select-none overflow-y-auto menu-scroll-container">
               <div className="w-full max-w-xs flex flex-col items-center gap-3 my-auto">
                 <h2 className="text-xl font-black text-sky-300">Ergebnis Runde {roundSummary.round}</h2>
                 <div className="w-full space-y-2">
@@ -2097,7 +2114,7 @@
             const suitTheme = SUITS[winnerSuitKey] || SUITS.yellow;
 
             return (
-              <div onClick={finishGameAndGoMenu} className="absolute inset-0 bg-slate-950/95 backdrop-blur-md z-50 flex flex-col items-center justify-between p-4 cursor-pointer select-none overflow-y-auto">
+              <div onClick={finishGameAndGoMenu} className="absolute inset-0 bg-slate-950/95 backdrop-blur-md z-50 flex flex-col items-center justify-between p-4 cursor-pointer select-none overflow-y-auto menu-scroll-container">
                 <div className="text-center mt-2">
                   <h2 className="text-2xl font-black drop-shadow tracking-widest" style={{ color: suitTheme.primaryColor }}>SIEGEREHRUNG</h2>
                   <p className="text-xs text-sky-300 font-bold mt-0.5">Das große Turnier ist zu Ende</p>
@@ -2282,7 +2299,7 @@
       );
     }
 
-    ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+    ReactDOM.createRoot(getElementById('root')).render(<App />);
   </script>
 </body>
 </html>
