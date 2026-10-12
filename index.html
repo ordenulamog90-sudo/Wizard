@@ -2529,7 +2529,7 @@
                   ))}
 
                   <div className="bg-sky-950/80 border border-sky-400/50 p-3 rounded-2xl text-center text-xs text-sky-200 mt-3 font-bold space-y-2.5 shadow-2xl">
-                    <div>{roundSummary.isLastRound ? 'Zum Endergebnis' : `${roundSummary.calculatedPlayers.find(p => p.id === roundSummary.nextStarterId)?.name} beginnt Runde ${roundSummary.round + 1}!`}</div>
+                    <div>{roundSummary.isLastRound ? 'Zum Endergebnis (Siegerehrung)' : `${roundSummary.calculatedPlayers.find(p => p.id === roundSummary.nextStarterId)?.name} beginnt Runde ${roundSummary.round + 1}!`}</div>
                     <div className="pt-2 border-t border-sky-500/30 flex flex-col items-center gap-1">
                       <button onClick={(e) => { 
                         e.stopPropagation(); 
