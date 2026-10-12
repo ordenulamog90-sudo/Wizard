@@ -1139,8 +1139,13 @@
             setSummaryTimer(prev => { 
               if (prev <= 1) { 
                 const calculated = roundSummary.calculatedPlayers;
+                const isLast = roundSummary.isLastRound;
                 setRoundSummary(null);
-                proceedToNextRoundAfterSummary(calculated, roundSummary.nextStarterId, roundSummary.round); 
+                if (isLast) {
+                  triggerVictory(calculated);
+                } else {
+                  proceedToNextRoundAfterSummary(calculated, roundSummary.nextStarterId, roundSummary.round); 
+                }
                 return 0; 
               } 
               return prev - 1; 
@@ -1434,19 +1439,17 @@
         });
 
         const nextRoundStarter = bestGuessers[Math.floor(Math.random() * bestGuessers.length)];
+        
+        // KORREKTUR: Absolut saubere und sichere Überprüfung der letzten Runde anhand der State-Referenz
         const isLast = currentRoundNum >= maxRounds;
         
-        if (isLast) {
-          triggerVictory(calculated);
-        } else {
-          setRoundSummary({ 
-            round: currentRoundNum, 
-            calculatedPlayers: calculated, 
-            nextStarterId: nextRoundStarter, 
-            isLastRound: false 
-          });
-          setSummaryTimer(10);
-        }
+        setRoundSummary({ 
+          round: currentRoundNum, 
+          calculatedPlayers: calculated, 
+          nextStarterId: nextRoundStarter, 
+          isLastRound: isLast 
+        });
+        setSummaryTimer(10);
       };
 
       const triggerVictory = (calculatedPlayers) => {
@@ -2503,11 +2506,18 @@
             <div onClick={(e) => {
               e.stopPropagation();
               const calculated = roundSummary.calculatedPlayers;
+              const isLast = roundSummary.isLastRound;
               setRoundSummary(null);
-              proceedToNextRoundAfterSummary(calculated, roundSummary.nextStarterId, roundSummary.round);
+              if (isLast) {
+                triggerVictory(calculated);
+              } else {
+                proceedToNextRoundAfterSummary(calculated, roundSummary.nextStarterId, roundSummary.round);
+              }
             }} className="absolute inset-0 bg-slate-950/95 backdrop-blur-md z-50 flex flex-col items-center justify-center p-4 cursor-pointer select-none overflow-y-auto menu-scroll-container">
               <div className="w-full max-w-xs flex flex-col items-center gap-3 my-auto" onClick={(e) => e.stopPropagation()}>
-                <h2 className="text-xl font-black text-sky-300">Ergebnis Runde {roundSummary.round}</h2>
+                <h2 className="text-xl font-black text-sky-300">
+                  Ergebnis Runde {roundSummary.round}
+                </h2>
                 <div className="w-full space-y-2">
                   {roundSummary.calculatedPlayers.map(p => (
                     <div key={p.id} className="bg-slate-900 border border-slate-800 p-3 rounded-xl flex justify-between items-center text-xs">
@@ -2525,15 +2535,22 @@
                   ))}
 
                   <div className="bg-sky-950/80 border border-sky-400/50 p-3 rounded-2xl text-center text-xs text-sky-200 mt-3 font-bold space-y-2.5 shadow-2xl">
-                    <div>{roundSummary.calculatedPlayers.find(p => p.id === roundSummary.nextStarterId)?.name} beginnt Runde {roundSummary.round + 1}!</div>
+                    <div>
+                      {roundSummary.isLastRound ? 'Zum Endergebnis' : `${roundSummary.calculatedPlayers.find(p => p.id === roundSummary.nextStarterId)?.name} beginnt Runde ${roundSummary.round + 1}!`}
+                    </div>
                     <div className="pt-2 border-t border-sky-500/30 flex flex-col items-center gap-1">
                       <button onClick={(e) => { 
                         e.stopPropagation(); 
                         const calculated = roundSummary.calculatedPlayers;
+                        const isLast = roundSummary.isLastRound;
                         setRoundSummary(null);
-                        proceedToNextRoundAfterSummary(calculated, roundSummary.nextStarterId, roundSummary.round);
+                        if (isLast) {
+                          triggerVictory(calculated);
+                        } else {
+                          proceedToNextRoundAfterSummary(calculated, roundSummary.nextStarterId, roundSummary.round);
+                        }
                       }} className="w-full py-2.5 mythic-btn-primary text-white font-black text-xs rounded-xl shadow-xl active:scale-95 transition-transform flex items-center justify-center gap-2">
-                        <span>Nächste Runde starten</span>
+                        <span>{roundSummary.isLastRound ? 'Zum Ergebnis' : 'Nächste Runde starten'}</span>
                         <span className="bg-sky-950/90 border border-sky-400/60 px-2 py-0.5 rounded-md text-[11px] font-bold text-amber-300">{summaryTimer}s</span>
                       </button>
                       <span className="text-[10px] text-slate-400 font-bold">Automatisch weiter in {summaryTimer} Sekunden</span>
