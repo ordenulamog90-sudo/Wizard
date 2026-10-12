@@ -1439,8 +1439,6 @@
         });
 
         const nextRoundStarter = bestGuessers[Math.floor(Math.random() * bestGuessers.length)];
-        
-        // KORREKTUR: Absolut saubere und sichere Überprüfung der letzten Runde anhand der State-Referenz
         const isLast = currentRoundNum >= maxRounds;
         
         setRoundSummary({ 
@@ -2743,7 +2741,7 @@
                     <CardFace 
                       card={card} 
                       size="md" 
-                      disabled={phase !== 'playing' || turn !== 0 || isEvaluatingRef.current || animatingCardId !== null || collectingWinnerId !== null || showExitConfirm} 
+                      disabled={phase !== 'playing' || turn !== 0 || isEvaluatingRef.now || animatingCardId !== null || collectingWinnerId !== null || showExitConfirm} 
                       onClick={() => playCard(0, idx)} 
                     />
                   </div>
