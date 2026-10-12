@@ -175,6 +175,7 @@
       constructor() {
         this.menuMusic = null;
         this.playMusicAudio = null;
+        this.victoryMusicAudio = null;
         this.hasInteracted = false;
       }
       init() {
@@ -188,12 +189,21 @@
           this.playMusicAudio.loop = true;
           this.playMusicAudio.volume = 0.5;
         }
+        if (!this.victoryMusicAudio) {
+          this.victoryMusicAudio = new Audio('./victory.mp3');
+          this.victoryMusicAudio.loop = true;
+          this.victoryMusicAudio.volume = 0.5;
+        }
       }
       playMenu() {
         this.init();
         if (this.playMusicAudio && !this.playMusicAudio.paused) {
           this.playMusicAudio.pause();
           this.playMusicAudio.currentTime = 0;
+        }
+        if (this.victoryMusicAudio && !this.victoryMusicAudio.paused) {
+          this.victoryMusicAudio.pause();
+          this.victoryMusicAudio.currentTime = 0;
         }
         if (this.menuMusic && this.menuMusic.paused) {
           this.menuMusic.play().then(() => {
@@ -207,8 +217,28 @@
           this.menuMusic.pause();
           this.menuMusic.currentTime = 0;
         }
+        if (this.victoryMusicAudio && !this.victoryMusicAudio.paused) {
+          this.victoryMusicAudio.pause();
+          this.victoryMusicAudio.currentTime = 0;
+        }
         if (this.playMusicAudio && this.playMusicAudio.paused) {
           this.playMusicAudio.play().then(() => {
+            this.hasInteracted = true;
+          }).catch(e => console.log("Autoplay waiting for interaction"));
+        }
+      }
+      playVictory() {
+        this.init();
+        if (this.menuMusic && !this.menuMusic.paused) {
+          this.menuMusic.pause();
+          this.menuMusic.currentTime = 0;
+        }
+        if (this.playMusicAudio && !this.playMusicAudio.paused) {
+          this.playMusicAudio.pause();
+          this.playMusicAudio.currentTime = 0;
+        }
+        if (this.victoryMusicAudio && this.victoryMusicAudio.paused) {
+          this.victoryMusicAudio.play().then(() => {
             this.hasInteracted = true;
           }).catch(e => console.log("Autoplay waiting for interaction"));
         }
@@ -222,10 +252,15 @@
           this.playMusicAudio.pause();
           this.playMusicAudio.currentTime = 0;
         }
+        if (this.victoryMusicAudio && !this.victoryMusicAudio.paused) {
+          this.victoryMusicAudio.pause();
+          this.victoryMusicAudio.currentTime = 0;
+        }
       }
       setVolume(volume) {
         if (this.menuMusic) this.menuMusic.volume = volume;
         if (this.playMusicAudio) this.playMusicAudio.volume = volume;
+        if (this.victoryMusicAudio) this.victoryMusicAudio.volume = volume;
       }
     }
 
@@ -778,12 +813,14 @@
       });
 
       useEffect(() => {
-        if (screen === 'game') {
+        if (victoryData) {
+          soundEngine.playVictory();
+        } else if (screen === 'game') {
           soundEngine.playBattle();
         } else {
           soundEngine.playMenu();
         }
-      }, [screen]);
+      }, [screen, victoryData]);
 
       const handleVolumeChange = (newVol) => {
         setMusicVolume(newVol);
@@ -895,12 +932,6 @@
 
       const [victoryData, setVictoryData] = useState(null);
       const [victoryTimer, setVictoryTimer] = useState(20);
-
-      useEffect(() => {
-        if (victoryData) {
-          soundEngine.stopAll();
-        }
-      }, [victoryData]);
 
       useEffect(() => {
         let interval = null;
@@ -2032,7 +2063,6 @@
                   <p className="text-xs text-slate-400 mt-0.5">Wer schlägt das erste Kapitel auf?</p>
                 </div>
 
-                {/* WÜRFEL ICON ANSTELLE DES FRAGEZEICHENS */}
                 <div className={`w-24 h-24 rounded-3xl bg-gradient-to-b from-sky-500 to-sky-800 border-2 border-sky-300 shadow-2xl flex items-center justify-center my-1 transition-transform ${isDiceRolling ? 'animate-dice-active' : 'shadow-sky-500/30'}`}>
                   <svg className="w-14 h-14 text-white drop-shadow-md" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
                     <rect x="2" y="2" width="20" height="20" rx="5" ry="5" fill="#0284c7" fillOpacity="0.6"></rect>
@@ -2288,7 +2318,7 @@
                     key={card.id || idx} 
                     className="transition-all duration-200"
                     style={{ 
-                      marginLeft: shouldOverlapCards && idx > 0 ? '-35px' : '0px',
+                      marginLeft: shouldOverlapCards && idx > 0 ? `-35px` : `0px`,
                       zIndex: idx 
                     }}
                   >
