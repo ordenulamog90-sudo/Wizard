@@ -883,13 +883,15 @@
       // Multiplayer Lobby Einstellungen
       const [mpSettings, setMpSettings] = useState({
         playerCount: 3,
-        maxRounds: 20,
+        maxRounds: 5,
         difficulty: 'Leicht'
       });
 
       useEffect(() => {
         const options = getRoundOptionsForPlayers(mpSettings.playerCount);
-        setMpSettings(prev => ({ ...prev, maxRounds: options[options.length - 1] }));
+        if (!options.includes(mpSettings.maxRounds)) {
+          setMpSettings(prev => ({ ...prev, maxRounds: options[0] }));
+        }
       }, [mpSettings.playerCount]);
 
       useEffect(() => {
@@ -984,7 +986,9 @@
 
       useEffect(() => {
         const options = getRoundOptionsForPlayers(playerCount);
-        setMaxRounds(options[options.length - 1]);
+        if (!options.includes(maxRounds)) {
+          setMaxRounds(options[0]);
+        }
       }, [playerCount]);
 
       const [round, setRound] = useState(1);
@@ -2742,7 +2746,7 @@
       );
     }
 
-    ReactDOM.createRoot(defaultProfile = document.getElementById('root')).render(<App />);
+    ReactDOM.createRoot(document.getElementById('root')).render(<App />);
   </script>
 </body>
 </html>
