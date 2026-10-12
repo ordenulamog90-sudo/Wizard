@@ -1,6 +1,7 @@
 {
   "name": "Mythos Card Game",
   "short_name": "Mythos",
+  "description": "Ein spannendes Kartenspiel im Mythos-Universum.",
   "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#030712",
@@ -9,8 +10,15 @@
   "icons": [
     {
       "src": "1791640361452.jpg",
-      "sizes": "192x192 512x512",
-      "type": "image/jpeg"
+      "sizes": "192x192",
+      "type": "image/jpeg",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "1791640361452.jpg",
+      "sizes": "512x512",
+      "type": "image/jpeg",
+      "purpose": "any maskable"
     }
   ]
 }
