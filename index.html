@@ -1509,20 +1509,15 @@
         const updated = roundSummary.calculatedPlayers;
         const nextStarter = roundSummary.nextStarterId;
         const currentR = roundSummary.round;
-        const isLast = roundSummary.isLastRound;
 
         setPlayers(updated);
         setRoundSummary(null);
 
-        if (isLast) {
-          triggerVictory(updated);
+        const nextR = currentR + 1;
+        if (nextR <= maxRounds) {
+          startRound(nextR, updated, nextStarter);
         } else {
-          const nextR = currentR + 1;
-          if (nextR <= maxRounds) {
-            startRound(nextR, updated, nextStarter);
-          } else {
-            triggerVictory(updated);
-          }
+          triggerVictory(updated);
         }
       };
 
@@ -2504,8 +2499,9 @@
           {roundSummary && !showExitConfirm && (
             <div onClick={() => {
               if (roundSummary.isLastRound) {
-                triggerVictory(roundSummary.calculatedPlayers);
+                const calculated = roundSummary.calculatedPlayers;
                 setRoundSummary(null);
+                triggerVictory(calculated);
               } else {
                 proceedToNextRound();
               }
@@ -2534,13 +2530,14 @@
                       <button onClick={(e) => { 
                         e.stopPropagation(); 
                         if (roundSummary.isLastRound) {
-                          triggerVictory(roundSummary.calculatedPlayers);
+                          const calculated = roundSummary.calculatedPlayers;
                           setRoundSummary(null);
+                          triggerVictory(calculated);
                         } else {
                           proceedToNextRound();
                         }
                       }} className="w-full py-2.5 mythic-btn-primary text-white font-black text-xs rounded-xl shadow-xl active:scale-95 transition-transform flex items-center justify-center gap-2">
-                        <span>{roundSummary.isLastRound ? 'Zum Ergebnis' : 'Nächste Runde starten'}</span>
+                        <span>{roundSummary.isLastRound ? 'Zum Endergebnis' : 'Nächste Runde starten'}</span>
                         <span className="bg-sky-950/90 border border-sky-400/60 px-2 py-0.5 rounded-md text-[11px] font-bold text-amber-300">{summaryTimer}s</span>
                       </button>
                       <span className="text-[10px] text-slate-400 font-bold">Automatisch weiter in {summaryTimer} Sekunden</span>
@@ -2745,7 +2742,7 @@
       );
     }
 
-    ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+    ReactDOM.createRoot(defaultProfile = document.getElementById('root')).render(<App />);
   </script>
 </body>
 </html>
