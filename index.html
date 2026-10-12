@@ -812,6 +812,8 @@
         return saved !== null ? parseFloat(saved) : 0.5;
       });
 
+      const [victoryData, setVictoryData] = useState(null);
+
       useEffect(() => {
         if (victoryData) {
           soundEngine.playVictory();
@@ -830,7 +832,9 @@
 
       const handleUserInteraction = () => {
         soundEngine.init();
-        if (screen === 'menu' && !soundEngine.hasInteracted) {
+        if (victoryData) {
+          soundEngine.playVictory();
+        } else if (screen === 'menu' && !soundEngine.hasInteracted) {
           soundEngine.playMenu();
         }
       };
@@ -914,7 +918,7 @@
       const isEvaluatingRef = useRef(false);
       const isProcessingClickRef = useRef(false);
       const stateRef = useRef({});
-      stateRef.current = { screen, phase, turn, players, playedCards, trumpCard, round, maxRounds, animatingCardId, collectingWinnerId, musicVolume };
+      stateRef.current = { screen, phase, turn, players, playedCards, trumpCard, round, maxRounds, animatingCardId, collectingWinnerId, musicVolume, victoryData };
 
       const [showDiceModal, setShowDiceModal] = useState(false);
       const [isDiceRolling, setIsDiceRolling] = useState(false);
@@ -930,7 +934,6 @@
       const [roundSummary, setRoundSummary] = useState(null);
       const [summaryTimer, setSummaryTimer] = useState(10);
 
-      const [victoryData, setVictoryData] = useState(null);
       const [victoryTimer, setVictoryTimer] = useState(20);
 
       useEffect(() => {
@@ -1127,6 +1130,7 @@
         setScreen('game');
         setShowExitConfirm(false);
         setShowVolumePopup(false);
+        setVictoryData(null);
 
         setShowDiceModal(true);
         setDiceRolls(null);
@@ -1360,6 +1364,7 @@
           const sortedFinal = [...updated].sort((a, b) => b.score - a.score);
           setVictoryData(sortedFinal);
           setVictoryTimer(20);
+          soundEngine.playVictory();
 
           const isHumanWinner = sortedFinal[0].isHuman;
           const activeSuit = profile.activeSuit || 'yellow';
@@ -2152,7 +2157,7 @@
             const suitTheme = SUITS[winnerSuitKey] || SUITS.yellow;
 
             return (
-              <div onClick={finishGameAndGoMenu} className="absolute inset-0 bg-slate-950/95 backdrop-blur-md z-50 flex flex-col items-center justify-between p-4 cursor-pointer select-none overflow-y-auto menu-scroll-container">
+              <div onClick={() => { handleUserInteraction(); }} className="absolute inset-0 bg-slate-950/95 backdrop-blur-md z-50 flex flex-col items-center justify-between p-4 cursor-pointer select-none overflow-y-auto menu-scroll-container">
                 <div className="text-center mt-2">
                   <h2 className="text-2xl font-black drop-shadow tracking-widest" style={{ color: suitTheme.primaryColor }}>SIEGEREHRUNG</h2>
                   <p className="text-xs text-sky-300 font-bold mt-0.5">Das große Turnier ist zu Ende</p>
@@ -2201,7 +2206,7 @@
                 </div>
 
                 <div className="w-full flex flex-col items-center gap-1 mb-2">
-                  <button onClick={finishGameAndGoMenu} className="w-full py-3.5 mythic-btn-primary text-white font-black text-sm rounded-2xl shadow-2xl active:scale-95 transition-transform">Zurück zum Hauptmenü</button>
+                  <button onClick={(e) => { e.stopPropagation(); finishGameAndGoMenu(); }} className="w-full py-3.5 mythic-btn-primary text-white font-black text-sm rounded-2xl shadow-2xl active:scale-95 transition-transform">Zurück zum Hauptmenü</button>
                   <span className="text-[11px] text-sky-400 font-extrabold bg-sky-950 px-3 py-1 rounded-full border border-sky-500/30">Schließt in {victoryTimer}s</span>
                 </div>
               </div>
