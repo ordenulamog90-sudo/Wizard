@@ -2548,7 +2548,7 @@
                           proceedToNextRoundAfterSummary(calculated, roundSummary.nextStarterId, roundSummary.round);
                         }
                       }} className="w-full py-2.5 mythic-btn-primary text-white font-black text-xs rounded-xl shadow-xl active:scale-95 transition-transform flex items-center justify-center gap-2">
-                        <span>{roundSummary.isLastRound ? 'Zum Ergebnis' : 'Nächste Runde starten'}</span>
+                        <span>{roundSummary.isLastRound ? 'Zum Endergebnis' : 'Nächste Runde starten'}</span>
                         <span className="bg-sky-950/90 border border-sky-400/60 px-2 py-0.5 rounded-md text-[11px] font-bold text-amber-300">{summaryTimer}s</span>
                       </button>
                       <span className="text-[10px] text-slate-400 font-bold">Automatisch weiter in {summaryTimer} Sekunden</span>
@@ -2741,7 +2741,7 @@
                     <CardFace 
                       card={card} 
                       size="md" 
-                      disabled={phase !== 'playing' || turn !== 0 || isEvaluatingRef.now || animatingCardId !== null || collectingWinnerId !== null || showExitConfirm} 
+                      disabled={phase !== 'playing' || turn !== 0 || isEvaluatingRef.current || animatingCardId !== null || collectingWinnerId !== null || showExitConfirm} 
                       onClick={() => playCard(0, idx)} 
                     />
                   </div>
@@ -2753,7 +2753,7 @@
       );
     }
 
-    ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+    ReactDOM.createRoot(getElementById('root')).render(<App />);
   </script>
 </body>
 </html>
