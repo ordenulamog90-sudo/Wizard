@@ -1429,13 +1429,9 @@
 
         const nextRoundStarter = bestGuessers[Math.floor(Math.random() * bestGuessers.length)];
         
-        // KORREKTUR: Wenn dies die letzte Runde ist (currentRoundNum >= maxRounds), direkt zum Podest ohne Zwischenfenster!
-        if (currentRoundNum >= maxRounds) {
-          triggerVictory(calculated);
-        } else {
-          setRoundSummary({ round: currentRoundNum, calculatedPlayers: calculated, nextStarterId: nextRoundStarter });
-          setSummaryTimer(10);
-        }
+        // Zeige das Runden-Ergebnis-Fenster jetzt IMMER (auch nach der letzten Runde), aber mit dem gewünschten Text "Zum Ergebnis"
+        setRoundSummary({ round: currentRoundNum, calculatedPlayers: calculated, nextStarterId: nextRoundStarter, isLastRound: currentRoundNum >= maxRounds });
+        setSummaryTimer(10);
       };
 
       const triggerVictory = (calculatedPlayers) => {
@@ -1507,15 +1503,21 @@
         if (!roundSummary) return;
         const updated = roundSummary.calculatedPlayers;
         const nextStarter = roundSummary.nextStarterId;
-        const nextR = roundSummary.round + 1;
+        const currentR = roundSummary.round;
+        const isLast = roundSummary.isLastRound;
 
         setPlayers(updated);
         setRoundSummary(null);
 
-        if (nextR <= maxRounds) {
-          startRound(nextR, updated, nextStarter);
-        } else {
+        if (isLast) {
           triggerVictory(updated);
+        } else {
+          const nextR = currentR + 1;
+          if (nextR <= maxRounds) {
+            startRound(nextR, updated, nextStarter);
+          } else {
+            triggerVictory(updated);
+          }
         }
       };
 
@@ -2515,10 +2517,10 @@
                   ))}
 
                   <div className="bg-sky-950/80 border border-sky-400/50 p-3 rounded-2xl text-center text-xs text-sky-200 mt-3 font-bold space-y-2.5 shadow-2xl">
-                    <div>{roundSummary.calculatedPlayers.find(p => p.id === roundSummary.nextStarterId)?.name} beginnt Runde {roundSummary.round + 1}!</div>
+                    <div>{roundSummary.isLastRound ? 'Zum Endergebnis' : `${roundSummary.calculatedPlayers.find(p => p.id === roundSummary.nextStarterId)?.name} beginnt Runde ${roundSummary.round + 1}!`}</div>
                     <div className="pt-2 border-t border-sky-500/30 flex flex-col items-center gap-1">
                       <button onClick={(e) => { e.stopPropagation(); proceedToNextRound(); }} className="w-full py-2.5 mythic-btn-primary text-white font-black text-xs rounded-xl shadow-xl active:scale-95 transition-transform flex items-center justify-center gap-2">
-                        <span>Nächste Runde starten</span>
+                        <span>{roundSummary.isLastRound ? 'Zum Ergebnis' : 'Nächste Runde starten'}</span>
                         <span className="bg-sky-950/90 border border-sky-400/60 px-2 py-0.5 rounded-md text-[11px] font-bold text-amber-300">{summaryTimer}s</span>
                       </button>
                       <span className="text-[10px] text-slate-400 font-bold">Automatisch weiter in {summaryTimer} Sekunden</span>
@@ -2723,7 +2725,7 @@
       );
     }
 
-    ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+    ReactDOM.createRoot(getElementById('root')).render(<App />);
   </script>
 </body>
 </html>
