@@ -1428,8 +1428,14 @@
         });
 
         const nextRoundStarter = bestGuessers[Math.floor(Math.random() * bestGuessers.length)];
+        const isLast = currentRoundNum >= maxRounds;
         
-        setRoundSummary({ round: currentRoundNum, calculatedPlayers: calculated, nextStarterId: nextRoundStarter, isLastRound: currentRoundNum >= maxRounds });
+        setRoundSummary({ 
+          round: currentRoundNum, 
+          calculatedPlayers: calculated, 
+          nextStarterId: nextRoundStarter, 
+          isLastRound: isLast 
+        });
         setSummaryTimer(10);
       };
 
@@ -2496,7 +2502,14 @@
           )}
 
           {roundSummary && !showExitConfirm && (
-            <div onClick={proceedToNextRound} className="absolute inset-0 bg-slate-950/95 backdrop-blur-md z-50 flex flex-col items-center justify-center p-4 cursor-pointer select-none overflow-y-auto menu-scroll-container">
+            <div onClick={() => {
+              if (roundSummary.isLastRound) {
+                triggerVictory(roundSummary.calculatedPlayers);
+                setRoundSummary(null);
+              } else {
+                proceedToNextRound();
+              }
+            }} className="absolute inset-0 bg-slate-950/95 backdrop-blur-md z-50 flex flex-col items-center justify-center p-4 cursor-pointer select-none overflow-y-auto menu-scroll-container">
               <div className="w-full max-w-xs flex flex-col items-center gap-3 my-auto">
                 <h2 className="text-xl font-black text-sky-300">Ergebnis Runde {roundSummary.round}</h2>
                 <div className="w-full space-y-2">
@@ -2518,7 +2531,15 @@
                   <div className="bg-sky-950/80 border border-sky-400/50 p-3 rounded-2xl text-center text-xs text-sky-200 mt-3 font-bold space-y-2.5 shadow-2xl">
                     <div>{roundSummary.isLastRound ? 'Zum Endergebnis' : `${roundSummary.calculatedPlayers.find(p => p.id === roundSummary.nextStarterId)?.name} beginnt Runde ${roundSummary.round + 1}!`}</div>
                     <div className="pt-2 border-t border-sky-500/30 flex flex-col items-center gap-1">
-                      <button onClick={(e) => { e.stopPropagation(); proceedToNextRound(); }} className="w-full py-2.5 mythic-btn-primary text-white font-black text-xs rounded-xl shadow-xl active:scale-95 transition-transform flex items-center justify-center gap-2">
+                      <button onClick={(e) => { 
+                        e.stopPropagation(); 
+                        if (roundSummary.isLastRound) {
+                          triggerVictory(roundSummary.calculatedPlayers);
+                          setRoundSummary(null);
+                        } else {
+                          proceedToNextRound();
+                        }
+                      }} className="w-full py-2.5 mythic-btn-primary text-white font-black text-xs rounded-xl shadow-xl active:scale-95 transition-transform flex items-center justify-center gap-2">
                         <span>{roundSummary.isLastRound ? 'Zum Ergebnis' : 'Nächste Runde starten'}</span>
                         <span className="bg-sky-950/90 border border-sky-400/60 px-2 py-0.5 rounded-md text-[11px] font-bold text-amber-300">{summaryTimer}s</span>
                       </button>
