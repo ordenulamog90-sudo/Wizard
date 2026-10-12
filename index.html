@@ -1429,7 +1429,7 @@
 
         const nextRoundStarter = bestGuessers[Math.floor(Math.random() * bestGuessers.length)];
         
-        // KORREKTUR: Prüfen, ob dies bereits die letzte Runde war
+        // KORREKTUR: Wenn dies die letzte Runde ist (currentRoundNum >= maxRounds), direkt zum Podest ohne Zwischenfenster!
         if (currentRoundNum >= maxRounds) {
           triggerVictory(calculated);
         } else {
