@@ -3,6 +3,7 @@
   "short_name": "Mythos",
   "description": "Ein spannendes Kartenspiel im Mythos-Universum.",
   "start_url": "./index.html",
+  "scope": "/",
   "display": "standalone",
   "background_color": "#030712",
   "theme_color": "#030712",
