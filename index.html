@@ -16,6 +16,16 @@
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&display=swap" rel="stylesheet">
 
   <style>
+    /* Blaue Scrollbalken und Linien global ausblenden */
+    ::-webkit-scrollbar {
+      display: none !important;
+      width: 0px !important;
+      height: 0px !important;
+    }
+    body, html {
+      scrollbar-width: none !important;
+    }
+
     body { 
       background-color: #030712; 
       color: white; 
@@ -1974,7 +1984,7 @@
                             </div>
                             {!av.unlocked && (
                               <span className="absolute inset-0 bg-black/60 rounded-xl flex items-center justify-center text-xs font-black text-amber-400">
-                                LCK
+                                🔒
                               </span>
                             )}
                           </div>
