@@ -627,13 +627,13 @@
     ];
 
     const getXpNeededForGlobalLevel = (lvl) => {
-      return 150 + (lvl - 1) * 50; 
+      return 300 + (lvl - 1) * 150; 
     };
 
     const getXpNeededForElementLevel = (lvl) => {
-      if (lvl <= 3) return 150;
-      if (lvl <= 8) return 400;
-      return 1000 + (lvl * 300);
+      if (lvl <= 3) return 350;
+      if (lvl <= 8) return 900;
+      return 2200 + (lvl * 600);
     };
 
     function CardBack({ size = "md" }) {
@@ -1400,7 +1400,18 @@
 
           const isHumanWinner = sortedFinal[0].isHuman;
           const activeSuit = profile.activeSuit || 'yellow';
-          let earnedXp = isHumanWinner ? 150 : 50;
+
+          const diffMultiplier = difficulty === 'Magisch' ? 1.8 : difficulty === 'Normal' ? 1.3 : 1.0;
+          const playerMultiplier = 1 + (playerCount - 3) * 0.25;
+          const roundsMultiplier = maxRounds / 10;
+
+          let earnedXp = 0;
+          if (isHumanWinner) {
+            earnedXp = Math.round(180 * diffMultiplier * playerMultiplier * roundsMultiplier);
+          } else {
+            earnedXp = Math.round(35 * diffMultiplier * playerMultiplier * (roundsMultiplier * 0.8));
+          }
+          earnedXp = Math.max(isHumanWinner ? 50 : 15, earnedXp);
 
           const currentSuitData = profile.elementLevels[activeSuit] || { level: 1, xp: 0 };
           let newSuitXp = currentSuitData.xp + earnedXp;
@@ -2056,6 +2067,16 @@
                 <ul className="list-disc pl-4 space-y-1 text-slate-200">
                   <li><strong className="text-emerald-400">Ansage exakt getroffen:</strong> Du erhältst <span className="font-bold text-amber-300">20 Basispunkte</span> plus <span className="font-bold text-amber-300">10 Punkte zusätzlich für jeden gewonnenen Stich</span> (z.B. bei Ansage 2 und 2 Stichen = 20 + 20 = 40 Pluspunkte).</li>
                   <li><strong className="text-red-400">Ansage verfehlt (zu viele oder zu wenige Stiche):</strong> Du bekommst Minuspunkte. Für jede Abweichung (egal ob zu viel oder zu wenig) werden dir <span className="font-bold text-red-400">10 Minuspunkte pro Stich Differenz</span> abgezogen.</li>
+                </ul>
+              </div>
+
+              <div className="bg-slate-900 p-3 rounded-xl border border-slate-800 space-y-1.5">
+                <h3 className="font-bold text-purple-300 text-sm">5. Avatare, Elemente & Fortschritt (XP)</h3>
+                <p>Jedes der 4 Elemente (<span className="text-amber-400">Wind</span>, <span className="text-red-400">Feuer</span>, <span className="text-emerald-400">Diamanten</span>, <span className="text-sky-400">Wasser</span>) besitzt einen eigenen Erfahrungspfad von Level 1 bis 15.</p>
+                <ul className="list-disc pl-4 space-y-1 text-slate-200">
+                  <li><strong className="text-sky-300">Avatare freischalten:</strong> Auf niedrigen Leveln schaltest du Narren- und Zahlenkarten-Avatare frei. Erreichst du das <strong className="text-amber-300">Maximum von Level 15</strong> in einem Element, winkt dir als ultimative Belohnung der legendäre Zauberer-Avatar dieses Elements!</li>
+                  <li><strong className="text-sky-300">Erfahrung (XP) sammeln:</strong> Spiele Duelle im Einzelspiel-Modus. **Siege** bringen dir saftige Erfahrungspunkte für dein globales Level und dein aktives Element. Bei **Niederlagen** erhältst du einen kleinen Trostpreis.</li>
+                  <li><strong className="text-sky-300">Skalierung:</strong> Je mehr Gegner (bis zu 6 Spieler), je mehr Runden und je höher die Schwierigkeit (*Normal* oder *Magisch*), desto höher fällt dein XP-Bonus aus!</li>
                 </ul>
               </div>
             </div>
