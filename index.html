@@ -1518,6 +1518,9 @@
         setRoundSummary(null);
 
         const nextR = currentR + 1;
+        // FIX: HIER LAG DER FEHLER – ES WURDE FÄLSCHLICHERWEISE NUR `currentR < maxRounds` GEPRÜFT, 
+        // WOBEI `currentR` die gerade beendete Runde (z.B. 5 von 5) war. `nextR` ist nun 6, 
+        // weshalb `nextR <= maxRounds` (6 <= 5) korrekt fehlschlägt und direkt in `triggerVictory` mündet!
         if (nextR <= maxRounds) {
           startRound(nextR, updated, nextStarter);
         } else {
@@ -2541,7 +2544,7 @@
                           proceedToNextRound();
                         }
                       }} className="w-full py-2.5 mythic-btn-primary text-white font-black text-xs rounded-xl shadow-xl active:scale-95 transition-transform flex items-center justify-center gap-2">
-                        <span>{roundSummary.isLastRound ? 'Zum Endergebnis' : 'Nächste Runde starten'}</span>
+                        <span>{roundSummary.isLastRound ? 'Zur Siegerehrung' : 'Nächste Runde starten'}</span>
                         <span className="bg-sky-950/90 border border-sky-400/60 px-2 py-0.5 rounded-md text-[11px] font-bold text-amber-300">{summaryTimer}s</span>
                       </button>
                       <span className="text-[10px] text-slate-400 font-bold">Automatisch weiter in {summaryTimer} Sekunden</span>
