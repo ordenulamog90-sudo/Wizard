@@ -1138,7 +1138,14 @@
           interval = setInterval(() => {
             setSummaryTimer(prev => { 
               if (prev <= 1) { 
-                proceedToNextRound(); 
+                // DIREKTER TIMER-FIX: Wenn letzte Runde, direkt Siegerehrung auslösen!
+                if (roundSummary.isLastRound) {
+                  const calculated = roundSummary.calculatedPlayers;
+                  setRoundSummary(null);
+                  triggerVictory(calculated);
+                } else {
+                  proceedToNextRound(); 
+                }
                 return 0; 
               } 
               return prev - 1; 
@@ -1432,6 +1439,7 @@
         });
 
         const nextRoundStarter = bestGuessers[Math.floor(Math.random() * bestGuessers.length)];
+        // ABSOLUTE SICHERHEIT: Direkt prüfen, ob aktuelle Runde >= maxRounds ist!
         const isLast = currentRoundNum >= maxRounds;
         
         setRoundSummary({ 
@@ -1518,9 +1526,6 @@
         setRoundSummary(null);
 
         const nextR = currentR + 1;
-        // FIX: HIER LAG DER FEHLER – ES WURDE FÄLSCHLICHERWEISE NUR `currentR < maxRounds` GEPRÜFT, 
-        // WOBEI `currentR` die gerade beendete Runde (z.B. 5 von 5) war. `nextR` ist nun 6, 
-        // weshalb `nextR <= maxRounds` (6 <= 5) korrekt fehlschlägt und direkt in `triggerVictory` mündet!
         if (nextR <= maxRounds) {
           startRound(nextR, updated, nextStarter);
         } else {
@@ -2749,7 +2754,7 @@
       );
     }
 
-    ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+    ReactDOM.createRoot(getElementById('root')).render(<App />);
   </script>
 </body>
 </html>
