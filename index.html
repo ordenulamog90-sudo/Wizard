@@ -2507,7 +2507,8 @@
           )}
 
           {roundSummary && !showExitConfirm && (
-            <div onClick={() => {
+            <div onClick={(e) => {
+              e.stopPropagation();
               if (roundSummary.isLastRound) {
                 const calculated = roundSummary.calculatedPlayers;
                 setRoundSummary(null);
@@ -2516,7 +2517,7 @@
                 proceedToNextRound();
               }
             }} className="absolute inset-0 bg-slate-950/95 backdrop-blur-md z-50 flex flex-col items-center justify-center p-4 cursor-pointer select-none overflow-y-auto menu-scroll-container">
-              <div className="w-full max-w-xs flex flex-col items-center gap-3 my-auto">
+              <div className="w-full max-w-xs flex flex-col items-center gap-3 my-auto" onClick={(e) => e.stopPropagation()}>
                 <h2 className="text-xl font-black text-sky-300">Ergebnis Runde {roundSummary.round}</h2>
                 <div className="w-full space-y-2">
                   {roundSummary.calculatedPlayers.map(p => (
@@ -2547,7 +2548,7 @@
                           proceedToNextRound();
                         }
                       }} className="w-full py-2.5 mythic-btn-primary text-white font-black text-xs rounded-xl shadow-xl active:scale-95 transition-transform flex items-center justify-center gap-2">
-                        <span>{roundSummary.isLastRound ? 'Zur Siegerehrung' : 'Nächste Runde starten'}</span>
+                        <span>{roundSummary.isLastRound ? 'Zum Ergebnis' : 'Nächste Runde starten'}</span>
                         <span className="bg-sky-950/90 border border-sky-400/60 px-2 py-0.5 rounded-md text-[11px] font-bold text-amber-300">{summaryTimer}s</span>
                       </button>
                       <span className="text-[10px] text-slate-400 font-bold">Automatisch weiter in {summaryTimer} Sekunden</span>
