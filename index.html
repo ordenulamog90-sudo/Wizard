@@ -1428,8 +1428,79 @@
         });
 
         const nextRoundStarter = bestGuessers[Math.floor(Math.random() * bestGuessers.length)];
-        setRoundSummary({ round: currentRoundNum, calculatedPlayers: calculated, nextStarterId: nextRoundStarter });
-        setSummaryTimer(10);
+        
+        // KORREKTUR: Prüfen, ob dies bereits die letzte Runde war
+        if (currentRoundNum >= maxRounds) {
+          triggerVictory(calculated);
+        } else {
+          setRoundSummary({ round: currentRoundNum, calculatedPlayers: calculated, nextStarterId: nextRoundStarter });
+          setSummaryTimer(10);
+        }
+      };
+
+      const triggerVictory = (calculatedPlayers) => {
+        const sortedFinal = [...calculatedPlayers].sort((a, b) => b.score - a.score);
+        setVictoryData(sortedFinal);
+        setVictoryTimer(20);
+        if (!isMuted) soundEngine.playVictory();
+
+        const isHumanWinner = sortedFinal[0].isHuman;
+        const activeSuit = profile.activeSuit || 'yellow';
+
+        const diffMultiplier = difficulty === 'Magisch' ? 1.8 : difficulty === 'Normal' ? 1.3 : 1.0;
+        const playerMultiplier = 1 + (playerCount - 3) * 0.25;
+        const roundsMultiplier = maxRounds / 10;
+
+        let earnedXp = 0;
+        if (isHumanWinner) {
+          earnedXp = Math.round(180 * diffMultiplier * playerMultiplier * roundsMultiplier);
+        } else {
+          earnedXp = Math.round(35 * diffMultiplier * playerMultiplier * (roundsMultiplier * 0.8));
+        }
+        earnedXp = Math.max(isHumanWinner ? 50 : 15, earnedXp);
+
+        const currentSuitData = profile.elementLevels[activeSuit] || { level: 1, xp: 0 };
+        let newSuitXp = currentSuitData.xp + earnedXp;
+        let newSuitLevel = currentSuitData.level;
+        let xpNeededSuit = getXpNeededForElementLevel(newSuitLevel);
+        while (newSuitLevel < 15 && newSuitXp >= xpNeededSuit) {
+          newSuitXp -= xpNeededSuit;
+          newSuitLevel += 1;
+          xpNeededSuit = getXpNeededForElementLevel(newSuitLevel);
+        }
+        if (newSuitLevel >= 15) {
+          newSuitLevel = 15;
+          newSuitXp = Math.min(newSuitXp, xpNeededSuit);
+        }
+        const updatedElementLevels = {
+          ...profile.elementLevels,
+          [activeSuit]: { level: newSuitLevel, xp: newSuitXp }
+        };
+
+        let globalLevel = profile.level || 1;
+        let globalXp = (profile.xp || 0) + earnedXp;
+
+        let xpNeededGlobal = getXpNeededForGlobalLevel(globalLevel);
+        while (globalLevel < 999 && globalXp >= xpNeededGlobal) {
+          globalXp -= xpNeededGlobal;
+          globalLevel += 1;
+          xpNeededGlobal = getXpNeededForGlobalLevel(globalLevel);
+        }
+        if (globalLevel >= 999) {
+          globalLevel = 999;
+          globalXp = Math.min(globalXp, xpNeededGlobal);
+        }
+
+        const updatedProfile = { 
+          ...profile, 
+          offlinePlayed: (profile.offlinePlayed || 0) + 1, 
+          offlineWins: isHumanWinner ? (profile.offlineWins || 0) + 1 : (profile.offlineWins || 0),
+          level: globalLevel,
+          xp: globalXp,
+          elementLevels: updatedElementLevels
+        };
+        setProfile(updatedProfile);
+        localStorage.setItem('wizard_profile', JSON.stringify(updatedProfile));
       };
 
       const proceedToNextRound = () => {
@@ -1444,68 +1515,7 @@
         if (nextR <= maxRounds) {
           startRound(nextR, updated, nextStarter);
         } else {
-          const sortedFinal = [...updated].sort((a, b) => b.score - a.score);
-          setVictoryData(sortedFinal);
-          setVictoryTimer(20);
-          if (!isMuted) soundEngine.playVictory();
-
-          const isHumanWinner = sortedFinal[0].isHuman;
-          const activeSuit = profile.activeSuit || 'yellow';
-
-          const diffMultiplier = difficulty === 'Magisch' ? 1.8 : difficulty === 'Normal' ? 1.3 : 1.0;
-          const playerMultiplier = 1 + (playerCount - 3) * 0.25;
-          const roundsMultiplier = maxRounds / 10;
-
-          let earnedXp = 0;
-          if (isHumanWinner) {
-            earnedXp = Math.round(180 * diffMultiplier * playerMultiplier * roundsMultiplier);
-          } else {
-            earnedXp = Math.round(35 * diffMultiplier * playerMultiplier * (roundsMultiplier * 0.8));
-          }
-          earnedXp = Math.max(isHumanWinner ? 50 : 15, earnedXp);
-
-          const currentSuitData = profile.elementLevels[activeSuit] || { level: 1, xp: 0 };
-          let newSuitXp = currentSuitData.xp + earnedXp;
-          let newSuitLevel = currentSuitData.level;
-          let xpNeededSuit = getXpNeededForElementLevel(newSuitLevel);
-          while (newSuitLevel < 15 && newSuitXp >= xpNeededSuit) {
-            newSuitXp -= xpNeededSuit;
-            newSuitLevel += 1;
-            xpNeededSuit = getXpNeededForElementLevel(newSuitLevel);
-          }
-          if (newSuitLevel >= 15) {
-            newSuitLevel = 15;
-            newSuitXp = Math.min(newSuitXp, xpNeededSuit);
-          }
-          const updatedElementLevels = {
-            ...profile.elementLevels,
-            [activeSuit]: { level: newSuitLevel, xp: newSuitXp }
-          };
-
-          let globalLevel = profile.level || 1;
-          let globalXp = (profile.xp || 0) + earnedXp;
-
-          let xpNeededGlobal = getXpNeededForGlobalLevel(globalLevel);
-          while (globalLevel < 999 && globalXp >= xpNeededGlobal) {
-            globalXp -= xpNeededGlobal;
-            globalLevel += 1;
-            xpNeededGlobal = getXpNeededForGlobalLevel(globalLevel);
-          }
-          if (globalLevel >= 999) {
-            globalLevel = 999;
-            globalXp = Math.min(globalXp, xpNeededGlobal);
-          }
-
-          const updatedProfile = { 
-            ...profile, 
-            offlinePlayed: (profile.offlinePlayed || 0) + 1, 
-            offlineWins: isHumanWinner ? (profile.offlineWins || 0) + 1 : (profile.offlineWins || 0),
-            level: globalLevel,
-            xp: globalXp,
-            elementLevels: updatedElementLevels
-          };
-          setProfile(updatedProfile);
-          localStorage.setItem('wizard_profile', JSON.stringify(updatedProfile));
+          triggerVictory(updated);
         }
       };
 
