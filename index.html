@@ -1138,7 +1138,6 @@
           interval = setInterval(() => {
             setSummaryTimer(prev => { 
               if (prev <= 1) { 
-                // DIREKTER TIMER-FIX: Wenn letzte Runde, direkt Siegerehrung auslösen!
                 if (roundSummary.isLastRound) {
                   const calculated = roundSummary.calculatedPlayers;
                   setRoundSummary(null);
@@ -1439,7 +1438,6 @@
         });
 
         const nextRoundStarter = bestGuessers[Math.floor(Math.random() * bestGuessers.length)];
-        // ABSOLUTE SICHERHEIT: Direkt prüfen, ob aktuelle Runde >= maxRounds ist!
         const isLast = currentRoundNum >= maxRounds;
         
         setRoundSummary({ 
@@ -2754,7 +2752,7 @@
       );
     }
 
-    ReactDOM.createRoot(getElementById('root')).render(<App />);
+    ReactDOM.createRoot(document.getElementById('root')).render(<App />);
   </script>
 </body>
 </html>
