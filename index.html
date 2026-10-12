@@ -1436,7 +1436,6 @@
         const nextRoundStarter = bestGuessers[Math.floor(Math.random() * bestGuessers.length)];
         const isLast = currentRoundNum >= maxRounds;
         
-        // HIER DIREKT GEÄNDERT: Wenn es die letzte Runde ist, wird die Zwischenzusammenfassung komplett übersprungen und sofort die Siegerehrung getriggert!
         if (isLast) {
           triggerVictory(calculated);
         } else {
@@ -2739,7 +2738,7 @@
       );
     }
 
-    ReactDOM.createRoot(getElementById('root')).render(<App />);
+    ReactDOM.createRoot(document.getElementById('root')).render(<App />);
   </script>
 </body>
 </html>
