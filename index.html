@@ -1429,7 +1429,6 @@
 
         const nextRoundStarter = bestGuessers[Math.floor(Math.random() * bestGuessers.length)];
         
-        // Zeige das Runden-Ergebnis-Fenster jetzt IMMER (auch nach der letzten Runde), aber mit dem gewünschten Text "Zum Ergebnis"
         setRoundSummary({ round: currentRoundNum, calculatedPlayers: calculated, nextStarterId: nextRoundStarter, isLastRound: currentRoundNum >= maxRounds });
         setSummaryTimer(10);
       };
@@ -2216,7 +2215,7 @@
                     </div>
                   </div>
 
-                  {/* EINSTELLUNGEN (Vom Host änderbar, dynamische Runden wie Singleplayer) */}
+                  {/* EINSTELLUNGEN */}
                   <div className="bg-slate-900/90 border border-slate-800 p-3 rounded-xl space-y-2">
                     <div className="text-[11px] font-bold text-sky-300 flex justify-between items-center">
                       <span>Duell-Einstellungen</span>
@@ -2351,7 +2350,7 @@
                 <p>Es herrscht Farbzwang: Du musst die ausgespielte Leitfarbe bekennen, sofern du sie auf der Hand hast. Kannst du nicht bekennen, darfst du eine andere Farbe oder einen Trumpf spielen. Die aufgedeckte Trumpfkarte sticht jede Fehlfarbe. Innerhalb der Farbe oder des Trumpfs entscheidet die höhere Zahl.</p>
               </div>
 
-              <div className="bg-slate-900 p-3 rounded-xl border border-slate-800 space-y-1">
+              <div className="bg-slate-900 p-3 rounded-xl border border-slate-800 space-y-1.5">
                 <h3 className="font-bold text-amber-300 text-sm">4. Punktewertung (Wie man Punkte bekommt)</h3>
                 <p className="mb-1">Am Ende jeder Runde werden die gemachten Stiche mit deiner vorherigen Ansage verglichen:</p>
                 <ul className="list-disc pl-4 space-y-1 text-slate-200">
@@ -2609,7 +2608,7 @@
             </div>
           </div>
 
-          {/* GEGNER-LEISTE OBEN (Nur Ansagen & Stiche) */}
+          {/* GEGNER-LEISTE OBEN */}
           <div className="grid grid-cols-3 gap-1 shrink-0 my-0.5">
             {players.filter(p => !p.isHuman).map(p => {
               const isCurrentTurn = (turn === p.id);
@@ -2679,7 +2678,7 @@
             </div>
           </div>
 
-          {/* DEINE HANDKARTEN (Mit Timer links von Ansage & Stiche) */}
+          {/* DEINE HANDKARTEN */}
           <div className={`p-1.5 mb-1 rounded-xl border transition-all shrink-0 ${isHumanTurn && phase === 'playing' ? 'border-sky-400 bg-slate-800/95 shadow-xl shadow-sky-500/30 ring-2 ring-sky-400/60' : 'border-slate-800 bg-slate-900'} ${collectingWinnerId === 0 ? 'ring-2 ring-amber-400 bg-amber-950/40 shadow-[0_0_20px_#f59e0b]' : ''}`}>
             <div className="flex justify-between items-center mb-1 px-1">
               <div className="flex items-center gap-1.5">
@@ -2725,7 +2724,7 @@
       );
     }
 
-    ReactDOM.createRoot(getElementById('root')).render(<App />);
+    ReactDOM.createRoot(document.getElementById('root')).render(<App />);
   </script>
 </body>
 </html>
