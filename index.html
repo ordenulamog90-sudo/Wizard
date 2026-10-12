@@ -177,26 +177,29 @@
         this.playMusicAudio = null;
         this.victoryMusicAudio = null;
         this.hasInteracted = false;
+        this.isMuted = false;
+        this.lastVolume = 0.5;
       }
       init() {
         if (!this.menuMusic) {
           this.menuMusic = new Audio('./mythosmainmenu.mp3');
           this.menuMusic.loop = true;
-          this.menuMusic.volume = 0.5;
+          this.menuMusic.volume = this.lastVolume;
         }
         if (!this.playMusicAudio) {
           this.playMusicAudio = new Audio('./mythosplay.mp3');
           this.playMusicAudio.loop = true;
-          this.playMusicAudio.volume = 0.5;
+          this.playMusicAudio.volume = this.lastVolume;
         }
         if (!this.victoryMusicAudio) {
           this.victoryMusicAudio = new Audio('./victory.mp3');
           this.victoryMusicAudio.loop = true;
-          this.victoryMusicAudio.volume = 0.5;
+          this.victoryMusicAudio.volume = this.lastVolume;
         }
       }
       playMenu() {
         this.init();
+        if (this.isMuted) return;
         if (this.playMusicAudio && !this.playMusicAudio.paused) {
           this.playMusicAudio.pause();
           this.playMusicAudio.currentTime = 0;
@@ -213,6 +216,7 @@
       }
       playBattle() {
         this.init();
+        if (this.isMuted) return;
         if (this.menuMusic && !this.menuMusic.paused) {
           this.menuMusic.pause();
           this.menuMusic.currentTime = 0;
@@ -229,6 +233,7 @@
       }
       playVictory() {
         this.init();
+        if (this.isMuted) return;
         if (this.menuMusic && !this.menuMusic.paused) {
           this.menuMusic.pause();
           this.menuMusic.currentTime = 0;
@@ -258,9 +263,26 @@
         }
       }
       setVolume(volume) {
-        if (this.menuMusic) this.menuMusic.volume = volume;
-        if (this.playMusicAudio) this.playMusicAudio.volume = volume;
-        if (this.victoryMusicAudio) this.victoryMusicAudio.volume = volume;
+        this.lastVolume = volume;
+        if (!this.isMuted) {
+          if (this.menuMusic) this.menuMusic.volume = volume;
+          if (this.playMusicAudio) this.playMusicAudio.volume = volume;
+          if (this.victoryMusicAudio) this.victoryMusicAudio.volume = volume;
+        }
+      }
+      toggleMute(muteState, currentContext = 'menu') {
+        this.isMuted = muteState;
+        if (muteState) {
+          this.stopAll();
+        } else {
+          if (currentContext === 'victory') {
+            this.playVictory();
+          } else if (currentContext === 'game') {
+            this.playBattle();
+          } else {
+            this.playMenu();
+          }
+        }
       }
     }
 
@@ -812,17 +834,17 @@
         return saved !== null ? parseFloat(saved) : 0.5;
       });
 
+      const [isMuted, setIsMuted] = useState(() => {
+        const saved = localStorage.getItem('wizard_is_muted');
+        return saved === 'true';
+      });
+
       const [victoryData, setVictoryData] = useState(null);
 
       useEffect(() => {
-        if (victoryData) {
-          soundEngine.playVictory();
-        } else if (screen === 'game') {
-          soundEngine.playBattle();
-        } else {
-          soundEngine.playMenu();
-        }
-      }, [screen, victoryData]);
+        const currentContext = victoryData ? 'victory' : (screen === 'game' ? 'game' : 'menu');
+        soundEngine.toggleMute(isMuted, currentContext);
+      }, [screen, victoryData, isMuted]);
 
       const handleVolumeChange = (newVol) => {
         setMusicVolume(newVol);
@@ -830,12 +852,22 @@
         soundEngine.setVolume(newVol);
       };
 
+      const handleToggleMute = () => {
+        const nextMute = !isMuted;
+        setIsMuted(nextMute);
+        localStorage.setItem('wizard_is_muted', nextMute);
+        const currentContext = victoryData ? 'victory' : (screen === 'game' ? 'game' : 'menu');
+        soundEngine.toggleMute(nextMute, currentContext);
+      };
+
       const handleUserInteraction = () => {
         soundEngine.init();
-        if (victoryData) {
-          soundEngine.playVictory();
-        } else if (screen === 'menu' && !soundEngine.hasInteracted) {
-          soundEngine.playMenu();
+        if (!isMuted) {
+          if (victoryData) {
+            soundEngine.playVictory();
+          } else if (screen === 'menu' && !soundEngine.hasInteracted) {
+            soundEngine.playMenu();
+          }
         }
       };
       
@@ -1364,7 +1396,7 @@
           const sortedFinal = [...updated].sort((a, b) => b.score - a.score);
           setVictoryData(sortedFinal);
           setVictoryTimer(20);
-          soundEngine.playVictory();
+          if (!isMuted) soundEngine.playVictory();
 
           const isHumanWinner = sortedFinal[0].isHuman;
           const activeSuit = profile.activeSuit || 'yellow';
@@ -1612,6 +1644,15 @@
               <img src="./1791640481183.jpg" alt="Mythos Background" className="w-full h-full object-cover drop-shadow-2xl" />
             </div>
 
+            <div className="absolute top-4 right-4 z-20">
+              <button
+                onClick={(e) => { e.stopPropagation(); handleToggleMute(); }}
+                className={`px-3 py-2 rounded-xl font-bold text-xs flex items-center gap-2 border shadow-lg transition-all active:scale-95 ${!isMuted ? 'bg-sky-950/95 border-sky-400 text-sky-200' : 'bg-red-950/95 border-red-500 text-red-300'}`}
+              >
+                <span>{!isMuted ? '🔊 Sound An' : '🔇 Mute'}</span>
+              </button>
+            </div>
+
             <div className="relative z-10 w-full max-w-sm flex flex-col gap-3 my-auto">
               <button
                 onClick={() => { handleUserInteraction(); setScreen('game_setup'); }}
@@ -1667,7 +1708,18 @@
             </div>
 
             <div className="space-y-4 my-auto">
-              <div className="bg-slate-900 p-4 rounded-2xl border border-slate-800 space-y-3 shadow-xl">
+              <div className="bg-slate-900 p-4 rounded-2xl border border-slate-800 space-y-4 shadow-xl">
+                
+                <div className="flex justify-between items-center border-b border-slate-800 pb-3">
+                  <span className="text-xs font-bold text-slate-300">Sound Master-Schalter</span>
+                  <button
+                    onClick={handleToggleMute}
+                    className={`px-4 py-2 rounded-xl font-bold text-xs border transition-all active:scale-95 ${!isMuted ? 'bg-sky-950 border-sky-400 text-sky-200' : 'bg-red-950 border-red-500 text-red-300'}`}
+                  >
+                    {!isMuted ? '🔊 Aktiviert' : '🔇 Stumm'}
+                  </button>
+                </div>
+
                 <div className="space-y-1">
                   <div className="flex justify-between items-center">
                     <span className="text-xs font-bold text-slate-300">Musik-Lautstärke</span>
@@ -2025,20 +2077,38 @@
           {/* LAUTSTÄRKE-POPUP-MENÜ */}
           {showVolumePopup && (
             <div className="absolute inset-0 bg-black/40 z-40 flex items-start justify-end p-2" onClick={() => setShowVolumePopup(false)}>
-              <div onClick={(e) => e.stopPropagation()} className="bg-slate-900 border border-sky-500/50 p-3 rounded-2xl shadow-2xl w-48 space-y-2 backdrop-blur-md mt-8">
+              <div onClick={(e) => e.stopPropagation()} className="bg-slate-900 border border-sky-500/50 p-3 rounded-2xl shadow-2xl w-52 space-y-3 backdrop-blur-md mt-8">
                 <div className="flex justify-between items-center text-xs font-bold text-sky-300 border-b border-slate-800 pb-1">
-                  <span>Musik-Lautstärke</span>
-                  <span className="text-amber-400">{Math.round(musicVolume * 100)}%</span>
+                  <span>Sound-Steuerung</span>
+                  <button onClick={() => setShowVolumePopup(false)} className="text-slate-400 hover:text-white">✕</button>
                 </div>
-                <input
-                  type="range"
-                  min="0"
-                  max="1"
-                  step="0.05"
-                  value={musicVolume}
-                  onChange={(e) => handleVolumeChange(parseFloat(e.target.value))}
-                  className="w-full accent-sky-400 bg-slate-950 rounded-lg h-2 cursor-pointer"
-                />
+
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold text-slate-300">Audio Mute</span>
+                  <button
+                    onClick={handleToggleMute}
+                    className={`px-3 py-1.5 rounded-xl font-bold text-xs border transition-all active:scale-95 ${!isMuted ? 'bg-sky-950 border-sky-400 text-sky-200' : 'bg-red-950 border-red-500 text-red-300'}`}
+                  >
+                    {!isMuted ? '🔊 An' : '🔇 Aus'}
+                  </button>
+                </div>
+
+                <div className="space-y-1">
+                  <div className="flex justify-between items-center">
+                    <span className="text-[11px] font-bold text-slate-300">Lautstärke</span>
+                    <span className="text-[11px] font-black text-amber-400">{Math.round(musicVolume * 100)}%</span>
+                  </div>
+                  <input
+                    type="range"
+                    min="0"
+                    max="1"
+                    step="0.05"
+                    value={musicVolume}
+                    onChange={(e) => handleVolumeChange(parseFloat(e.target.value))}
+                    className="w-full accent-sky-400 bg-slate-950 rounded-lg h-2 cursor-pointer"
+                  />
+                </div>
+
                 <button onClick={() => setShowVolumePopup(false)} className="w-full py-1.5 bg-slate-800 hover:bg-slate-700 text-sky-200 text-xs font-bold rounded-xl">Schließen</button>
               </div>
             </div>
@@ -2222,10 +2292,10 @@
             <div className="flex items-center gap-1.5">
               <button 
                 onClick={() => setShowVolumePopup(!showVolumePopup)} 
-                className="text-[10px] bg-slate-800 hover:bg-slate-700 active:scale-95 text-sky-300 border border-sky-500/30 w-6 h-6 flex items-center justify-center rounded-md font-bold transition-all shadow"
-                title="Lautstärke"
+                className={`text-[10px] px-2 py-0.5 rounded-md font-bold transition-all shadow flex items-center gap-1 ${!isMuted ? 'bg-slate-800 hover:bg-slate-700 text-sky-300 border border-sky-500/30' : 'bg-red-950 text-red-300 border border-red-500/50'}`}
+                title="Lautstärke & Mute"
               >
-                🔊
+                {!isMuted ? '🔊' : '🔇'}
               </button>
               <button onClick={() => setShowExitConfirm(true)} className="text-[10px] bg-slate-800 hover:bg-slate-700 active:scale-95 text-sky-300 border border-sky-500/30 px-2.5 py-0.5 rounded-md font-bold transition-all shadow">Menü</button>
             </div>
