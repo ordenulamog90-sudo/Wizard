@@ -2240,6 +2240,25 @@
                           <div className="font-bold text-sky-200 bg-slate-950 p-1.5 rounded-lg border border-slate-800">{mpSettings.maxRounds} Runden</div>
                         )}
                       </div>
+
+                      <div>
+                        <span className="text-[10px] text-slate-400 block mb-1">KI-Schwierigkeit:</span>
+                        {mpIsHost ? (
+                          <div className="grid grid-cols-3 gap-1.5">
+                            {['Leicht', 'Normal', 'Magisch'].map(diff => (
+                              <button
+                                key={diff}
+                                onClick={() => setMpSettings(prev => ({ ...prev, difficulty: diff }))}
+                                className={`py-1.5 rounded-lg font-bold text-xs crystal-btn ${mpSettings.difficulty === diff ? 'crystal-active text-white' : 'bg-slate-950 text-slate-400'}`}
+                              >
+                                {diff}
+                              </button>
+                            ))}
+                          </div>
+                        ) : (
+                          <div className="font-bold text-sky-200 bg-slate-950 p-1.5 rounded-lg border border-slate-800">{mpSettings.difficulty}</div>
+                        )}
+                      </div>
                     </div>
                   </div>
 
@@ -2557,9 +2576,6 @@
           {/* OBERER BEREICH: Rundeninfo & Buttons */}
           <div className="flex justify-between items-center bg-slate-900/90 px-2.5 py-0.5 rounded-lg border border-slate-800 shrink-0 shadow">
             <span className="text-[11px] font-bold text-sky-400">Runde {round} / {maxRounds}</span>
-            {phase === 'playing' && isHumanTurn && !isEvaluatingRef.current && !animatingCardId && !collectingWinnerId && !showDiceModal && !roundSummary && !victoryData && !showExitConfirm && (
-              <span className="text-[10px] font-extrabold text-amber-400 bg-amber-950/90 px-2 py-0.5 rounded-full border border-amber-500/40 animate-pulse">Dein Zug: {turnTimer}s</span>
-            )}
             <div className="flex items-center gap-1.5">
               <button 
                 onClick={() => setShowVolumePopup(!showVolumePopup)} 
@@ -2653,7 +2669,12 @@
                   DEINE HAND:
                 </span>
               </div>
-              <span className="text-[10px] font-bold text-sky-400">Ans: {humanPlayer.bid !== null ? humanPlayer.bid : '-'} | Stich: {humanPlayer.tricks}</span>
+              <div className="flex items-center gap-2">
+                {isHumanTurn && phase === 'playing' && !isEvaluatingRef.current && !animatingCardId && !collectingWinnerId && !showDiceModal && !roundSummary && !victoryData && !showExitConfirm && (
+                  <span className="text-[10px] font-extrabold text-amber-400 bg-amber-950/90 px-2 py-0.5 rounded-full border border-amber-500/40 animate-pulse">Zug: {turnTimer}s</span>
+                )}
+                <span className="text-[10px] font-bold text-sky-400">Ans: {humanPlayer.bid !== null ? humanPlayer.bid : '-'} | Stich: {humanPlayer.tricks}</span>
+              </div>
             </div>
 
             {/* HANDKARTEN SCROLL-CONTAINER */}
