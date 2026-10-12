@@ -33,10 +33,10 @@
       user-select: none; 
       margin: 0;
       padding: 0;
-      overflow: hidden;
-      position: fixed;
       width: 100vw;
-      height: 100vh;
+      height: 100dvh;
+      overflow: hidden;
+      position: relative;
     }
     .card-art-box {
       background: radial-gradient(circle at center, rgba(255,255,255,0.1) 0%, rgba(0,0,0,0.6) 100%);
@@ -176,7 +176,7 @@
   </style>
 </head>
 <body>
-  <div id="root" class="w-screen h-screen overflow-hidden"></div>
+  <div id="root" class="w-screen h-[100dvh] overflow-hidden"></div>
 
   <script type="text/babel">
     const { useState, useEffect, useRef } = React;
@@ -1705,7 +1705,7 @@
       // ---------------- 1. HAUPTMENÜ ----------------
       if (screen === 'menu') {
         return (
-          <div onClick={handleUserInteraction} className="relative w-full h-full bg-slate-950 flex items-center justify-center p-4 overflow-hidden">
+          <div onClick={handleUserInteraction} className="relative w-full h-[100dvh] bg-slate-950 flex items-center justify-center p-4 overflow-hidden">
             <div className="absolute inset-0 z-0 flex items-center justify-center">
               <img src="./1791640481183.jpg" alt="Mythos Background" className="w-full h-full object-cover drop-shadow-2xl" />
             </div>
@@ -1767,7 +1767,7 @@
       // ---------------- EINSTELLUNGEN ----------------
       if (screen === 'settings') {
         return (
-          <div onClick={handleUserInteraction} className="flex flex-col h-full max-w-md mx-auto p-4 justify-between bg-slate-950 overflow-y-auto menu-scroll-container">
+          <div onClick={handleUserInteraction} className="flex flex-col h-[100dvh] max-w-md mx-auto p-4 justify-between bg-slate-950 overflow-y-auto menu-scroll-container">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-xl font-bold text-sky-400">Einstellungen</h2>
               <button onClick={() => setScreen('menu')} className="text-xs bg-slate-800 text-sky-300 px-3 py-1.5 rounded-lg font-bold">Zurück</button>
@@ -1814,7 +1814,7 @@
         const currentRoundOptions = getRoundOptionsForPlayers(playerCount);
 
         return (
-          <div className="flex flex-col landscape:flex-row h-full max-w-4xl mx-auto bg-slate-950 justify-between overflow-y-auto menu-scroll-container">
+          <div className="flex flex-col landscape:flex-row h-[100dvh] max-w-4xl mx-auto bg-slate-950 justify-between overflow-y-auto menu-scroll-container">
             <div className="w-full h-24 landscape:h-full landscape:w-1/2 relative overflow-hidden border-b landscape:border-b-0 landscape:border-r border-sky-500/30 shadow-2xl shrink-0 flex items-center justify-center">
               <img src="./1791640481183.jpg" alt="Mythos Header" className="w-full h-full object-cover" />
             </div>
@@ -1909,7 +1909,7 @@
         const elementXpPercent = elementLevel >= 15 ? 100 : Math.min(100, Math.round((elementXp / xpNeededForNextElement) * 100));
 
         return (
-          <div onClick={handleUserInteraction} className="flex flex-col h-full max-w-md mx-auto p-4 justify-between bg-slate-950 overflow-y-auto menu-scroll-container">
+          <div onClick={handleUserInteraction} className="flex flex-col h-[100dvh] max-w-md mx-auto p-4 justify-between bg-slate-950 overflow-y-auto menu-scroll-container">
             <div className="flex justify-between items-center mb-2">
               <h2 className="text-xl font-black text-sky-300">Spielerprofil</h2>
               <button onClick={() => setScreen('menu')} className="text-xs bg-slate-900 border border-slate-800 text-sky-300 px-3 py-1.5 rounded-lg font-bold">Zurück</button>
@@ -2077,7 +2077,7 @@
         const currentRoundOptions = getRoundOptionsForPlayers(mpSettings.playerCount);
 
         return (
-          <div onClick={handleUserInteraction} className="flex flex-col h-full max-w-md mx-auto p-4 justify-between bg-slate-950 overflow-y-auto menu-scroll-container">
+          <div onClick={handleUserInteraction} className="flex flex-col h-[100dvh] max-w-md mx-auto p-4 justify-between bg-slate-950 overflow-y-auto menu-scroll-container">
             <div className="flex justify-between items-center mb-2">
               <h2 className="text-xl font-black text-sky-300">Online-Lobby</h2>
               <button onClick={() => setScreen('menu')} className="text-xs bg-slate-900 border border-slate-800 text-sky-300 px-3 py-1.5 rounded-lg font-bold">Zurück</button>
@@ -2317,7 +2317,7 @@
       // ---------------- 5. REGELN ----------------
       if (screen === 'rules') {
         return (
-          <div onClick={handleUserInteraction} className="flex flex-col h-full max-w-md mx-auto p-4 justify-between bg-slate-950 overflow-y-auto menu-scroll-container">
+          <div onClick={handleUserInteraction} className="flex flex-col h-[100dvh] max-w-md mx-auto p-4 justify-between bg-slate-950 overflow-y-auto menu-scroll-container">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-xl font-bold text-sky-400">Spielregeln & Punkte</h2>
               <button onClick={() => setScreen('menu')} className="text-xs bg-slate-800 text-sky-300 px-3 py-1.5 rounded-lg font-bold">Zurück</button>
@@ -2371,7 +2371,7 @@
       const shouldOverlapCards = handCardCount >= 6;
 
       return (
-        <div onClick={handleUserInteraction} className="w-full h-full flex flex-col justify-between p-1.5 pb-4 bg-slate-950 relative overflow-hidden box-border">
+        <div onClick={handleUserInteraction} className="w-full h-[100dvh] flex flex-col justify-between p-1.5 pb-3 bg-slate-950 relative overflow-hidden box-border">
           
           {/* LAUTSTÄRKE-POPUP-MENÜ */}
           {showVolumePopup && (
@@ -2668,7 +2668,7 @@
           </div>
 
           {/* DEINE HANDKARTEN (Mit Timer links von Ansage & Stiche) */}
-          <div className={`p-1.5 mb-2 rounded-xl border transition-all shrink-0 ${isHumanTurn && phase === 'playing' ? 'border-sky-400 bg-slate-800/95 shadow-xl shadow-sky-500/30 ring-2 ring-sky-400/60' : 'border-slate-800 bg-slate-900'} ${collectingWinnerId === 0 ? 'ring-2 ring-amber-400 bg-amber-950/40 shadow-[0_0_20px_#f59e0b]' : ''}`}>
+          <div className={`p-1.5 mb-1 rounded-xl border transition-all shrink-0 ${isHumanTurn && phase === 'playing' ? 'border-sky-400 bg-slate-800/95 shadow-xl shadow-sky-500/30 ring-2 ring-sky-400/60' : 'border-slate-800 bg-slate-900'} ${collectingWinnerId === 0 ? 'ring-2 ring-amber-400 bg-amber-950/40 shadow-[0_0_20px_#f59e0b]' : ''}`}>
             <div className="flex justify-between items-center mb-1 px-1">
               <div className="flex items-center gap-1.5">
                 <div className="shrink-0 scale-75 origin-left">
