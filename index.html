@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Mythos Card Game</title>
+  <title>Mythos Card Game - Singleplayer</title>
   <link rel="manifest" href="./manifest.json">
   <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
@@ -840,15 +840,6 @@
       const [showAvatarModal, setShowAvatarModal] = useState(false);
       const [showVolumePopup, setShowVolumePopup] = useState(false);
 
-      // --- MULTIPLAYER LOBBY STATE ---
-      const [mpSubScreen, setMpSubScreen] = useState('menu'); // 'menu', 'host', 'join', 'room'
-      const [mpRoomCodeInput, setMpRoomCodeInput] = useState('');
-      const [mpRoomCode, setMpRoomCode] = useState('');
-      const [mpIsHost, setMpIsHost] = useState(false);
-      const [mpPlayersInRoom, setMpPlayersInRoom] = useState([]);
-      const [mpIsReady, setMpIsReady] = useState(false);
-      const [mpCountdown, setMpCountdown] = useState(null);
-
       const [musicVolume, setMusicVolume] = useState(() => {
         const saved = localStorage.getItem('wizard_music_vol');
         return saved !== null ? parseFloat(saved) : 0.5;
@@ -860,39 +851,6 @@
       });
 
       const [victoryData, setVictoryData] = useState(null);
-
-      useEffect(() => {
-        let interval = null;
-        if (mpCountdown !== null) {
-          if (mpCountdown <= 0) {
-            setMpCountdown(null);
-            setPlayerCount(mpSettings.playerCount);
-            setMaxRounds(mpSettings.maxRounds);
-            setDifficulty(mpSettings.difficulty);
-            setScreen('game');
-            startNewGame();
-            return;
-          }
-          interval = setInterval(() => {
-            setMpCountdown(prev => (prev !== null ? prev - 1 : null));
-          }, 1000);
-        }
-        return () => clearInterval(interval);
-      }, [mpCountdown]);
-
-      // Multiplayer Lobby Einstellungen
-      const [mpSettings, setMpSettings] = useState({
-        playerCount: 3,
-        maxRounds: 5,
-        difficulty: 'Leicht'
-      });
-
-      useEffect(() => {
-        const options = getRoundOptionsForPlayers(mpSettings.playerCount);
-        if (!options.includes(mpSettings.maxRounds)) {
-          setMpSettings(prev => ({ ...prev, maxRounds: options[0] }));
-        }
-      }, [mpSettings.playerCount]);
 
       useEffect(() => {
         const currentContext = victoryData ? 'victory' : (screen === 'game' ? 'game' : 'menu');
@@ -938,10 +896,8 @@
             green: { level: 1, xp: 0 },
             yellow: { level: 1, xp: 0 }
           },
-          offlinePlayed: 3,
-          offlineWins: 0,
-          onlinePlayed: 0,
-          onlineWins: 0
+          offlinePlayed: 0,
+          offlineWins: 0
         };
         if (!saved) return defaultProf;
         const parsed = JSON.parse(saved);
@@ -957,9 +913,7 @@
           selectedAvatar: parsed.selectedAvatar || defaultProf.selectedAvatar,
           activeSuit: (parsed.activeSuit === 'wizard' ? 'yellow' : parsed.activeSuit) || defaultProf.activeSuit,
           offlinePlayed: parsed.offlinePlayed ?? 0,
-          offlineWins: parsed.offlineWins ?? 0,
-          onlinePlayed: parsed.onlinePlayed ?? 0,
-          onlineWins: parsed.onlineWins ?? 0
+          offlineWins: parsed.offlineWins ?? 0
         };
       });
 
@@ -1529,11 +1483,7 @@
         setVictoryData(null);
         setShowExitConfirm(false);
         setShowVolumePopup(false);
-        if (mpSubScreen === 'room') {
-          setScreen('multiplayer');
-        } else {
-          setScreen('menu');
-        }
+        setScreen('menu');
       };
 
       const renderAvatarIcon = (avatarObj, sizeClass = "w-16 h-16 text-2xl") => {
@@ -1743,13 +1693,6 @@
                 Spiel starten
               </button>
 
-              <button
-                onClick={() => { handleUserInteraction(); setScreen('multiplayer'); setMpSubScreen('menu'); }}
-                className="w-full py-3.5 rounded-2xl mythic-btn-menu text-sky-200 font-bold text-base active:scale-95 transition-transform flex items-center justify-center shadow-xl"
-              >
-                Online-Lobby
-              </button>
-
               <div className="flex gap-2">
                 <button
                   onClick={() => { handleUserInteraction(); setScreen('profile'); }}
@@ -1773,7 +1716,7 @@
               </button>
 
               <span className="text-[9px] text-center text-slate-300 font-bold block mt-2 drop-shadow bg-slate-950/70 py-1 rounded-full backdrop-blur-md border border-sky-500/30">
-                Mythos Card Game by CandymanStick
+                Mythos Card Game by CandymanStick (Singleplayer Edition)
               </span>
             </div>
           </div>
@@ -1837,7 +1780,7 @@
 
             <div className="p-4 flex-1 flex flex-col gap-3 overflow-y-auto">
               <div className="flex justify-between items-center mb-1">
-                <h2 className="text-lg font-black text-sky-300">Einzelspiel</h2>
+                <h2 className="text-lg font-black text-sky-300">Einzelspiel (Gegen KI)</h2>
                 <button onClick={() => setScreen('menu')} className="text-xs bg-slate-900 border border-slate-800 text-sky-300 px-3 py-1.5 rounded-lg font-bold">Zurück</button>
               </div>
 
@@ -1905,11 +1848,6 @@
         const offWins = profile.offlineWins || 0;
         const offLosses = Math.max(0, offPlayed - offWins);
         const offWinrate = offPlayed > 0 ? Math.round((offWins / offPlayed) * 100) : 0;
-
-        const onPlayed = profile.onlinePlayed || 0;
-        const onWins = profile.onlineWins || 0;
-        const onLosses = Math.max(0, onPlayed - onWins);
-        const onWinrate = onPlayed > 0 ? Math.round((onWins / onPlayed) * 100) : 0;
 
         const activeSuitKey = profile.activeSuit || 'yellow';
         
@@ -2064,23 +2002,13 @@
 
               <div className="w-full bg-slate-900/90 border border-slate-800 p-3 rounded-xl text-left space-y-1.5 text-xs shadow-inner">
                 <div className="font-extrabold text-sky-300 border-b border-slate-800 pb-1 flex justify-between items-center">
-                  <span>Offline-Duelle (KI)</span>
+                  <span>Einzelspiel-Statistiken (KI)</span>
                   <span className="text-[10px] text-slate-400 font-normal">Siegquote: {offWinrate}%</span>
                 </div>
                 <div className="flex justify-between"><span className="text-slate-400">Gespielte Matches:</span><span className="font-bold text-sky-200">{offPlayed}</span></div>
                 <div className="flex justify-between"><span className="text-slate-400">Siege:</span><span className="font-bold text-emerald-400">{offWins}</span></div>
                 <div className="flex justify-between"><span className="text-slate-400">Niederlagen:</span><span className="font-bold text-red-400">{offLosses}</span></div>
               </div>
-
-              <div className="w-full bg-purple-950/30 border border-purple-500/20 p-3 rounded-xl text-left space-y-1.5 text-xs shadow-inner">
-                <div className="font-extrabold text-purple-300 border-b border-purple-500/20 pb-1 flex justify-between items-center">
-                  <span>Online-Duelle</span>
-                  <span className="text-[10px] text-purple-400 font-normal">Siegquote: {onWinrate}%</span>
-                </div>
-                <div className="flex justify-between"><span className="text-slate-400">Gespielte Matches:</span><span className="font-bold text-purple-200">{onPlayed}</span></div>
-                <div className="flex justify-between"><span className="text-slate-400">Siege:</span><span className="font-bold text-emerald-400">{onWins}</span></div>
-                <div className="flex justify-between"><span className="text-slate-400">Niederlagen:</span><span className="font-bold text-red-400">{offLosses}</span></div>
-              </div>
             </div>
 
             <div className="h-4"></div>
@@ -2088,249 +2016,7 @@
         );
       }
 
-      // ---------------- 4. ONLINE-LOBBY ----------------
-      if (screen === 'multiplayer') {
-        const currentRoundOptions = getRoundOptionsForPlayers(mpSettings.playerCount);
-
-        return (
-          <div onClick={handleUserInteraction} className="flex flex-col h-[100dvh] max-w-md mx-auto p-4 justify-between bg-slate-950 overflow-y-auto menu-scroll-container">
-            <div className="flex justify-between items-center mb-2">
-              <h2 className="text-xl font-black text-sky-300">Online-Lobby</h2>
-              <button onClick={() => setScreen('menu')} className="text-xs bg-slate-900 border border-slate-800 text-sky-300 px-3 py-1.5 rounded-lg font-bold">Zurück</button>
-            </div>
-
-            {mpSubScreen === 'menu' && (
-              <div className="space-y-4 my-auto">
-                <div className="mythic-card p-5 rounded-2xl text-center space-y-4 shadow-2xl">
-                  <h3 className="font-bold text-sky-200 text-sm">Spiele mit Freunden</h3>
-                  <p className="text-xs text-slate-400 leading-relaxed">Erstelle einen privaten Raum mit Code oder tritt einem bestehenden Spiel bei.</p>
-                  
-                  <div className="space-y-2 pt-2">
-                    <button
-                      onClick={() => {
-                        const randomCode = Math.floor(1000 + Math.random() * 9000).toString();
-                        setMpRoomCode(randomCode);
-                        setMpIsHost(true);
-                        setMpIsReady(false);
-                        setMpPlayersInRoom([
-                          { name: profile.name, avatarObj: profile.selectedAvatar, isHost: true, isReady: false }
-                        ]);
-                        setMpSubScreen('room');
-                      }}
-                      className="w-full py-3.5 rounded-xl mythic-btn-primary text-white font-black text-sm active:scale-95 transition-transform shadow-lg"
-                    >
-                      Raum erstellen
-                    </button>
-
-                    <button
-                      onClick={() => setMpSubScreen('join')}
-                      className="w-full py-3.5 rounded-xl mythic-btn-menu text-sky-200 font-bold text-sm active:scale-95 transition-transform shadow-lg"
-                    >
-                      Raum beitreten
-                    </button>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {mpSubScreen === 'join' && (
-              <div className="space-y-4 my-auto">
-                <div className="mythic-card p-5 rounded-2xl space-y-4 shadow-2xl">
-                  <h3 className="font-bold text-sky-200 text-sm text-center">Raum-Code eingeben</h3>
-                  <p className="text-[11px] text-slate-400 text-center">Tippe den 4-stelligen Code ein, den dir dein Freund geschickt hat.</p>
-                  
-                  <input
-                    type="text"
-                    maxLength={4}
-                    value={mpRoomCodeInput}
-                    onChange={(e) => setMpRoomCodeInput(e.target.value)}
-                    placeholder="z.B. 4821"
-                    className="w-full bg-slate-900 border border-sky-400 text-sky-100 p-3 rounded-xl text-center font-black text-xl tracking-widest focus:outline-none"
-                  />
-
-                  <div className="flex gap-2 pt-2">
-                    <button
-                      onClick={() => setMpSubScreen('menu')}
-                      className="flex-1 py-3 bg-slate-800 text-slate-300 text-xs font-bold rounded-xl"
-                    >
-                      Abbrechen
-                    </button>
-                    <button
-                      onClick={() => {
-                        if (mpRoomCodeInput.trim().length === 4) {
-                          setMpRoomCode(mpRoomCodeInput.trim());
-                          setMpIsHost(false);
-                          setMpIsReady(false);
-                          setMpPlayersInRoom([
-                            { name: 'Host (Freund)', avatarObj: { type: 'jester', suit: 'yellow' }, isHost: true, isReady: false },
-                            { name: profile.name, avatarObj: profile.selectedAvatar, isHost: false, isReady: false }
-                          ]);
-                          setMpSubScreen('room');
-                        }
-                      }}
-                      className="flex-1 py-3 mythic-btn-primary text-white text-xs font-bold rounded-xl shadow-lg"
-                    >
-                      Beitreten
-                    </button>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {mpSubScreen === 'room' && (
-              <div className="space-y-3 my-auto">
-                <div className="mythic-card p-4 rounded-2xl space-y-3 shadow-2xl">
-                  <div className="flex justify-between items-center border-b border-sky-500/30 pb-2">
-                    <div>
-                      <span className="text-[10px] text-slate-400 block">Raum-Code</span>
-                      <span className="text-base font-black text-amber-400 tracking-widest">{mpRoomCode}</span>
-                    </div>
-                    <button
-                      onClick={() => {
-                        navigator.clipboard?.writeText(mpRoomCode);
-                        alert(`Raum-Code ${mpRoomCode} kopiert!`);
-                      }}
-                      className="text-[10px] bg-slate-900 border border-sky-500/30 text-sky-300 px-2.5 py-1 rounded-lg font-bold"
-                    >
-                      Code kopieren
-                    </button>
-                  </div>
-
-                  {/* SPIELER IM RAUM */}
-                  <div className="space-y-1.5">
-                    <span className="text-[11px] font-bold text-sky-300 block">Spieler im Raum ({mpPlayersInRoom.length} / {mpSettings.playerCount}):</span>
-                    <div className="space-y-1.5 max-h-36 overflow-y-auto menu-scroll-container">
-                      {mpPlayersInRoom.map((p, idx) => (
-                        <div key={idx} className="p-2 rounded-xl bg-slate-900 border border-slate-800 flex justify-between items-center text-xs">
-                          <div className="flex items-center gap-2">
-                            <div className="scale-75 origin-left">
-                              {renderAvatarIcon(p.avatarObj, "w-8 h-8 text-xs")}
-                            </div>
-                            <div>
-                              <div className="font-bold text-sky-200">{p.name} {p.isHost && <span className="text-[9px] text-amber-400 bg-amber-950 px-1.5 py-0.2 rounded-full border border-amber-500/30 ml-1">Host</span>}</div>
-                            </div>
-                          </div>
-                          <div>
-                            <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${p.isReady ? 'bg-emerald-950 border-emerald-500 text-emerald-300' : 'bg-slate-950 border-slate-800 text-slate-400'}`}>
-                              {p.isReady ? 'Bereit' : 'Wartet...'}
-                            </span>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* EINSTELLUNGEN */}
-                  <div className="bg-slate-900/90 border border-slate-800 p-3 rounded-xl space-y-2">
-                    <div className="text-[11px] font-bold text-sky-300 flex justify-between items-center">
-                      <span>Duell-Einstellungen</span>
-                      {!mpIsHost && <span className="text-[9px] text-slate-400">(Vom Host gesteuert)</span>}
-                    </div>
-
-                    <div className="space-y-2 text-xs">
-                      <div>
-                        <span className="text-[10px] text-slate-400 block mb-1">Spieleranzahl (Rest wird mit KI aufgefüllt):</span>
-                        {mpIsHost ? (
-                          <div className="grid grid-cols-4 gap-1.5">
-                            {[3, 4, 5, 6].map(num => (
-                              <button
-                                key={num}
-                                onClick={() => setMpSettings(prev => ({ ...prev, playerCount: num }))}
-                                className={`py-1.5 rounded-lg font-bold text-xs crystal-btn ${mpSettings.playerCount === num ? 'crystal-active text-white' : 'bg-slate-950 text-slate-400'}`}
-                              >
-                                {num} P.
-                              </button>
-                            ))}
-                          </div>
-                        ) : (
-                          <div className="font-bold text-sky-200 bg-slate-950 p-1.5 rounded-lg border border-slate-800">{mpSettings.playerCount} Spieler</div>
-                        )}
-                      </div>
-
-                      <div>
-                        <span className="text-[10px] text-slate-400 block mb-1">Rundenanzahl:</span>
-                        {mpIsHost ? (
-                          <div className="grid grid-cols-4 gap-1.5">
-                            {currentRoundOptions.map(r => (
-                              <button
-                                key={r}
-                                onClick={() => setMpSettings(prev => ({ ...prev, maxRounds: r }))}
-                                className={`py-1.5 rounded-lg font-bold text-xs crystal-btn ${mpSettings.maxRounds === r ? 'crystal-active text-white' : 'bg-slate-950 text-slate-400'}`}
-                              >
-                                {r} R.
-                              </button>
-                            ))}
-                          </div>
-                        ) : (
-                          <div className="font-bold text-sky-200 bg-slate-950 p-1.5 rounded-lg border border-slate-800">{mpSettings.maxRounds} Runden</div>
-                        )}
-                      </div>
-
-                      <div>
-                        <span className="text-[10px] text-slate-400 block mb-1">KI-Schwierigkeit:</span>
-                        {mpIsHost ? (
-                          <div className="grid grid-cols-3 gap-1.5">
-                            {['Leicht', 'Normal', 'Magisch'].map(diff => (
-                              <button
-                                key={diff}
-                                onClick={() => setMpSettings(prev => ({ ...prev, difficulty: diff }))}
-                                className={`py-1.5 rounded-lg font-bold text-xs crystal-btn ${mpSettings.difficulty === diff ? 'crystal-active text-white' : 'bg-slate-950 text-slate-400'}`}
-                              >
-                                {diff}
-                              </button>
-                            ))}
-                          </div>
-                        ) : (
-                          <div className="font-bold text-sky-200 bg-slate-950 p-1.5 rounded-lg border border-slate-800">{mpSettings.difficulty}</div>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* BEREIT-BUTTON & COUNTDOWN */}
-                  <div className="space-y-2 pt-1">
-                    {mpCountdown !== null && (
-                      <div className="bg-amber-950/90 border border-amber-500/50 p-2.5 rounded-xl text-center text-xs font-black text-amber-300 animate-pulse">
-                        Spiel startet in {mpCountdown} Sekunden! (Klicke zum Abbrechen)
-                      </div>
-                    )}
-
-                    <div className="flex gap-2">
-                      <button
-                        onClick={() => setMpSubScreen('menu')}
-                        className="flex-1 py-3 bg-red-950/80 border border-red-500/50 text-red-200 font-bold text-xs rounded-xl"
-                      >
-                        Raum verlassen
-                      </button>
-
-                      <button
-                        onClick={() => {
-                          const nextReady = !mpIsReady;
-                          setMpIsReady(nextReady);
-                          setMpPlayersInRoom(prev => prev.map(p => p.isHost === mpIsHost ? { ...p, isReady: nextReady } : p));
-                          
-                          if (nextReady) {
-                            setMpCountdown(30);
-                          } else {
-                            setMpCountdown(null);
-                          }
-                        }}
-                        className={`flex-1 py-3 font-black text-xs rounded-xl shadow-lg transition-all ${mpIsReady ? 'bg-amber-950 border border-amber-500 text-amber-300' : 'mythic-btn-primary text-white'}`}
-                      >
-                        {mpIsReady ? 'Nicht bereit' : 'Bereit!'}
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            <div className="h-4"></div>
-          </div>
-        );
-      }
-
-      // ---------------- 5. REGELN ----------------
+      // ---------------- 4. REGELN ----------------
       if (screen === 'rules') {
         return (
           <div onClick={handleUserInteraction} className="flex flex-col h-[100dvh] max-w-md mx-auto p-4 justify-between bg-slate-950 overflow-y-auto menu-scroll-container">
@@ -2369,7 +2055,7 @@
                 <p>Jedes der 4 Elemente (<span className="text-amber-400">Wind</span>, <span className="text-red-400">Feuer</span>, <span className="text-emerald-400">Diamanten</span>, <span className="text-sky-400">Wasser</span>) besitzt einen eigenen Erfahrungspfad von Level 1 bis 15.</p>
                 <ul className="list-disc pl-4 space-y-1 text-slate-200">
                   <li><strong className="text-sky-300">Avatare freischalten:</strong> Auf niedrigen Leveln schaltest du Narren- und Zahlenkarten-Avatare frei. Erreichst du das <strong className="text-amber-300">Maximum von Level 15</strong> in einem Element, winkt dir als ultimative Belohnung der legendäre Zauberer-Avatar dieses Elements!</li>
-                  <li><strong className="text-sky-300">Erfahrung (XP) sammeln:</strong> Spiele Duelle im Einzelspiel-Modus. **Siege** bringen dir saftige Erfahrungspunkte für dein globales Level und dein aktives Element. Bei **Niederlagen** erhältst du einen kleinen Trostpreis.</li>
+                  <li><strong className="text-sky-300">Erfahrung (XP) sammeln:</strong> Spiele Duelle im Einzelspiel-Modus gegen die KI. **Siege** bringen dir saftige Erfahrungspunkte für dein globales Level und dein aktives Element. Bei **Niederlagen** erhältst du einen kleinen Trostpreis.</li>
                   <li><strong className="text-sky-300">Skalierung:</strong> Je mehr Gegner (bis zu 6 Spieler), je mehr Runden und je höher die Schwierigkeit (*Normal* oder *Magisch*), desto höher fällt dein XP-Bonus aus!</li>
                 </ul>
               </div>
@@ -2380,7 +2066,7 @@
         );
       }
 
-      // ---------------- 6. SPIELFELD ----------------
+      // ---------------- 5. SPIELFELD ----------------
       const humanPlayer = players[0] || {};
       const isHumanTurn = (turn === 0);
       const handCardCount = humanPlayer.hand ? humanPlayer.hand.length : 0;
@@ -2548,7 +2234,7 @@
                           proceedToNextRoundAfterSummary(calculated, roundSummary.nextStarterId, roundSummary.round);
                         }
                       }} className="w-full py-2.5 mythic-btn-primary text-white font-black text-xs rounded-xl shadow-xl active:scale-95 transition-transform flex items-center justify-center gap-2">
-                        <span>{roundSummary.isLastRound ? 'Zum Endergebnis' : 'Nächste Runde starten'}</span>
+                        <span>{roundSummary.isLastRound ? 'Zum Ergebnis' : 'Nächste Runde starten'}</span>
                         <span className="bg-sky-950/90 border border-sky-400/60 px-2 py-0.5 rounded-md text-[11px] font-bold text-amber-300">{summaryTimer}s</span>
                       </button>
                       <span className="text-[10px] text-slate-400 font-bold">Automatisch weiter in {summaryTimer} Sekunden</span>
